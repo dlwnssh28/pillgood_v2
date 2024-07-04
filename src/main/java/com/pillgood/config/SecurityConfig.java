@@ -50,14 +50,14 @@ public class SecurityConfig implements WebMvcConfigurer {
                 )
                 .formLogin(formLogin -> formLogin
                         .loginPage("/api/members/login")
-                        .loginProcessingUrl("/api/members/login")
+                        .loginProcessingUrl("/login")
                         .successHandler(successHandler)
                         .permitAll()
                         .defaultSuccessUrl("/", true)
                         .failureUrl("/login?error=true")
                 )
                 .sessionManagement(session -> session
-                        .invalidSessionUrl("/members/login")
+                        .invalidSessionUrl("/api/members/login")
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
