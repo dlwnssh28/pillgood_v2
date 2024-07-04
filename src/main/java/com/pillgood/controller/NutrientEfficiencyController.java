@@ -12,7 +12,7 @@ import com.pillgood.service.NutrientEfficiencyService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/admin/nutrientefficiencies")
+@RequestMapping("/nutrientefficiencies")
 @RequiredArgsConstructor
 public class NutrientEfficiencyController {
 

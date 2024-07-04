@@ -9,33 +9,32 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/detailed-questions/admin")
 @RequiredArgsConstructor
 public class DetailedQuestionController {
 
     private final DetailedQuestionService detailedQuestionService;
 
-    @PostMapping("/create")
+    @PostMapping("/admin/detailed-questions/create")
     public DetailedQuestionDto createDetailedQuestion(@RequestBody DetailedQuestionDto detailedQuestionDto) {
         return detailedQuestionService.createDetailedQuestion(detailedQuestionDto);
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/detailed-questions/find/{id}")
     public Optional<DetailedQuestionDto> getDetailedQuestionById(@PathVariable int id) {
         return detailedQuestionService.getDetailedQuestionById(id);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/detailed-questions/list")
     public List<DetailedQuestionDto> getAllDetailedQuestions() {
         return detailedQuestionService.getAllDetailedQuestions();
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/admin/detailed-questions/update/{id}")
     public Optional<DetailedQuestionDto> updateDetailedQuestion(@PathVariable int id, @RequestBody DetailedQuestionDto detailedQuestionDto) {
         return detailedQuestionService.updateDetailedQuestion(id, detailedQuestionDto);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/admin/detailed-questions/delete/{id}")
     public boolean deleteDetailedQuestion(@PathVariable int id) {
         return detailedQuestionService.deleteDetailedQuestion(id);
     }

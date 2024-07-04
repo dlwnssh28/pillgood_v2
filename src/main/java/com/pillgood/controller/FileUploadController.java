@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/admin/upload")
+@RequestMapping("/upload")
 public class FileUploadController {
 
     // 실제 업로드 경로 설정 (예: 프로젝트 루트 디렉토리의 uploads 폴더)

@@ -9,33 +9,32 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/efficiencies/admin")
 @RequiredArgsConstructor
 public class EfficiencyController {
 
     private final EfficiencyService efficiencyService;
 
-    @PostMapping("/create")
+    @PostMapping("/admin/efficiencies/create")
     public EfficiencyDto createEfficiency(@RequestBody EfficiencyDto efficiencyDto) {
         return efficiencyService.createEfficiency(efficiencyDto);
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/admin/efficiencies/find/{id}")
     public Optional<EfficiencyDto> getEfficiencyById(@PathVariable int id) {
         return efficiencyService.getEfficiencyById(id);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/admin/efficiencies/list")
     public List<EfficiencyDto> getAllEfficiencies() {
         return efficiencyService.getAllEfficiencies();
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/admin/efficiencies/update/{id}")
     public Optional<EfficiencyDto> updateEfficiency(@PathVariable int id, @RequestBody EfficiencyDto efficiencyDto) {
         return efficiencyService.updateEfficiency(id, efficiencyDto);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/admin/efficiencies/delete/{id}")
     public boolean deleteEfficiency(@PathVariable int id) {
         return efficiencyService.deleteEfficiency(id);
     }

@@ -10,21 +10,20 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/deficiencies/admin")
 @RequiredArgsConstructor
 public class DeficiencyController {
 
     private final DeficiencyService deficiencyService;
 
     // 새로운 부족 생성 폼
-    @GetMapping("/create")
+    @GetMapping("/admin/deficiencies/create")
     public String deficiencyForm(Model model) {
         model.addAttribute("deficiencyDto", new DeficiencyDto());
         return "deficiencyForm";
     }
 
     // 새로운 부족 생성
-    @PostMapping("/create")
+    @PostMapping("/admin/deficiencies/create")
     public String createDeficiency(@RequestBody DeficiencyDto deficiencyDto, Model model) {
         DeficiencyDto createdDeficiency = deficiencyService.createDeficiency(deficiencyDto);
         model.addAttribute("deficiencyDto", createdDeficiency);
@@ -32,7 +31,7 @@ public class DeficiencyController {
     }
 
     // ID로 부족 조회
-    @GetMapping("/find/{id}")
+    @GetMapping("/admin/deficiencies/find/{id}")
     public String getDeficiencyById(@PathVariable int id, Model model) {
         Optional<DeficiencyDto> deficiencyDto = deficiencyService.getDeficiencyById(id);
         if (deficiencyDto.isPresent()) {
@@ -44,7 +43,7 @@ public class DeficiencyController {
     }
 
     // 모든 부족 조회
-    @GetMapping("/list")
+    @GetMapping("/admin/deficiencies/list")
     public String getAllDeficiencies(Model model) {
         List<DeficiencyDto> deficiencies = deficiencyService.getAllDeficiencies();
         model.addAttribute("deficiencies", deficiencies);
@@ -52,7 +51,7 @@ public class DeficiencyController {
     }
 
     // 부족 수정 폼
-    @GetMapping("/update/{id}")
+    @GetMapping("/admin/deficiencies/update/{id}")
     public String updateDeficiency(@PathVariable int id, Model model) {
         Optional<DeficiencyDto> deficiencyDto = deficiencyService.getDeficiencyById(id);
         if (deficiencyDto.isPresent()) {
@@ -64,7 +63,7 @@ public class DeficiencyController {
     }
 
     // 부족 수정
-    @PutMapping("/update/{id}")
+    @PutMapping("/admin/deficiencies/update/{id}")
     public String updateDeficiency(@PathVariable int id, @RequestBody DeficiencyDto deficiencyDto, Model model) {
         Optional<DeficiencyDto> updatedDeficiency = deficiencyService.updateDeficiency(id, deficiencyDto);
         if (updatedDeficiency.isPresent()) {
@@ -76,7 +75,7 @@ public class DeficiencyController {
     }
 
     // 부족 삭제
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/admin/deficiencies/delete/{id}")
     public void deleteDeficiency(@PathVariable int id) {
         boolean deleted = deficiencyService.deleteDeficiency(id);
         if (!deleted) {

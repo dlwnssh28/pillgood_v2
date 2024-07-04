@@ -17,18 +17,17 @@ import com.pillgood.dto.AnswerDto;
 import com.pillgood.service.AnswerService;
 
 @RestController
-@RequestMapping("/answers")
 public class AnswerController {
 
     @Autowired
     private AnswerService answerService;
 
-    @GetMapping("/list")
+    @GetMapping("/answers/list")
     public List<AnswerDto> getAllAnswers() {
         return answerService.getAllAnswers();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/admin/answers/{id}")
     public ResponseEntity<AnswerDto> getAnswerById(@PathVariable int id) {
         AnswerDto answerDto = answerService.getAnswerById(id);
         if (answerDto != null) {
@@ -38,13 +37,13 @@ public class AnswerController {
         }
     }
 
-    @PostMapping("/create")
+    @PostMapping("/admin/answers/create")
     public ResponseEntity<AnswerDto> createAnswer(@RequestBody AnswerDto answerDto) {
         AnswerDto createdAnswer = answerService.createAnswer(answerDto);
         return ResponseEntity.ok(createdAnswer);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/admin/answers/update/{id}")
     public ResponseEntity<AnswerDto> updateAnswer(@PathVariable int id, @RequestBody AnswerDto answerDto) {
         AnswerDto updatedAnswer = answerService.updateAnswer(id, answerDto);
         if (updatedAnswer != null) {
@@ -54,7 +53,7 @@ public class AnswerController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/admin/answers/delete/{id}")
     public ResponseEntity<Void> deleteAnswer(@PathVariable int id) {
         answerService.deleteAnswer(id);
         return ResponseEntity.noContent().build();

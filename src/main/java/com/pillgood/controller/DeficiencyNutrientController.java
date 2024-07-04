@@ -10,36 +10,35 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/deficiency-nutrients/admin")
 @RequiredArgsConstructor
 public class DeficiencyNutrientController {
 
     private final DeficiencyNutrientService deficiencyNutrientService;
 
-    @GetMapping("/create")
+    @GetMapping("/admin/deficiency-nutrients/create")
     public String deficiencyNutrientForm(Model model) {
         model.addAttribute("deficiencyNutrientDto", new DeficiencyNutrientDto());
         return "deficiencyNutrientForm";
     }
 
-    @PostMapping("/create")
+    @PostMapping("/admin/deficiency-nutrients/create")
     public Optional<DeficiencyNutrientDto> createDeficiencyNutrient(@RequestBody DeficiencyNutrientDto dto) {
         return deficiencyNutrientService.createDeficiencyNutrient(dto);
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/admin/deficiency-nutrients/find/{id}")
     public Optional<DeficiencyNutrientDto> getDeficiencyNutrientById(@PathVariable int id) {
         return deficiencyNutrientService.getDeficiencyNutrientById(id);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/admin/deficiency-nutrients/list")
     public String getAllDeficiencyNutrients(Model model) {
         List<DeficiencyNutrientDto> deficiencyNutrients = deficiencyNutrientService.getAllDeficiencyNutrients();
         model.addAttribute("deficiencyNutrients", deficiencyNutrients);
         return "deficiencyNutrients";
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/admin/deficiency-nutrients/delete/{id}")
     public void deleteDeficiencyNutrient(@PathVariable int id) {
         boolean deleted = deficiencyNutrientService.deleteDeficiencyNutrient(id);
         if (!deleted) {
