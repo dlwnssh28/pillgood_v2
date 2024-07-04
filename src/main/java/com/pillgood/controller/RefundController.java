@@ -17,18 +17,17 @@ import com.pillgood.dto.RefundDto;
 import com.pillgood.service.RefundService;
 
 @RestController
-@RequestMapping("/refunds")
 public class RefundController {
 
     @Autowired
     private RefundService refundService;
 
-    @GetMapping("/list")
+    @GetMapping("/api/refunds/list")
     public List<RefundDto> getAllRefunds() {
         return refundService.getAllRefunds();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/refunds/{id}")
     public ResponseEntity<RefundDto> getRefundById(@PathVariable int id) {
         RefundDto refundDto = refundService.getRefundById(id);
         if (refundDto != null) {
@@ -38,13 +37,13 @@ public class RefundController {
         }
     }
 
-    @PostMapping("/create")
+    @PostMapping("/api/refunds/create")
     public ResponseEntity<RefundDto> createRefund(@RequestBody RefundDto refundDto) {
         RefundDto createdRefund = refundService.createRefund(refundDto);
         return ResponseEntity.ok(createdRefund);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/api/refunds/update/{id}")
     public ResponseEntity<RefundDto> updateRefund(@PathVariable int id, @RequestBody RefundDto refundDto) {
         RefundDto updatedRefund = refundService.updateRefund(id, refundDto);
         if (updatedRefund != null) {
@@ -54,7 +53,7 @@ public class RefundController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/api/refunds/delete/{id}")
     public ResponseEntity<Void> deleteRefund(@PathVariable int id) {
         refundService.deleteRefund(id);
         return ResponseEntity.noContent().build();

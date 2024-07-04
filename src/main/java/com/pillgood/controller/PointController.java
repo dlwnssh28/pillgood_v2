@@ -21,17 +21,16 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/points")
 public class PointController {
 
     private final PointService pointService;
 
-    @GetMapping("/list")
+    @GetMapping("/api/points/list")
     public List<PointDto> getAllPoints() {
         return pointService.getAllPoints();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/points/{id}")
     public ResponseEntity<PointDto> getPointById(@PathVariable int id) {
         Optional<PointDto> pointDto = pointService.getPointById(id);
         return pointDto
@@ -39,13 +38,13 @@ public class PointController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping("/create")
+    @PostMapping("/api/points/create")
     public ResponseEntity<PointDto> createPoint(@RequestBody PointDto pointDto) {
         PointDto createdPointDto = pointService.createPoint(pointDto);
         return new ResponseEntity<>(createdPointDto, HttpStatus.CREATED);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/api/points/update/{id}")
     public ResponseEntity<PointDto> updatePoint(@PathVariable int id, @RequestBody PointDto updatedPointDto) {
         Optional<PointDto> pointDto = pointService.updatePoint(id, updatedPointDto);
         return pointDto
@@ -53,7 +52,7 @@ public class PointController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/api/points/delete/{id}")
     public ResponseEntity<Void> deletePoint(@PathVariable int id) {
         boolean deleted = pointService.deletePoint(id);
         return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);

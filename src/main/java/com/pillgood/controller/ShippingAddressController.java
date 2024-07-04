@@ -16,17 +16,16 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/shipping-addresses")
 public class ShippingAddressController {
 
     private final ShippingAddressService shippingAddressService;
 
-    @GetMapping("/list")
+    @GetMapping("/api/shipping-addresses/list")
     public List<ShippingAddressDto> getAllShippingAddresses() {
         return shippingAddressService.getAllShippingAddresses();
     }
     
-    @GetMapping("/findbyid")
+    @GetMapping("/api/shipping-addresses/findbyid")
     public ResponseEntity<?> getAddressesFindById(HttpSession session) {
         String memberId = (String) session.getAttribute("memberId");
         
@@ -44,7 +43,7 @@ public class ShippingAddressController {
         return new ResponseEntity<>(addresses, HttpStatus.OK);
     }
 
-    @PostMapping("/create")
+    @PostMapping("/api/shipping-addresses/create")
     public ResponseEntity<ShippingAddressDto> createShippingAddress(HttpSession session, @RequestBody ShippingAddressDto shippingAddressDTO) {
     	String memberId = (String) session.getAttribute("memberId");
     	if (memberId == null) {
@@ -55,7 +54,7 @@ public class ShippingAddressController {
         return new ResponseEntity<>(createdShippingAddressDTO, HttpStatus.CREATED);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/api/shipping-addresses/update/{id}")
     public ResponseEntity<ShippingAddressDto> updateShippingAddress(@PathVariable int id, @RequestBody ShippingAddressDto updatedShippingAddressDTO) {
         Optional<ShippingAddressDto> shippingAddressDTO = shippingAddressService.updateShippingAddress(id, updatedShippingAddressDTO);
         return shippingAddressDTO
@@ -63,7 +62,7 @@ public class ShippingAddressController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/api/shipping-addresses/delete/{id}")
     public ResponseEntity<Void> deleteShippingAddress(@PathVariable int id) {
         boolean deleted = shippingAddressService.deleteShippingAddress(id);
         return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);

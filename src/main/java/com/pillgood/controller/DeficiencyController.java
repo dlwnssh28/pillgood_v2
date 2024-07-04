@@ -31,7 +31,7 @@ public class DeficiencyController {
     }
 
     // ID로 부족 조회
-    @GetMapping("/admin/deficiencies/find/{id}")
+    @GetMapping("/api/deficiencies/find/{id}")
     public String getDeficiencyById(@PathVariable int id, Model model) {
         Optional<DeficiencyDto> deficiencyDto = deficiencyService.getDeficiencyById(id);
         if (deficiencyDto.isPresent()) {
@@ -43,7 +43,7 @@ public class DeficiencyController {
     }
 
     // 모든 부족 조회
-    @GetMapping("/admin/deficiencies/list")
+    @GetMapping("/api/deficiencies/list")
     public String getAllDeficiencies(Model model) {
         List<DeficiencyDto> deficiencies = deficiencyService.getAllDeficiencies();
         model.addAttribute("deficiencies", deficiencies);

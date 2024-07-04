@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
 public class OrderController {
 
     @Autowired
@@ -24,7 +23,7 @@ public class OrderController {
         return orderService.getAllOrders();
     }
 
-    @GetMapping("/{orderNo}")
+    @GetMapping("/api/orders/{orderNo}")
     public ResponseEntity<OrderDto> getOrderById(@PathVariable String orderNo) {
         OrderDto orderDto = orderService.getOrderById(orderNo);
         if (orderDto != null) {
@@ -34,7 +33,7 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/create")
+    @PostMapping("/api/orders/create")
     public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto, HttpSession session) {
         String memberId = (String) session.getAttribute("memberId");
         if (memberId == null) {
@@ -45,7 +44,7 @@ public class OrderController {
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
 
-    @PutMapping("/update/{orderNo}")
+    @PutMapping("/api/orders/update/{orderNo}")
     public ResponseEntity<OrderDto> updateOrder(@PathVariable String orderNo, @RequestBody OrderDto orderDto) {
         OrderDto updatedOrder = orderService.updateOrder(orderNo, orderDto);
         if (updatedOrder != null) {
@@ -55,7 +54,7 @@ public class OrderController {
         }
     }
 
-    @DeleteMapping("/delete/{orderNo}")
+    @DeleteMapping("/admin/orders/delete/{orderNo}")
     public ResponseEntity<Void> deleteOrder(@PathVariable String orderNo) {
         orderService.deleteOrder(orderNo);
         return ResponseEntity.noContent().build();

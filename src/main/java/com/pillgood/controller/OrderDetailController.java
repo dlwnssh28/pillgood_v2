@@ -9,18 +9,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/order-details")
 public class OrderDetailController {
 
     @Autowired
     private OrderDetailService orderDetailService;
 
-    @GetMapping
+    @GetMapping("/api/order-details/list")
     public List<OrderDetailDto> getAllOrderDetails() {
         return orderDetailService.getAllOrderDetails();
     }
 
-    @GetMapping("/{orderDetailNo}")
+    @GetMapping("/api/order-details/{orderDetailNo}")
     public ResponseEntity<OrderDetailDto> getOrderDetailById(@PathVariable int orderDetailNo) {
         OrderDetailDto orderDetailDto = orderDetailService.getOrderDetailById(orderDetailNo);
         if (orderDetailDto != null) {
@@ -30,13 +29,13 @@ public class OrderDetailController {
         }
     }
 
-    @PostMapping
+    @PostMapping("/api/order-details/create")
     public ResponseEntity<OrderDetailDto> createOrderDetail(@RequestBody OrderDetailDto orderDetailDto) {
         OrderDetailDto createdOrderDetail = orderDetailService.createOrderDetail(orderDetailDto);
         return ResponseEntity.ok(createdOrderDetail);
     }
 
-    @PutMapping("/{orderDetailNo}")
+    @PutMapping("/api/order-details/update/{orderDetailNo}")
     public ResponseEntity<OrderDetailDto> updateOrderDetail(@PathVariable int orderDetailNo, @RequestBody OrderDetailDto orderDetailDto) {
         OrderDetailDto updatedOrderDetail = orderDetailService.updateOrderDetail(orderDetailNo, orderDetailDto);
         if (updatedOrderDetail != null) {
@@ -46,7 +45,7 @@ public class OrderDetailController {
         }
     }
 
-    @DeleteMapping("/{orderDetailNo}")
+    @DeleteMapping("/admin/order-details/delete/{orderDetailNo}")
     public ResponseEntity<Void> deleteOrderDetail(@PathVariable int orderDetailNo) {
         orderDetailService.deleteOrderDetail(orderDetailNo);
         return ResponseEntity.noContent().build();

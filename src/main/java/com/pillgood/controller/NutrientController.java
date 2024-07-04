@@ -18,13 +18,12 @@ import com.pillgood.service.NutrientService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/admin/nutrients")
 @RequiredArgsConstructor
 public class NutrientController {
 
     private final NutrientService nutrientService;
 
-    @PostMapping("/create")
+    @PostMapping("/admin/nutrients/create")
     public NutrientDto createNutrient(@RequestBody NutrientDto nutrientDTO) {
         System.out.println("영양제 생성 시도: " + nutrientDTO);
         NutrientDto createdNutrient = nutrientService.createNutrient(nutrientDTO);
@@ -32,22 +31,22 @@ public class NutrientController {
         return createdNutrient;
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/api/nutrients/find/{id}")
     public Optional<NutrientDto> getNutrientById(@PathVariable int id) {
         return nutrientService.getNutrientById(id);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/api/nutrients/list")
     public List<NutrientDto> getAllNutrients() {
         return nutrientService.getAllNutrients();
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/admin/nutrients/update/{id}")
     public Optional<NutrientDto> updateNutrient(@PathVariable int id, @RequestBody NutrientDto nutrientDTO) {
         return nutrientService.updateNutrient(id, nutrientDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/nutrients/delete/{id}")
     public void deleteNutrient(@PathVariable int id) {
         boolean deleted = nutrientService.deleteNutrient(id);
         if (!deleted) {

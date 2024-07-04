@@ -15,13 +15,12 @@ import com.pillgood.service.PointDetailService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/pointDetail")
 @RequiredArgsConstructor
 public class PointDetailController {
 
     private final PointDetailService pointDetailService;
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/api/pointDetail/update/{id}")
     public ResponseEntity<PointDetailDto> updatePointDetail(
             @PathVariable int id,
             @RequestBody PointDetailDto pointDetailDto) {

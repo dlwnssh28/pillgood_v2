@@ -25,7 +25,7 @@ public class CouponController {
         return ResponseEntity.ok(coupons);
     }
     
-    @GetMapping("/admin/coupons/{couponId}")
+    @GetMapping("/api/coupons/{couponId}")
     public ResponseEntity<CouponDto> getCouponById(@PathVariable Integer couponId) {
         return couponService.getCouponById(couponId) 
                 .map(ResponseEntity::ok)

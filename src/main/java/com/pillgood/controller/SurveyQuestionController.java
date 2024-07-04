@@ -9,33 +9,32 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/questions")
 public class SurveyQuestionController {
 
     @Autowired
     private SurveyQuestionService surveyQuestionService;
 
-    @PostMapping("/create")
+    @PostMapping("/admin/questions/create")
     public ResponseEntity<SurveyQuestionDto> createQuestion(@RequestBody SurveyQuestionDto questionDto) {
         return ResponseEntity.ok(surveyQuestionService.createQuestion(questionDto));
     }
 
-    @GetMapping("/list")
+    @GetMapping("/api/questions/list")
     public ResponseEntity<List<SurveyQuestionDto>> getAllQuestions() {
         return ResponseEntity.ok(surveyQuestionService.getAllQuestions());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/questions/{id}")
     public ResponseEntity<SurveyQuestionDto> getQuestionById(@PathVariable int id) {
         return ResponseEntity.ok(surveyQuestionService.getQuestionById(id));
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/admin/questions/update/{id}")
     public ResponseEntity<SurveyQuestionDto> updateQuestion(@PathVariable int id, @RequestBody SurveyQuestionDto questionDto) {
         return ResponseEntity.ok(surveyQuestionService.updateQuestion(id, questionDto));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/admin/questions/delete/{id}")
     public ResponseEntity<Void> deleteQuestion(@PathVariable int id) {
         if (surveyQuestionService.deleteQuestion(id)) {
             return ResponseEntity.noContent().build();

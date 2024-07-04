@@ -16,18 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pillgood.dto.ReturnDto;
 import com.pillgood.service.ReturnService;
 @RestController
-@RequestMapping("/returns")
 public class ReturnController {
 
     @Autowired
     private ReturnService returnService;
 
-    @GetMapping("/list")
+    @GetMapping("/api/returns/list")
     public List<ReturnDto> getAllReturns() {
         return returnService.getAllReturns();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/returns/{id}")
     public ResponseEntity<ReturnDto> getReturnById(@PathVariable int id) {
         ReturnDto returnDto = returnService.getReturnById(id);
         if (returnDto != null) {
@@ -37,13 +36,13 @@ public class ReturnController {
         }
     }
 
-    @PostMapping("/create")
+    @PostMapping("/api/returns/create")
     public ResponseEntity<ReturnDto> createReturn(@RequestBody ReturnDto returnDto) {
         ReturnDto createdReturn = returnService.createReturn(returnDto);
         return ResponseEntity.ok(createdReturn);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/admin/returns/update/{id}")
     public ResponseEntity<ReturnDto> updateReturn(@PathVariable int id, @RequestBody ReturnDto returnDto) {
         ReturnDto updatedReturn = returnService.updateReturn(id, returnDto);
         if (updatedReturn != null) {
@@ -53,7 +52,7 @@ public class ReturnController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/admin/returns/delete/{id}")
     public ResponseEntity<Void> deleteReturn(@PathVariable int id) {
         returnService.deleteReturn(id);
         return ResponseEntity.noContent().build();

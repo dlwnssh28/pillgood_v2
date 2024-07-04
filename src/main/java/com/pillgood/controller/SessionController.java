@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SessionController {
 
-    @GetMapping("/checkSession")
+    @GetMapping("/api/checkSession")
     public ResponseEntity<String> checkSession(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("loggedInMember") != null) {

@@ -41,10 +41,8 @@ public class SecurityConfig implements WebMvcConfigurer {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/css/**", "/images/**", "/js/**", "/admin/**").permitAll()
-                        .requestMatchers("/**").permitAll()
-                        .requestMatchers("/admin/products/create").permitAll()
-                        .requestMatchers("/admin/upload/image").permitAll()
+                        .requestMatchers("/login", "/css/**", "/images/**", "/js/**").permitAll()
+                        .requestMatchers("/api/**", "/admin/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll() // 업로드된 파일 경로 허용
 //                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/mypage").authenticated()

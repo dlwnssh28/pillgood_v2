@@ -21,7 +21,7 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/products/list")
+    @GetMapping("/api/products/list")
     public List<ProductDto> getAllProducts() {
         return productService.getAllProducts();
     }
@@ -67,7 +67,7 @@ public class ProductController {
     }
 
     // 새로운 엔드포인트 추가
-    @GetMapping("/products/detail/{id}")
+    @GetMapping("/api/products/detail/{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable int id) {
         Optional<ProductDto> productDTO = productService.getProductById(id);
         return productDTO

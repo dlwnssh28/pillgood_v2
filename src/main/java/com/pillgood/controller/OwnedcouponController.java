@@ -14,21 +14,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ownedcoupons")
 @RequiredArgsConstructor
 public class OwnedcouponController {
 
     private final OwnedcouponService ownedcouponService;
 
-    @GetMapping("/list")
+    @GetMapping("/admin/ownedcoupons/list")
     public ResponseEntity<List<OwnedcouponDto>> getAllOwnedCoupons() {
         List<OwnedcouponDto> ownedcoupons = ownedcouponService.getAllOwnedCoupons();
         return ResponseEntity.ok(ownedcoupons);
     }
 
-    
-    @GetMapping("/findbyid")
-    public ResponseEntity<?> getCouponsFindById(HttpSession session) {
+    //접속중인 회원의 보유쿠폰 가져오기
+    @GetMapping("/api/ownedcoupons/findbyid")
+    public ResponseEntity<?> getOwnedCouponsFindByMemberId(HttpSession session) {
         String memberId = (String) session.getAttribute("memberId");
         
         if (memberId == null) {
@@ -45,34 +44,27 @@ public class OwnedcouponController {
         return new ResponseEntity<>(ownedcoupons, HttpStatus.OK);
     }
 
-
-    @GetMapping("/{ownedCouponId}")
+    @GetMapping("/api/ownedcoupons/{ownedCouponId}")
     public ResponseEntity<OwnedcouponDto> getOwnedCouponById(@PathVariable Integer ownedCouponId) {
         return ownedcouponService.getOwnedCouponById(ownedCouponId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/member/{memberUniqueId}")
-    public ResponseEntity<List<OwnedcouponDto>> getOwnedCouponsByMember(@PathVariable String memberUniqueId) {
-        List<OwnedcouponDto> ownedcoupons = ownedcouponService.getOwnedCouponsByMember(memberUniqueId);
-        return ResponseEntity.ok(ownedcoupons);
-    }
-
-    @PostMapping("/create")
+    @PostMapping("/api/ownedcoupons/create")
     public ResponseEntity<OwnedcouponDto> createOwnedCoupon(@RequestBody OwnedcouponDto ownedcouponDto) {
         OwnedcouponDto createdOwnedCoupon = ownedcouponService.createOwnedCoupon(ownedcouponDto);
         return ResponseEntity.ok(createdOwnedCoupon);
     }
 
-    @PutMapping("/update/{ownedCouponId}")
+    @PutMapping("/api/ownedcoupons/update/{ownedCouponId}")
     public ResponseEntity<OwnedcouponDto> updateOwnedCoupon(@PathVariable Integer ownedCouponId, @RequestBody OwnedcouponDto ownedcouponDto) {
         return ownedcouponService.updateOwnedCoupon(ownedCouponId, ownedcouponDto)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/delete/{ownedCouponId}")
+    @DeleteMapping("/admin/ownedcoupons/delete/{ownedCouponId}")
     public ResponseEntity<Void> deleteOwnedCoupon(@PathVariable Integer ownedCouponId) {
         if (ownedcouponService.deleteOwnedCoupon(ownedCouponId)) {
             return ResponseEntity.noContent().build();

@@ -26,12 +26,12 @@ public class DeficiencyNutrientController {
         return deficiencyNutrientService.createDeficiencyNutrient(dto);
     }
 
-    @GetMapping("/admin/deficiency-nutrients/find/{id}")
+    @GetMapping("/api/deficiency-nutrients/find/{id}")
     public Optional<DeficiencyNutrientDto> getDeficiencyNutrientById(@PathVariable int id) {
         return deficiencyNutrientService.getDeficiencyNutrientById(id);
     }
 
-    @GetMapping("/admin/deficiency-nutrients/list")
+    @GetMapping("/api/deficiency-nutrients/list")
     public String getAllDeficiencyNutrients(Model model) {
         List<DeficiencyNutrientDto> deficiencyNutrients = deficiencyNutrientService.getAllDeficiencyNutrients();
         model.addAttribute("deficiencyNutrients", deficiencyNutrients);

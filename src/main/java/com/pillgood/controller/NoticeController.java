@@ -9,20 +9,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/notices")
 @RequiredArgsConstructor
 public class NoticeController {
 
     private final NoticeService noticeService;
 
-    @GetMapping("/list")
+    @GetMapping("/api/notices/list")
     public ResponseEntity<List<NoticeDto>> getAllNotices() {
         List<NoticeDto> notices = noticeService.getAllNotices();
         System.out.println("공지사항 목록 조회: " + notices); // 로그 추가
         return ResponseEntity.ok(notices);
     }
 
-    @GetMapping("/{noticeNo}")
+    @GetMapping("/api/notices/{noticeNo}")
     public ResponseEntity<NoticeDto> getNoticeById(@PathVariable Integer noticeNo) {
         System.out.println("공지사항 조회 요청: 공지사항 번호 - " + noticeNo); // 로그 추가
         return noticeService.getNoticeById(noticeNo)
@@ -36,7 +35,7 @@ public class NoticeController {
                 });
     }
 
-    @PostMapping("/create")
+    @PostMapping("/admin/notices/create")
     public ResponseEntity<NoticeDto> createNotice(@RequestBody NoticeDto noticeDto) {
         System.out.println("공지사항 생성 요청: " + noticeDto); // 로그 추가
         NoticeDto createdNotice = noticeService.createNotice(noticeDto);
@@ -44,7 +43,7 @@ public class NoticeController {
         return ResponseEntity.status(201).body(createdNotice); // 201 Created 상태 코드 반환
     }
 
-    @PutMapping("/update/{noticeNo}")
+    @PutMapping("/admin/notices/update/{noticeNo}")
     public ResponseEntity<NoticeDto> updateNotice(@PathVariable Integer noticeNo, @RequestBody NoticeDto noticeDto) {
         System.out.println("공지사항 수정 요청: 공지사항 번호 - " + noticeNo + ", 수정 내용 - " + noticeDto); // 로그 추가
         return noticeService.updateNotice(noticeNo, noticeDto)
@@ -58,7 +57,7 @@ public class NoticeController {
                 });
     }
 
-    @DeleteMapping("/delete/{noticeNo}")
+    @DeleteMapping("/admin/notices/delete/{noticeNo}")
     public ResponseEntity<Void> deleteNotice(@PathVariable Integer noticeNo) {
         System.out.println("공지사항 삭제 요청: 공지사항 번호 - " + noticeNo); // 로그 추가
         if (noticeService.deleteNotice(noticeNo)) {

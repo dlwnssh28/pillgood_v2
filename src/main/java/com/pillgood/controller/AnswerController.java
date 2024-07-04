@@ -27,7 +27,7 @@ public class AnswerController {
         return answerService.getAllAnswers();
     }
 
-    @GetMapping("/admin/answers/{id}")
+    @GetMapping("/api/answers/{id}")
     public ResponseEntity<AnswerDto> getAnswerById(@PathVariable int id) {
         AnswerDto answerDto = answerService.getAnswerById(id);
         if (answerDto != null) {

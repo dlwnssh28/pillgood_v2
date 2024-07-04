@@ -9,39 +9,38 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/reviews")
 @RequiredArgsConstructor
 public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @GetMapping("/list")
+    @GetMapping("/api/reviews/list")
     public ResponseEntity<List<ReviewDto>> getAllReviews() {
         List<ReviewDto> reviews = reviewService.getAllReviews();
         return ResponseEntity.ok(reviews);
     }
 
-    @GetMapping("/{reviewId}")
+    @GetMapping("/api/reviews/{reviewId}")
     public ResponseEntity<ReviewDto> getReviewById(@PathVariable Integer reviewId) {
         return reviewService.getReviewById(reviewId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/create")
+    @PostMapping("/api/reviews/create")
     public ResponseEntity<ReviewDto> createReview(@RequestBody ReviewDto reviewDto) {
         ReviewDto createdReview = reviewService.createReview(reviewDto);
         return ResponseEntity.ok(createdReview);
     }
 
-    @PutMapping("/update/{reviewId}")
+    @PutMapping("/api/reviews/update/{reviewId}")
     public ResponseEntity<ReviewDto> updateReview(@PathVariable Integer reviewId, @RequestBody ReviewDto reviewDto) {
         return reviewService.updateReview(reviewId, reviewDto)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/delete/{reviewId}")
+    @DeleteMapping("/api/reviews/delete/{reviewId}")
     public ResponseEntity<Void> deleteReview(@PathVariable Integer reviewId) {
         if (reviewService.deleteReview(reviewId)) {
             return ResponseEntity.noContent().build();

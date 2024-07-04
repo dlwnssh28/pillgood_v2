@@ -19,12 +19,12 @@ public class EfficiencyController {
         return efficiencyService.createEfficiency(efficiencyDto);
     }
 
-    @GetMapping("/admin/efficiencies/find/{id}")
+    @GetMapping("/api/efficiencies/find/{id}")
     public Optional<EfficiencyDto> getEfficiencyById(@PathVariable int id) {
         return efficiencyService.getEfficiencyById(id);
     }
 
-    @GetMapping("/admin/efficiencies/list")
+    @GetMapping("/api/efficiencies/list")
     public List<EfficiencyDto> getAllEfficiencies() {
         return efficiencyService.getAllEfficiencies();
     }

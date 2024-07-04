@@ -101,7 +101,7 @@ public class MemberController {
         }
     }
 
-    @GetMapping("/api/members/list")
+    @GetMapping("/admin/members/list")
     public List<MemberDto> getAllMembers() {
         return memberService.getAllMembers();
     }
@@ -119,7 +119,7 @@ public class MemberController {
         return memberService.deleteMember(id);
     }
 
-    @GetMapping("/members/findByEmail/{email}")
+    @GetMapping("/api/members/findByEmail/{email}")
     public Optional<MemberDto> findByEmail(@PathVariable String email) {
         return memberService.findByEmail(email);
     }

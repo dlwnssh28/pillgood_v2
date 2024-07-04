@@ -12,24 +12,23 @@ import com.pillgood.service.NutrientEfficiencyService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/nutrientefficiencies")
 @RequiredArgsConstructor
 public class NutrientEfficiencyController {
 
     private final NutrientEfficiencyService nutrientEfficiencyService;
 
-    @GetMapping("/list")
+    @GetMapping("/api/nutrientefficiencies/list")
     public List<NutrientEfficiencyDto> getAllNutrientEfficiencies() {
         return nutrientEfficiencyService.getAllNutrientEfficiencies();
     }
 
-    @PostMapping("/create")
+    @PostMapping("/admin/nutrientefficiencies/create")
     public ResponseEntity<NutrientEfficiencyDto> createNutrientEfficiency(@RequestBody NutrientEfficiencyDto nutrientEfficiencyDTO) {
         NutrientEfficiencyDto createdNutrientEfficiency = nutrientEfficiencyService.createNutrientEfficiency(nutrientEfficiencyDTO);
         return ResponseEntity.ok(createdNutrientEfficiency);
     }
 
-    @PutMapping("update/{id}")
+    @PutMapping("/admin/nutrientefficiencies/update/{id}")
     public ResponseEntity<NutrientEfficiencyDto> updateNutrientEfficiency(
             @PathVariable int id,
             @RequestBody NutrientEfficiencyDto updatedNutrientEfficiencyDTO) {
@@ -38,7 +37,7 @@ public class NutrientEfficiencyController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/admin/nutrientefficiencies/delete/{id}")
     public ResponseEntity<Void> deleteNutrientEfficiency(@PathVariable int id) {
         boolean isDeleted = nutrientEfficiencyService.deleteNutrientEfficiency(id);
         if (isDeleted) {
