@@ -13,13 +13,12 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/carts")
 @RequiredArgsConstructor
 public class CartController {
 
     private final CartService cartService;
     
-    @PostMapping("/create")
+    @PostMapping("/api/carts/create")
     public ResponseEntity<CartDto> createCart(HttpSession session, @RequestBody CartDto cartDto) {
         String memberId = (String) session.getAttribute("memberId");
         if (memberId == null) {
@@ -30,12 +29,12 @@ public class CartController {
         return new ResponseEntity<>(createdCart, HttpStatus.CREATED);
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/api/carts/find/{id}")
     public Optional<CartDto> getCartById(@PathVariable int id) {
         return cartService.getCartById(id);
     }
     
-    @GetMapping("/findbyid")
+    @GetMapping("/api/carts/findbyid")
     public ResponseEntity<?> getCartsFindById(HttpSession session) {
         String memberId = (String) session.getAttribute("memberId");
         
@@ -53,22 +52,22 @@ public class CartController {
         return new ResponseEntity<>(carts, HttpStatus.OK);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/api/carts/list")
     public List<CartDto> getAllCarts() {
         return cartService.getAllCarts();
     }
 
-    @GetMapping("/member/{memberId}")
+    @GetMapping("/api/carts/member/{memberId}")
     public List<CartDto> getCartByMemberId(@PathVariable String memberId) {
         return cartService.getCartByMemberId(memberId);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/api/carts/update/{id}")
     public Optional<CartDto> updateCart(@PathVariable int id, @RequestBody CartDto cartDto) {
         return cartService.updateCart(id, cartDto);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/api/carts/delete/{id}")
     public void deleteCart(@PathVariable int id) {
         boolean deleted = cartService.deleteCart(id);
         if (!deleted) {

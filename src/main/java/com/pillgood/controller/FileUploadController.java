@@ -11,13 +11,12 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/upload")
 public class FileUploadController {
 
     // 실제 업로드 경로 설정 (예: 프로젝트 루트 디렉토리의 uploads 폴더)
     private final String uploadDir = System.getProperty("user.dir") + "/uploads";
 
-    @PostMapping("/image")
+    @PostMapping("/api/upload/image")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
             // 업로드 폴더가 존재하지 않으면 생성

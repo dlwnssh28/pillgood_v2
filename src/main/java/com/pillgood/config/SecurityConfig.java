@@ -51,8 +51,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
-                        .loginPage("/members/login")
-                        .loginProcessingUrl("/login")
+                        .loginPage("/api/members/login")
+                        .loginProcessingUrl("/api/members/login")
                         .successHandler(successHandler)
                         .permitAll()
                         .defaultSuccessUrl("/", true)

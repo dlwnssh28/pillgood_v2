@@ -14,19 +14,18 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/members")
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping("/register")
+    @PostMapping("/api/members/register")
     public MemberDto createMember(@RequestBody MemberDto memberDto) {
         System.out.println("createMember called with: " + memberDto);  // 디버깅용 로그
         return memberService.createMember(memberDto);
     }
 
-    @GetMapping("/findById")
+    @GetMapping("/api/members/findById")
     public ResponseEntity<?> getUserInfo(HttpSession session) {
         String memberId = (String) session.getAttribute("memberId");
         if (memberId != null) {
@@ -46,7 +45,7 @@ public class MemberController {
         }
     }
 
-    @PostMapping("/login")
+    @PostMapping("/api/members/login")
     public ResponseEntity<?> loginMember(@RequestBody MemberDto memberDto, HttpSession session) {
 //        System.out.println("입력 MemberDto: " + memberDto);
 
@@ -79,7 +78,7 @@ public class MemberController {
         }
     }
 
-    @GetMapping("/check-session")
+    @GetMapping("/api/members/check-session")
     public ResponseEntity<?> checkSession(HttpSession session) {
 //        System.out.println("세션 확인 요청: " + session.getId());
         String memberId = (String) session.getAttribute("memberId");
@@ -102,12 +101,12 @@ public class MemberController {
         }
     }
 
-    @GetMapping("/list")
+    @GetMapping("/api/members/list")
     public List<MemberDto> getAllMembers() {
         return memberService.getAllMembers();
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/api/members/update/{id}")
     public ResponseEntity<MemberDto> updateMember(@PathVariable String id, @RequestBody MemberDto memberDto) {
         Optional<MemberDto> updatedMember = memberService.updateMember(id, memberDto);
         return updatedMember
@@ -115,26 +114,26 @@ public class MemberController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/admin/members/delete/{id}")
     public boolean deleteMember(@PathVariable String id) {
         return memberService.deleteMember(id);
     }
 
-    @GetMapping("/findByEmail/{email}")
+    @GetMapping("/members/findByEmail/{email}")
     public Optional<MemberDto> findByEmail(@PathVariable String email) {
         return memberService.findByEmail(email);
     }
 
     
  // 로그아웃 엔드포인트 추가
-    @PostMapping("/logout")
+    @PostMapping("/api/members/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         session.invalidate(); // 세션 무효화
         System.out.println("로그아웃: 세션 무효화");
         return ResponseEntity.ok("Logout successful");
     }
 
-    @GetMapping("/mypage")
+    @GetMapping("/api/members/mypage")
     public ResponseEntity<?> getUserProfile(HttpSession session) {
         String memberId = (String) session.getAttribute("memberId");
         if (memberId != null) {
@@ -150,7 +149,7 @@ public class MemberController {
         }
     }
 
-    @PostMapping("/verifyPassword")
+    @PostMapping("/api/members/verifyPassword")
     public ResponseEntity<?> verifyPassword(@RequestBody Map<String, String> request) {
         String memberId = request.get("memberId");
         String password = request.get("password");

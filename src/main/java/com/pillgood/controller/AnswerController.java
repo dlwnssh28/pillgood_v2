@@ -22,7 +22,7 @@ public class AnswerController {
     @Autowired
     private AnswerService answerService;
 
-    @GetMapping("/answers/list")
+    @GetMapping("/api/answers/list")
     public List<AnswerDto> getAllAnswers() {
         return answerService.getAllAnswers();
     }

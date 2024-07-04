@@ -17,18 +17,17 @@ import com.pillgood.dto.InquiryDto;
 import com.pillgood.service.InquiryService;
 
 @RestController
-@RequestMapping("/inquiries")
 public class InquiryController {
 
     @Autowired
     private InquiryService inquiryService;
 
-    @GetMapping("/list")
+    @GetMapping("/api/inquiries/list")
     public List<InquiryDto> getAllInquiries() {
         return inquiryService.getAllInquiries();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/inquiries/{id}")
     public ResponseEntity<InquiryDto> getInquiryById(@PathVariable int id) {
         InquiryDto inquiryDto = inquiryService.getInquiryById(id);
         if (inquiryDto != null) {
@@ -38,13 +37,13 @@ public class InquiryController {
         }
     }
 
-    @PostMapping("/create")
+    @PostMapping("/api/inquiries/create")
     public ResponseEntity<InquiryDto> createInquiry(@RequestBody InquiryDto inquiryDto) {
         InquiryDto createdInquiry = inquiryService.createInquiry(inquiryDto);
         return ResponseEntity.ok(createdInquiry);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/api/inquiries/update/{id}")
     public ResponseEntity<InquiryDto> updateInquiry(@PathVariable int id, @RequestBody InquiryDto inquiryDto) {
         InquiryDto updatedInquiry = inquiryService.updateInquiry(id, inquiryDto);
         if (updatedInquiry != null) {
@@ -54,7 +53,7 @@ public class InquiryController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/api/inquiries/delete/{id}")
     public ResponseEntity<Void> deleteInquiry(@PathVariable int id) {
         inquiryService.deleteInquiry(id);
         return ResponseEntity.noContent().build();

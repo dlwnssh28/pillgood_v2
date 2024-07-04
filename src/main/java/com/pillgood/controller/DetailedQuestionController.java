@@ -19,12 +19,12 @@ public class DetailedQuestionController {
         return detailedQuestionService.createDetailedQuestion(detailedQuestionDto);
     }
 
-    @GetMapping("/detailed-questions/find/{id}")
+    @GetMapping("/api/detailed-questions/find/{id}")
     public Optional<DetailedQuestionDto> getDetailedQuestionById(@PathVariable int id) {
         return detailedQuestionService.getDetailedQuestionById(id);
     }
 
-    @GetMapping("/detailed-questions/list")
+    @GetMapping("/api/detailed-questions/list")
     public List<DetailedQuestionDto> getAllDetailedQuestions() {
         return detailedQuestionService.getAllDetailedQuestions();
     }
