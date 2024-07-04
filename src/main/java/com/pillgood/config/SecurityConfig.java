@@ -42,11 +42,11 @@ public class SecurityConfig implements WebMvcConfigurer {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/login", "/css/**", "/images/**", "/js/**", "/admin/**").permitAll()
-                        .requestMatchers("/", "/members/**", "/members/mypage", "/products/**").permitAll()
+                        .requestMatchers("/**").permitAll()
                         .requestMatchers("/admin/products/create").permitAll()
                         .requestMatchers("/admin/upload/image").permitAll()
                         .requestMatchers("/uploads/**").permitAll() // 업로드된 파일 경로 허용
-//                        .requestMatchers("**/admin/**").hasRole("ADMIN")
+//                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/mypage").authenticated()
                         .anyRequest().authenticated()
                 )

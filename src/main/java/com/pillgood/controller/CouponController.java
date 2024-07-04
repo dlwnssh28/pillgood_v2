@@ -20,13 +20,13 @@ public class CouponController {
 
     private final CouponService couponService;
 
-    @GetMapping("/list")
+    @GetMapping("api/coupons/list")
     public ResponseEntity<List<CouponDto>> getAllCoupons() {
         List<CouponDto> coupons = couponService.getAllCoupons();
         return ResponseEntity.ok(coupons);
     }
     
-    @GetMapping("/admin/{couponId}")
+    @GetMapping("/admin/coupons/{couponId}")
     public ResponseEntity<CouponDto> getCouponById(@PathVariable Integer couponId) {
         return couponService.getCouponById(couponId) 
                 .map(ResponseEntity::ok)
