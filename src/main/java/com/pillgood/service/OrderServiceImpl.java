@@ -15,6 +15,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+    
+    @Autowired
+    private OwnedcouponService ownedcouponService;
 
     @Override
     public List<OrderDto> getAllOrders() {
@@ -38,6 +41,12 @@ public class OrderServiceImpl implements OrderService {
         orderEntity.setOrderNo(orderNo);
         
         orderRepository.save(orderEntity);
+
+        
+        // 쿠폰 상태 업데이트
+        if (orderDto.getOwnedCouponId() != null && orderDto.getOwnedCouponId() != 0) {
+            ownedcouponService.markCouponAsUsed(orderDto.getOwnedCouponId());
+        }
         return convertToDto(orderEntity);
     }
     

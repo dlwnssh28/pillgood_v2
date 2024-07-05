@@ -31,7 +31,7 @@ public class OwnedcouponServiceImpl implements OwnedcouponService {
     @Override
     public List<OwnedcouponDto> getOwnedCouponByMemberId(String memberId) {
         System.out.println(memberId + ": 쿠폰 조회");
-        return ownedcouponRepository.findByMemberUniqueId(memberId).stream()
+        return ownedcouponRepository.findByMemberUniqueIdAndCouponUsedFalse(memberId).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -99,5 +99,13 @@ public class OwnedcouponServiceImpl implements OwnedcouponService {
                 ownedcouponDto.getIssuedDate(),
                 ownedcouponDto.getExpiryDate()
         );
+    }
+
+    @Override
+    public void markCouponAsUsed(int ownedCouponId) {
+        ownedcouponRepository.findById(ownedCouponId).ifPresent(ownedcoupon -> {
+            ownedcoupon.setCouponUsed(true);
+            ownedcouponRepository.save(ownedcoupon);
+        });
     }
 }

@@ -24,7 +24,7 @@ public class OrderDto {
     private String detailedAddress;
     private String phoneNumber;
     private String memberUniqueId;
-    private int ownedCouponId;
+    private Integer ownedCouponId;
     private String orderStatus;
     private boolean subscriptionStatus;
     

@@ -16,4 +16,6 @@ public interface OwnedcouponService {
     boolean deleteOwnedCoupon(int ownedCouponId);
     OwnedcouponDto convertToDto(Ownedcoupon ownedcouponEntity);
     Ownedcoupon convertToEntity(OwnedcouponDto ownedcouponDto);
+    void markCouponAsUsed(int ownedCouponId); // 추가된 메서드
+    
 }
