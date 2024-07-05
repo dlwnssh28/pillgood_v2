@@ -44,7 +44,7 @@ public class CartServiceImpl implements CartService {
     public List<CartDto> getCartByMemberId(String memberId) {
         System.out.println(memberId + ": 상품 조회");
         return cartRepository.findByMemberUniqueId(memberId).stream()
-                .map(this::convertToDto)
+                .map(this::convertToDtoWithProductName)
                 .collect(Collectors.toList());
     }
 
@@ -76,10 +76,21 @@ public class CartServiceImpl implements CartService {
         cartDto.setProductId(cart.getProductId());
         cartDto.setProductQuantity(cart.getProductQuantity());
         
-        // productId를 통해 products 테이블에서 price 정보를 가져옴
+     // productId를 통해 products 테이블에서 상품 정보를 가져옴
         Product product = productRepository.findById(cart.getProductId())
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다: " + cart.getProductId()));
         cartDto.setPrice(product.getPrice());
+        cartDto.setProductName(product.getProductName()); // 상품 이름 설정
+        
+        return cartDto;
+    }
+
+    private CartDto convertToDtoWithProductName(Cart cart) {
+        CartDto cartDto = convertToDto(cart);
+        // productId를 통해 products 테이블에서 productName 정보를 가져옴
+        Product product = productRepository.findById(cart.getProductId())
+                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다: " + cart.getProductId()));
+        cartDto.setProductName(product.getProductName());
         
         return cartDto;
     }

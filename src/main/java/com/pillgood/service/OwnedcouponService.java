@@ -9,7 +9,6 @@ import java.util.Optional;
 
 public interface OwnedcouponService {
     List<OwnedcouponDto> getAllOwnedCoupons();
-    List<OwnedcouponDto> getOwnedCouponsByMember(String memberUniqueId);
     List<OwnedcouponDto> getOwnedCouponByMemberId(String memberId);
     Optional<OwnedcouponDto> getOwnedCouponById(int ownedCouponId);
     OwnedcouponDto createOwnedCoupon(OwnedcouponDto ownedcouponDto);

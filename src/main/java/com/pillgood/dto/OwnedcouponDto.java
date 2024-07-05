@@ -2,11 +2,14 @@ package com.pillgood.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class OwnedcouponDto {
@@ -16,14 +19,17 @@ public class OwnedcouponDto {
     private boolean couponUsed;
     private LocalDateTime issuedDate;
     private LocalDateTime expiryDate;
+    private String couponName;
+    private Integer discountAmount;
     
-    public OwnedcouponDto(Integer ownedCouponId, Integer couponId, String memberUniqueId, boolean couponUsed, LocalDateTime issuedDate, LocalDateTime expiryDate) {
+    public OwnedcouponDto(Integer ownedCouponId, Integer couponId, String memberUniqueId, boolean couponUsed, LocalDateTime issuedDate, LocalDateTime expiryDate, Integer discountAmount) {
         this.ownedCouponId = ownedCouponId;
         this.couponId = couponId;
         this.memberUniqueId = memberUniqueId;
         this.couponUsed = couponUsed;
         this.issuedDate = issuedDate;
         this.expiryDate = expiryDate;
+        this.discountAmount = discountAmount;
     }
 
 }

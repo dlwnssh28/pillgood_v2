@@ -1,6 +1,7 @@
 package com.pillgood.controller;
 
 import com.pillgood.dto.OrderDto;
+import com.pillgood.dto.OrderItemDto;
 import com.pillgood.service.OrderService;
 
 import jakarta.servlet.http.HttpSession;
@@ -43,6 +44,24 @@ public class OrderController {
         OrderDto createdOrder = orderService.createOrder(orderDto);
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
+
+    @PostMapping("/api/orders/prepare")
+    public ResponseEntity<String> prepareOrder(@RequestBody List<OrderItemDto> orderItems, HttpSession session) {
+        session.setAttribute("orderItems", orderItems);
+        System.out.println("주문 상품 정보 POST : " + orderItems);
+        return new ResponseEntity<>("Order details set in session", HttpStatus.OK);
+    }
+
+    @GetMapping("/api/orders/prepare")
+    public ResponseEntity<?> getPreparedOrder(HttpSession session) {
+        List<OrderItemDto> orderItems = (List<OrderItemDto>) session.getAttribute("orderItems");
+        System.out.println("주문 상품 정보 GET : " + orderItems);
+        if (orderItems == null) {
+            return new ResponseEntity<>("No order details in session", HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(orderItems);
+    }
+
 
     @PutMapping("/api/orders/update/{orderNo}")
     public ResponseEntity<OrderDto> updateOrder(@PathVariable String orderNo, @RequestBody OrderDto orderDto) {

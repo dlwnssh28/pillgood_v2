@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,4 +27,5 @@ public class OrderDto {
     private int ownedCouponId;
     private String orderStatus;
     private boolean subscriptionStatus;
+    
 }
