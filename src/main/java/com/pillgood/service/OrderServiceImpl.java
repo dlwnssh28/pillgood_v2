@@ -1,7 +1,10 @@
 package com.pillgood.service;
 
+import com.pillgood.dto.OrderDetailDto;
 import com.pillgood.dto.OrderDto;
 import com.pillgood.entity.Order;
+import com.pillgood.entity.OrderDetail;
+import com.pillgood.repository.OrderDetailRepository;
 import com.pillgood.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
 
     @Override
     public List<OrderDto> getAllOrders() {
@@ -36,11 +42,11 @@ public class OrderServiceImpl implements OrderService {
         // 기본 키 수동 설정
         String orderNo = generateOrderNo(); // 고유한 주문 번호 생성 로직을 여기에 추가하세요.
         orderEntity.setOrderNo(orderNo);
-        
+
         orderRepository.save(orderEntity);
         return convertToDto(orderEntity);
     }
-    
+
     private String generateOrderNo() {
         // 고유한 주문 번호를 생성하는 로직을 구현합니다.
         // 예를 들어, 현재 시간과 랜덤 문자열을 조합하여 생성할 수 있습니다.
@@ -65,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderDto convertToDto(Order orderEntity) {
-        return new OrderDto(
+        OrderDto orderDto = new OrderDto(
                 orderEntity.getOrderNo(),
                 orderEntity.getTotalAmount(),
                 orderEntity.getOrderRequest(),
@@ -80,6 +86,22 @@ public class OrderServiceImpl implements OrderService {
                 orderEntity.getOrderStatus(),
                 orderEntity.isSubscriptionStatus()
         );
+
+        // 주문에 대한 상세 내역 추가
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderOrderNo(orderEntity.getOrderNo());
+        List<OrderDetailDto> orderDetailDtos = orderDetails.stream()
+                .map(orderDetail -> new OrderDetailDto(
+                        orderDetail.getOrderDetailNo(),
+                        orderDetail.getOrder().getOrderNo(),
+                        orderDetail.getProduct().getProductId(),
+                        orderDetail.getQuantity(),
+                        orderDetail.getAmount()
+                ))
+                .collect(Collectors.toList());
+
+        orderDto.setOrderDetails(orderDetailDtos);
+
+        return orderDto;
     }
 
     private Order convertToEntity(OrderDto orderDto) {
@@ -105,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
         orderEntity.setOrderRequest(orderDto.getOrderRequest());
         orderEntity.setOrderDate(orderDto.getOrderDate());
         orderEntity.setRecipient(orderDto.getRecipient());
-        orderEntity.setPostalCode(orderDto.getPostalCode()); 
+        orderEntity.setPostalCode(orderDto.getPostalCode());
         orderEntity.setAddress(orderDto.getAddress());
         orderEntity.setDetailedAddress(orderDto.getDetailedAddress());
         orderEntity.setPhoneNumber(orderDto.getPhoneNumber());
@@ -113,5 +135,13 @@ public class OrderServiceImpl implements OrderService {
         orderEntity.setOwnedCouponId(orderDto.getOwnedCouponId());
         orderEntity.setOrderStatus(orderDto.getOrderStatus());
         orderEntity.setSubscriptionStatus(orderDto.isSubscriptionStatus());
+    }
+
+    @Override
+    public List<OrderDto> getOrdersByUserId(String memberId) {
+        List<Order> orders = orderRepository.findByMemberUniqueId(memberId);
+        return orders.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 }

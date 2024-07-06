@@ -1,7 +1,9 @@
 package com.pillgood.service;
 
 import com.pillgood.dto.ReviewDto;
+import com.pillgood.entity.OrderDetail;
 import com.pillgood.entity.Review;
+import com.pillgood.repository.OrderDetailRepository;
 import com.pillgood.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
     @Override
     public List<ReviewDto> getAllReviews() {
@@ -33,7 +36,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewDto createReview(ReviewDto reviewDto) {
-        Review reviewEntity = convertToEntity(reviewDto);
+        OrderDetail orderDetail = orderDetailRepository.findById(reviewDto.getOrderDetailNo())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID"));
+
+        Review reviewEntity = convertToEntity(reviewDto, orderDetail);
         Review savedReview = reviewRepository.save(reviewEntity);
         return convertToDto(savedReview);
     }
@@ -64,7 +70,7 @@ public class ReviewServiceImpl implements ReviewService {
         return new ReviewDto(
                 reviewEntity.getReviewId(),
                 reviewEntity.getMemberUniqueId(),
-                reviewEntity.getOrderNo(),
+                reviewEntity.getOrderDetail().getOrderDetailNo(), // 수정됨
                 reviewEntity.getReviewDate(),
                 reviewEntity.getReviewContent(),
                 reviewEntity.getRating(),
@@ -73,11 +79,11 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Review convertToEntity(ReviewDto reviewDto) {
+    public Review convertToEntity(ReviewDto reviewDto, OrderDetail orderDetail) {
         return new Review(
                 reviewDto.getReviewId(),
                 reviewDto.getMemberUniqueId(),
-                reviewDto.getOrderNo(),
+                orderDetail, // 수정됨
                 reviewDto.getReviewDate(),
                 reviewDto.getReviewContent(),
                 reviewDto.getRating(),

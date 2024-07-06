@@ -24,8 +24,9 @@ public class Review {
     @Column(name = "member_unique_id", length = 36, nullable = false)
     private String memberUniqueId;
 
-    @Column(name = "order_no", length = 50, nullable = false)
-    private String orderNo;
+    @ManyToOne
+    @JoinColumn(name = "order_detail_no", nullable = false)
+    private OrderDetail orderDetail;
 
     @Column(name = "review_date", nullable = false)
     private LocalDateTime reviewDate;

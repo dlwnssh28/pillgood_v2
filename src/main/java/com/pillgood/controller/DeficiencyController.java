@@ -44,11 +44,10 @@ public class DeficiencyController {
 
     // 모든 부족 조회
     @GetMapping("/api/deficiencies/list")
-    public String getAllDeficiencies(Model model) {
-        List<DeficiencyDto> deficiencies = deficiencyService.getAllDeficiencies();
-        model.addAttribute("deficiencies", deficiencies);
-        return "deficiencyList";
+    public List<DeficiencyDto> getAllDeficiencies() {
+        return deficiencyService.getAllDeficiencies();
     }
+
 
     // 부족 수정 폼
     @GetMapping("/admin/deficiencies/update/{id}")

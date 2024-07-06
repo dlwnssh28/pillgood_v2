@@ -47,7 +47,7 @@ public class Order {
     private String memberUniqueId;
 
     @Column(name = "owned_coupon_id")
-    private int ownedCouponId;
+    private Integer ownedCouponId;
 
     @Column(name = "order_status", length = 50)
     private String orderStatus;

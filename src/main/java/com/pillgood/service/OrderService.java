@@ -10,4 +10,5 @@ public interface OrderService {
     OrderDto createOrder(OrderDto orderDto);
     OrderDto updateOrder(String orderNo, OrderDto orderDto);
     void deleteOrder(String orderNo);
+    List<OrderDto> getOrdersByUserId(String memberId); // 메서드 추가
 }

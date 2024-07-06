@@ -59,4 +59,19 @@ public class OrderController {
         orderService.deleteOrder(orderNo);
         return ResponseEntity.noContent().build();
     }
+
+    // 사용자 ID 기반 주문 내역 조회
+    @GetMapping("/api/orders/member")
+    public ResponseEntity<List<OrderDto>> getOrdersByUserId(HttpSession session) {
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        List<OrderDto> orders = orderService.getOrdersByUserId(memberId);
+        if (orders != null && !orders.isEmpty()) {
+            return ResponseEntity.ok(orders);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
 }
