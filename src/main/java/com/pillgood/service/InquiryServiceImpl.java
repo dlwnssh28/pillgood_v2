@@ -1,5 +1,6 @@
 package com.pillgood.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,8 +32,17 @@ public class InquiryServiceImpl implements InquiryService {
     }
 
     @Override
+    public List<InquiryDto> getInquiriesByMemberId(String memberUniqueId) {
+        return inquiryRepository.findByMemberUniqueId(memberUniqueId).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
     public InquiryDto createInquiry(InquiryDto inquiryDto) {
         Inquiry inquiryEntity = convertToEntity(inquiryDto);
+        inquiryEntity.setInquiryDate(LocalDateTime.now()); //작성일 설정
+        inquiryEntity.setInquiryStatus("미답변"); //상태 설정
         inquiryRepository.save(inquiryEntity);
         return convertToDto(inquiryEntity);
     }

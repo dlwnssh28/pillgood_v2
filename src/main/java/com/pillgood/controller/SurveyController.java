@@ -2,7 +2,9 @@ package com.pillgood.controller;
 
 import com.pillgood.dto.SurveyDto;
 import com.pillgood.service.SurveyService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,9 +34,30 @@ public class SurveyController {
         List<SurveyDto> surveys = surveyService.getSurveysByMemberId(memberId);
         return ResponseEntity.ok(surveys);
     }
+    
+    @GetMapping("/api/surveys/result")
+    public ResponseEntity<?> getSurveyResult(HttpSession session) {
+        String memberId = (String) session.getAttribute("memberId");
+        
+        if (memberId == null) {
+            return new ResponseEntity<>("세션에 memberId가 없습니다.", HttpStatus.UNAUTHORIZED);
+        }
+        
+        System.out.println(memberId + ": 설문조사 결과 조회");
+        List<SurveyDto> surveys = surveyService.getSurveysByMemberId(memberId);
+        
+        if (surveys.isEmpty()) {
+            return new ResponseEntity<>("설문조사 결과가 없습니다.", HttpStatus.NOT_FOUND);
+        }
+        
+        return new ResponseEntity<>(surveys, HttpStatus.OK);
+    }
+
+    
 
     @PostMapping("/api/surveys/create")
     public ResponseEntity<SurveyDto> createSurvey(@RequestBody SurveyDto surveyDto) {
+        System.out.println("Received survey data: " + surveyDto); // 디버깅용 로그 추가
         SurveyDto createdSurvey = surveyService.createSurvey(surveyDto);
         return ResponseEntity.ok(createdSurvey);
     }

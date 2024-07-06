@@ -4,30 +4,24 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.pillgood.dto.InquiryDto;
 import com.pillgood.service.InquiryService;
 
 @RestController
+@RequestMapping("/api/inquiries")
 public class InquiryController {
 
     @Autowired
     private InquiryService inquiryService;
 
-    @GetMapping("/api/inquiries/list")
+    @GetMapping("/list")
     public List<InquiryDto> getAllInquiries() {
         return inquiryService.getAllInquiries();
     }
 
-    @GetMapping("/api/inquiries/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<InquiryDto> getInquiryById(@PathVariable int id) {
         InquiryDto inquiryDto = inquiryService.getInquiryById(id);
         if (inquiryDto != null) {
@@ -36,14 +30,25 @@ public class InquiryController {
             return ResponseEntity.notFound().build();
         }
     }
-
-    @PostMapping("/api/inquiries/create")
+    
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<List<InquiryDto>> getInquiriesByMemberId(@PathVariable String memberId) {
+        List<InquiryDto> inquiries = inquiryService.getInquiriesByMemberId(memberId);
+        return ResponseEntity.ok(inquiries);
+    }
+    
+    @PostMapping("/create")
     public ResponseEntity<InquiryDto> createInquiry(@RequestBody InquiryDto inquiryDto) {
+        // 요청된 데이터 확인
+        System.out.println("received inquiry: " + inquiryDto);
         InquiryDto createdInquiry = inquiryService.createInquiry(inquiryDto);
+        
+        // 생성된 데이터 확인
+        System.out.println("created inquiry: " + createdInquiry);
         return ResponseEntity.ok(createdInquiry);
     }
 
-    @PutMapping("/api/inquiries/update/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<InquiryDto> updateInquiry(@PathVariable int id, @RequestBody InquiryDto inquiryDto) {
         InquiryDto updatedInquiry = inquiryService.updateInquiry(id, inquiryDto);
         if (updatedInquiry != null) {
@@ -53,7 +58,7 @@ public class InquiryController {
         }
     }
 
-    @DeleteMapping("/api/inquiries/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteInquiry(@PathVariable int id) {
         inquiryService.deleteInquiry(id);
         return ResponseEntity.noContent().build();
