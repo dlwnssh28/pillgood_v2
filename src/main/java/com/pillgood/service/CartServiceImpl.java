@@ -68,6 +68,23 @@ public class CartServiceImpl implements CartService {
         }
         return false;
     }
+    
+    @Override
+    public Optional<CartDto> addOrUpdateCart(CartDto cartDto) {
+        List<Cart> existingCarts = cartRepository.findByMemberUniqueId(cartDto.getMemberUniqueId());
+        Optional<Cart> existingCart = existingCarts.stream()
+                .filter(cart -> cart.getProductId() == cartDto.getProductId())
+                .findFirst();
+
+        if (existingCart.isPresent()) {
+            Cart cart = existingCart.get();
+            cart.setProductQuantity(cart.getProductQuantity() + cartDto.getProductQuantity());
+            cartRepository.save(cart);
+            return Optional.of(convertToDto(cart));
+        } else {
+            return Optional.of(createCart(cartDto));
+        }
+    }
 
     private CartDto convertToDto(Cart cart) {
         CartDto cartDto = new CartDto();

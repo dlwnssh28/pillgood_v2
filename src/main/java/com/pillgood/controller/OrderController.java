@@ -41,7 +41,11 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         orderDto.setMemberUniqueId(memberId);
-        OrderDto createdOrder = orderService.createOrder(orderDto);
+
+        // 주문 상품 목록 가져오기
+        List<OrderItemDto> orderItems = (List<OrderItemDto>) session.getAttribute("orderItems");
+
+        OrderDto createdOrder = orderService.createOrder(orderDto, orderItems);
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
 

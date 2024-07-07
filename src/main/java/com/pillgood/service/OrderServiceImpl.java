@@ -1,11 +1,15 @@
 package com.pillgood.service;
 
 import com.pillgood.dto.OrderDto;
+import com.pillgood.dto.OrderItemDto;
 import com.pillgood.entity.Order;
+import com.pillgood.entity.OrderDetail;
 import com.pillgood.repository.OrderRepository;
+import com.pillgood.repository.OrderDetailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,6 +20,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
     
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
+
     @Autowired
     private OwnedcouponService ownedcouponService;
 
@@ -33,19 +40,33 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDto createOrder(OrderDto orderDto) {
+    public OrderDto createOrder(OrderDto orderDto, List<OrderItemDto> orderItems) {
         Order orderEntity = convertToEntity(orderDto);
 
         // 기본 키 수동 설정
         String orderNo = generateOrderNo(); // 고유한 주문 번호 생성 로직을 여기에 추가하세요.
         orderEntity.setOrderNo(orderNo);
+        orderEntity.setOrderStatus("주문완료");
+        orderEntity.setOrderDate(LocalDateTime.now());
         
         orderRepository.save(orderEntity);
 
-        
-        // 쿠폰 상태 업데이트
-        if (orderDto.getOwnedCouponId() != null && orderDto.getOwnedCouponId() != 0) {
+        // OrderDetails 저장
+        for (OrderItemDto item : orderItems) {
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrderNo(orderNo);
+            orderDetail.setProductId(item.getProductId());
+            orderDetail.setQuantity(item.getProductQuantity());
+            orderDetail.setAmount(item.getPrice());
+            orderDetailRepository.save(orderDetail);
+        }
+
+        // 쿠폰이 null일 경우 null로 설정
+        if (orderDto.getOwnedCouponId() != null) {
+            orderEntity.setOwnedCouponId(orderDto.getOwnedCouponId());
             ownedcouponService.markCouponAsUsed(orderDto.getOwnedCouponId());
+        } else {
+            orderEntity.setOwnedCouponId(null); // 쿠폰이 없을 경우 null로 설정
         }
         return convertToDto(orderEntity);
     }

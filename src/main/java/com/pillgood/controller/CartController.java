@@ -25,10 +25,9 @@ public class CartController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         cartDto.setMemberUniqueId(memberId);
-        CartDto createdCart = cartService.createCart(cartDto);
-        return new ResponseEntity<>(createdCart, HttpStatus.CREATED);
+        Optional<CartDto> createdOrUpdatedCart = cartService.addOrUpdateCart(cartDto);
+        return new ResponseEntity<>(createdOrUpdatedCart.get(), HttpStatus.CREATED);
     }
-
     @GetMapping("/api/carts/find/{id}")
     public Optional<CartDto> getCartById(@PathVariable int id) {
         return cartService.getCartById(id);
