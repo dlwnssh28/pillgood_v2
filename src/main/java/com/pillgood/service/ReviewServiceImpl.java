@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,6 +39,8 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewDto createReview(ReviewDto reviewDto) {
         OrderDetail orderDetail = orderDetailRepository.findById(reviewDto.getOrderDetailNo())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID"));
+
+        reviewDto.setReviewDate(LocalDateTime.now());
 
         Review reviewEntity = convertToEntity(reviewDto, orderDetail);
         Review savedReview = reviewRepository.save(reviewEntity);
@@ -70,7 +73,7 @@ public class ReviewServiceImpl implements ReviewService {
         return new ReviewDto(
                 reviewEntity.getReviewId(),
                 reviewEntity.getMemberUniqueId(),
-                reviewEntity.getOrderDetail().getOrderDetailNo(), // 수정됨
+                reviewEntity.getOrderDetail().getOrderDetailNo(),
                 reviewEntity.getReviewDate(),
                 reviewEntity.getReviewContent(),
                 reviewEntity.getRating(),
@@ -81,9 +84,9 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Review convertToEntity(ReviewDto reviewDto, OrderDetail orderDetail) {
         return new Review(
-                reviewDto.getReviewId(),
+                null, // reviewId는 자동으로 생성됨
                 reviewDto.getMemberUniqueId(),
-                orderDetail, // 수정됨
+                orderDetail,
                 reviewDto.getReviewDate(),
                 reviewDto.getReviewContent(),
                 reviewDto.getRating(),
