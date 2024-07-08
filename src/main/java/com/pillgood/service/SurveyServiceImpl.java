@@ -63,6 +63,10 @@ public class SurveyServiceImpl implements SurveyService {
     
     @Override
     public SurveyDto createSurvey(SurveyDto surveyDto) {
+    	
+    	//수식된 데이터 로그로 출력
+    	System.out.println("impl; Received surveyDto: "+surveyDto);
+    	
         // member_unique_id가 null이거나 해당 ID가 존재하지 않는 경우 예외를 던짐
         if (surveyDto.getMemberUniqueId() == null || !memberRepository.existsById(surveyDto.getMemberUniqueId())) {
             System.out.println("Invalid member ID: " + surveyDto.getMemberUniqueId()); // 로그 추가

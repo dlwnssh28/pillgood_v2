@@ -23,7 +23,7 @@ public class PillgoodApplication {
         return args -> {
             try {
                 dataSource.getConnection().close();
-                logger.info("데이터베이스 연결 성공!");
+                System.out.println("--------데이터베이스 연결 성공!");
             } catch (Exception e) {
                 logger.error("데이터베이스 연결 실패: ", e);
             }
