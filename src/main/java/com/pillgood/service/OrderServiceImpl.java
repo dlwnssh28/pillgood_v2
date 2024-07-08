@@ -5,10 +5,10 @@ import com.pillgood.dto.OrderDto;
 import com.pillgood.dto.OrderItemDto;
 import com.pillgood.entity.Order;
 import com.pillgood.entity.OrderDetail;
-
+import com.pillgood.entity.Product;
 import com.pillgood.repository.OrderDetailRepository;
 import com.pillgood.repository.OrderRepository;
-import com.pillgood.repository.OrderDetailRepository;
+import com.pillgood.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +22,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
-    
+
     @Autowired
     private OrderDetailRepository orderDetailRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Autowired
     private OwnedcouponService ownedcouponService;
@@ -56,8 +59,13 @@ public class OrderServiceImpl implements OrderService {
         // OrderDetails 저장
         for (OrderItemDto item : orderItems) {
             OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setOrderNo(orderNo);
-            orderDetail.setProductId(item.getProductId());
+            orderDetail.setOrder(orderEntity);
+
+            Optional<Product> productOpt = productRepository.findById(item.getProductId());
+            if (productOpt.isPresent()) {
+                orderDetail.setProduct(productOpt.get());
+            }
+
             orderDetail.setQuantity(item.getProductQuantity());
             orderDetail.setAmount(item.getPrice());
             orderDetailRepository.save(orderDetail);
@@ -112,7 +120,7 @@ public class OrderServiceImpl implements OrderService {
                 orderEntity.getOrderStatus(),
                 orderEntity.isSubscriptionStatus()
         );
-		return orderDto;
+        return orderDto;
     }
 
     private Order convertToEntity(OrderDto orderDto) {
