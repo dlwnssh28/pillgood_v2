@@ -4,6 +4,10 @@ import com.pillgood.dto.NoticeDto;
 import com.pillgood.entity.Notice;
 import com.pillgood.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,4 +92,15 @@ public class NoticeServiceImpl implements NoticeService {
                 noticeDto.getNoticeContent()
         );
     }
+    
+    @Override
+    public Page<NoticeDto> getNotices(Pageable pageable) {
+        Page<Notice> noticePage = noticeRepository.findAll(pageable);
+        List<NoticeDto> noticeDtos = noticePage.getContent()
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        return new PageImpl<>(noticeDtos, pageable, noticePage.getTotalElements());
+    }
+    
 }
