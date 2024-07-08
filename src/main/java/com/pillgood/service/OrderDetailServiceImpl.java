@@ -19,13 +19,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Autowired
     private OrderDetailRepository orderDetailRepository;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
-
+    
     @Override
     public List<OrderDetailDto> getAllOrderDetails() {
         return orderDetailRepository.findAll().stream()
@@ -66,8 +60,8 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     private OrderDetailDto convertToDto(OrderDetail orderDetailEntity) {
         return new OrderDetailDto(
                 orderDetailEntity.getOrderDetailNo(),
-                orderDetailEntity.getOrder().getOrderNo(), // 수정된 부분
-                orderDetailEntity.getProduct().getProductId(), // 수정된 부분
+                orderDetailEntity.getOrderNo(),
+                orderDetailEntity.getProductId(),
                 orderDetailEntity.getQuantity(),
                 orderDetailEntity.getAmount()
         );
@@ -76,33 +70,16 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     private OrderDetail convertToEntity(OrderDetailDto orderDetailDto) {
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setOrderDetailNo(orderDetailDto.getOrderDetailNo());
-
-        // Order 객체를 설정
-        Order order = orderRepository.findById(orderDetailDto.getOrderNo())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid order ID"));
-        orderDetail.setOrder(order);
-
-        // Product 객체를 설정
-        Product product = productRepository.findById(orderDetailDto.getProductId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid product ID"));
-        orderDetail.setProduct(product);
-
+        orderDetail.setOrderNo(orderDetailDto.getOrderNo());
+        orderDetail.setProductId(orderDetailDto.getProductId());
         orderDetail.setQuantity(orderDetailDto.getQuantity());
         orderDetail.setAmount(orderDetailDto.getAmount());
         return orderDetail;
     }
 
     private void updateEntityFromDto(OrderDetail orderDetailEntity, OrderDetailDto orderDetailDto) {
-        // Order 객체를 업데이트
-        Order order = orderRepository.findById(orderDetailDto.getOrderNo())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid order ID"));
-        orderDetailEntity.setOrder(order);
-
-        // Product 객체를 업데이트
-        Product product = productRepository.findById(orderDetailDto.getProductId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid product ID"));
-        orderDetailEntity.setProduct(product);
-
+        orderDetailEntity.setOrderNo(orderDetailDto.getOrderNo());
+        orderDetailEntity.setProductId(orderDetailDto.getProductId());
         orderDetailEntity.setQuantity(orderDetailDto.getQuantity());
         orderDetailEntity.setAmount(orderDetailDto.getAmount());
     }

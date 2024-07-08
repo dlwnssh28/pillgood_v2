@@ -22,19 +22,16 @@ public class OrderDetail {
 
     @ManyToOne
     @JoinColumn(name = "order_no", nullable = false)
-    private Order order;
+    private String orderNo;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    private Integer productId;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
     @Column(name = "amount", nullable = false)
     private Integer amount;
-
-    public String getOrderNo() {
-        return this.order.getOrderNo();
-    }
+    
 }

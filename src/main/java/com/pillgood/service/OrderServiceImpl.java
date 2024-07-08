@@ -29,9 +29,6 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OwnedcouponService ownedcouponService;
 
-    @Autowired
-    private OrderDetailRepository orderDetailRepository;
-
     @Override
     public List<OrderDto> getAllOrders() {
         return orderRepository.findAll().stream()
@@ -115,22 +112,7 @@ public class OrderServiceImpl implements OrderService {
                 orderEntity.getOrderStatus(),
                 orderEntity.isSubscriptionStatus()
         );
-
-        // 주문에 대한 상세 내역 추가
-        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderOrderNo(orderEntity.getOrderNo());
-        List<OrderDetailDto> orderDetailDtos = orderDetails.stream()
-                .map(orderDetail -> new OrderDetailDto(
-                        orderDetail.getOrderDetailNo(),
-                        orderDetail.getOrder().getOrderNo(),
-                        orderDetail.getProduct().getProductId(),
-                        orderDetail.getQuantity(),
-                        orderDetail.getAmount()
-                ))
-                .collect(Collectors.toList());
-
-        orderDto.setOrderDetails(orderDetailDtos);
-
-        return orderDto;
+		return orderDto;
     }
 
     private Order convertToEntity(OrderDto orderDto) {
