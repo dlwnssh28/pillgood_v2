@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class ReviewDto {
     private Integer reviewId;
     private String memberUniqueId;
-    private String orderNo;
+    private Integer orderDetailNo;
     private LocalDateTime reviewDate;
     private String reviewContent;
     private Integer rating;
