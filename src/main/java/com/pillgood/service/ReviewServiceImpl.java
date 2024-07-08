@@ -1,5 +1,6 @@
 package com.pillgood.service;
 
+import com.pillgood.dto.MemberDto;
 import com.pillgood.dto.ReviewDto;
 import com.pillgood.entity.OrderDetail;
 import com.pillgood.entity.Review;
@@ -21,6 +22,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final OrderDetailRepository orderDetailRepository;
+    private final MemberService memberService;
 
     @Override
     public List<ReviewDto> getAllReviews() {
@@ -28,6 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public Optional<ReviewDto> getReviewById(int reviewId) {
