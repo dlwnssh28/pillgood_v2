@@ -3,6 +3,10 @@ package com.pillgood.controller;
 import com.pillgood.dto.NoticeDto;
 import com.pillgood.service.NoticeService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,4 +71,14 @@ public class NoticeController {
         System.out.println("공지사항 삭제 실패: 공지사항 번호 - " + noticeNo); // 로그 추가
         return ResponseEntity.notFound().build();
     }
+    
+    @GetMapping("/api/notices")
+    public ResponseEntity<Page<NoticeDto>> getNotices(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<NoticeDto> noticePage = noticeService.getNotices(pageable);
+        return ResponseEntity.ok(noticePage);
+    }
+    
 }
