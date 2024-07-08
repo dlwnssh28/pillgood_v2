@@ -34,3 +34,4 @@ build/
 
 ### SecurityConfig ###
 ### SecurityConfig.java ###
+/uploads

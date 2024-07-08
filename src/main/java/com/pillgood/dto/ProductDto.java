@@ -13,7 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDto {
-	
     private int productId;
     private int nutrientId;
     private String productName;
@@ -23,6 +22,7 @@ public class ProductDto {
     private LocalDateTime productRegistrationDate;
     private String target;
     private boolean active;
+    private long salesCount;  // 추가
 
     // 엔티티를 받아서 초기화하는 생성자 추가
     public ProductDto(Product product) {
@@ -35,5 +35,6 @@ public class ProductDto {
         this.productRegistrationDate = product.getProductRegistrationDate();
         this.target = product.getTarget();
         this.active = product.isActive();
+        this.salesCount = 0; // 기본값으로 0 설정
     }
 }
