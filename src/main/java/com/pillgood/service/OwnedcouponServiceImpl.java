@@ -1,8 +1,9 @@
 package com.pillgood.service;
 
-import com.pillgood.dto.CouponDto;
 import com.pillgood.dto.OwnedcouponDto;
+import com.pillgood.entity.Coupon;
 import com.pillgood.entity.Ownedcoupon;
+import com.pillgood.repository.CouponRepository;
 import com.pillgood.repository.OwnedcouponRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class OwnedcouponServiceImpl implements OwnedcouponService {
 
     private final OwnedcouponRepository ownedcouponRepository;
+    private final CouponRepository couponRepository;
 
     @Override
     public List<OwnedcouponDto> getAllOwnedCoupons() {
@@ -26,17 +28,10 @@ public class OwnedcouponServiceImpl implements OwnedcouponService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public List<OwnedcouponDto> getOwnedCouponByMemberId(String memberId) {
         System.out.println(memberId + ": 쿠폰 조회");
-        return ownedcouponRepository.findByMemberUniqueId(memberId).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-    @Override
-    public List<OwnedcouponDto> getOwnedCouponsByMember(String memberUniqueId) {
-        return ownedcouponRepository.findByMemberUniqueId(memberUniqueId).stream()
+        return ownedcouponRepository.findByMemberUniqueIdAndCouponUsedFalse(memberId).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -79,14 +74,19 @@ public class OwnedcouponServiceImpl implements OwnedcouponService {
 
     @Override
     public OwnedcouponDto convertToDto(Ownedcoupon ownedcouponEntity) {
-        return new OwnedcouponDto(
-                ownedcouponEntity.getOwnedCouponId(),
-                ownedcouponEntity.getCouponId(),
-                ownedcouponEntity.getMemberUniqueId(),
-                ownedcouponEntity.isCouponUsed(),
-                ownedcouponEntity.getIssuedDate(),
-                ownedcouponEntity.getExpiryDate()
-        );
+        OwnedcouponDto ownedcouponDto = new OwnedcouponDto();
+        ownedcouponDto.setOwnedCouponId(ownedcouponEntity.getOwnedCouponId());
+        ownedcouponDto.setCouponId(ownedcouponEntity.getCouponId());
+        ownedcouponDto.setMemberUniqueId(ownedcouponEntity.getMemberUniqueId());
+        ownedcouponDto.setCouponUsed(ownedcouponEntity.isCouponUsed());
+        ownedcouponDto.setIssuedDate(ownedcouponEntity.getIssuedDate());
+        ownedcouponDto.setExpiryDate(ownedcouponEntity.getExpiryDate());
+        Coupon coupon = couponRepository.findById(ownedcouponEntity.getCouponId())
+                .orElseThrow(() -> new RuntimeException("쿠폰을 찾을 수 없습니다: " + ownedcouponEntity.getCouponId()));
+        ownedcouponDto.setDiscountAmount(coupon.getDiscountAmount());
+        ownedcouponDto.setCouponName(coupon.getCouponName());
+
+        return ownedcouponDto;
     }
 
     @Override
@@ -99,5 +99,13 @@ public class OwnedcouponServiceImpl implements OwnedcouponService {
                 ownedcouponDto.getIssuedDate(),
                 ownedcouponDto.getExpiryDate()
         );
+    }
+
+    @Override
+    public void markCouponAsUsed(int ownedCouponId) {
+        ownedcouponRepository.findById(ownedCouponId).ifPresent(ownedcoupon -> {
+            ownedcoupon.setCouponUsed(true);
+            ownedcouponRepository.save(ownedcoupon);
+        });
     }
 }

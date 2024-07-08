@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface OwnedcouponRepository extends JpaRepository<Ownedcoupon, Integer> {
     List<Ownedcoupon> findByMemberUniqueId(String memberUniqueId);
+    List<Ownedcoupon> findByMemberUniqueIdAndCouponUsedFalse(String memberUniqueId); // 추가된 메서드
 }
