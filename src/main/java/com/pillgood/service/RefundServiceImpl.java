@@ -1,5 +1,7 @@
 package com.pillgood.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -35,6 +37,9 @@ public class RefundServiceImpl implements RefundService {
     @Override
     public RefundDto createRefund(RefundDto refundDto) {
         Refund refundEntity = convertToEntity(refundDto);
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        System.out.println("환불 요청 날짜: " + now); // 로그 추가
+        refundEntity.setRefundRequestDate(now); // 현재 시간 설정
         refundRepository.save(refundEntity);
         return convertToDto(refundEntity);
     }
