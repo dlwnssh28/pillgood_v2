@@ -12,4 +12,5 @@ public interface CartService {
     List<CartDto> getCartByMemberId(String memberId);
     Optional<CartDto> updateCart(int id, CartDto cartDto);
     boolean deleteCart(int id);
+    Optional<CartDto> addOrUpdateCart(CartDto cartDto); // 새로운 메소드 추가
 }
