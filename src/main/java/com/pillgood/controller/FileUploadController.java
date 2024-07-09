@@ -29,29 +29,16 @@ public class FileUploadController {
                 Files.createDirectories(uploadPath);
             }
 
-            // 파일명 디코딩
-            String decodedFileName = URLDecoder.decode(file.getOriginalFilename(), "UTF-8");
-            System.out.println("Decoded file name: " + decodedFileName);
-
-            // 기존에 동일한 파일이 있는지 확인
-            Optional<Path> existingFile = Files.walk(uploadPath)
-                    .filter(Files::isRegularFile)
-                    .filter(path -> path.getFileName().toString().equals(decodedFileName))
-                    .findFirst();
-
-            if (existingFile.isPresent()) {
-                String existingFileUrl = "/uploads/" + existingFile.get().getFileName().toString();
-                System.out.println("File already exists. Returning existing file URL: " + existingFileUrl);
-                return new ResponseEntity<>(existingFileUrl, HttpStatus.OK);
-            }
-
-            // 새로운 파일 저장
-            Path filePath = uploadPath.resolve(decodedFileName);
+            // 파일명 생성 및 저장 경로 설정
+            String originalFileName = file.getOriginalFilename();
+            String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            String uuid = UUID.randomUUID().toString();
+            String filename = uuid + "_" + originalFileName;
+            Path filePath = uploadPath.resolve(filename);
             Files.copy(file.getInputStream(), filePath);
 
             // 파일 URL 설정
-            String fileUrl = "/uploads/" + decodedFileName;
-            System.out.println("Generated file URL: " + fileUrl);
+            String fileUrl = "/uploads/" + filename;
             return new ResponseEntity<>(fileUrl, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Image upload failed", HttpStatus.INTERNAL_SERVER_ERROR);
