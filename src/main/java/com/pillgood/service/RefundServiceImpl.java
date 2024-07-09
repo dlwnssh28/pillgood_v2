@@ -61,6 +61,13 @@ public class RefundServiceImpl implements RefundService {
         refundRepository.deleteById(refundId);
     }
 
+    @Override
+    public List<RefundDto> getRefundsByOrderNo(String orderNo) {
+        return refundRepository.findByOrderNo(orderNo).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     private RefundDto convertToDto(Refund refundEntity) {
         return new RefundDto(
                 refundEntity.getRefundId(),
