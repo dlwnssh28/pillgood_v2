@@ -11,14 +11,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pillgood.dto.RefundDto;
+import com.pillgood.entity.Order;
 import com.pillgood.entity.Refund;
 import com.pillgood.repository.RefundRepository;
+import com.pillgood.repository.OrderRepository;
 
 @Service
 public class RefundServiceImpl implements RefundService {
 
     @Autowired
     private RefundRepository refundRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Override
     public List<RefundDto> getAllRefunds() {
@@ -30,17 +35,33 @@ public class RefundServiceImpl implements RefundService {
     @Override
     public RefundDto getRefundById(int refundId) {
         Optional<Refund> refundOpt = refundRepository.findById(refundId);
-        return refundOpt.map(this::convertToDto)
-                        .orElseThrow(() -> new NoSuchElementException("Refund not found for id: " + refundId));
+        if (refundOpt.isPresent()) {
+            Refund refund = refundOpt.get();
+            return convertToDto(refund);
+        }
+        throw new NoSuchElementException("Refund not found for id: " + refundId);
     }
 
     @Override
     public RefundDto createRefund(RefundDto refundDto) {
+        // 주문 번호로 주문을 조회하여 주문 금액을 가져옵니다.
+        Optional<Order> orderOpt = orderRepository.findByOrderNo(refundDto.getOrderNo());
+        if (!orderOpt.isPresent()) {
+            throw new NoSuchElementException("Order not found for orderNo: " + refundDto.getOrderNo());
+        }
+        
+        Order order = orderOpt.get();
+        int orderTotalAmount = order.getTotalAmount();
+        
+        // 환불 엔티티 생성 및 주문 금액 설정
         Refund refundEntity = convertToEntity(refundDto);
+        refundEntity.setTotalRefundAmount(orderTotalAmount); // 주문 금액을 환불 금액으로 설정
+        
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-        System.out.println("환불 요청 날짜: " + now); // 로그 추가
-        refundEntity.setRefundRequestDate(now); // 현재 시간 설정
+        refundEntity.setRefundRequestDate(now);
+        
         refundRepository.save(refundEntity);
+        
         return convertToDto(refundEntity);
     }
 
@@ -63,9 +84,16 @@ public class RefundServiceImpl implements RefundService {
 
     @Override
     public List<RefundDto> getRefundsByOrderNo(String orderNo) {
-        return refundRepository.findByOrderNo(orderNo).stream()
+        List<RefundDto> refunds = refundRepository.findByOrderNo(orderNo).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
+        // 주문의 total_amount 가져오기
+        Optional<Order> orderOpt = orderRepository.findByOrderNo(orderNo);
+        if (orderOpt.isPresent()) {
+            int totalAmount = orderOpt.get().getTotalAmount();
+            refunds.forEach(refund -> refund.setOrderTotalAmount(totalAmount)); // 각 환불 DTO에 설정
+        }
+        return refunds;
     }
 
     private RefundDto convertToDto(Refund refundEntity) {
@@ -80,7 +108,8 @@ public class RefundServiceImpl implements RefundService {
                 refundEntity.getRefundAccount(),
                 refundEntity.getAccountHolder(),
                 refundEntity.getRefundStatus(),
-                refundEntity.getOrderNo()
+                refundEntity.getOrderNo(),
+                0 // 기본값 설정, 이후 서비스에서 설정됨
         );
     }
 
