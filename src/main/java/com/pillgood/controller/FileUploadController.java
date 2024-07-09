@@ -5,9 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -25,16 +29,59 @@ public class FileUploadController {
                 Files.createDirectories(uploadPath);
             }
 
-            // 파일명 생성 및 저장 경로 설정
-            String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            Path filePath = uploadPath.resolve(filename);
+            // 파일명 디코딩
+            String decodedFileName = URLDecoder.decode(file.getOriginalFilename(), "UTF-8");
+            System.out.println("Decoded file name: " + decodedFileName);
+
+            // 기존에 동일한 파일이 있는지 확인
+            Optional<Path> existingFile = Files.walk(uploadPath)
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().equals(decodedFileName))
+                    .findFirst();
+
+            if (existingFile.isPresent()) {
+                String existingFileUrl = "/uploads/" + existingFile.get().getFileName().toString();
+                System.out.println("File already exists. Returning existing file URL: " + existingFileUrl);
+                return new ResponseEntity<>(existingFileUrl, HttpStatus.OK);
+            }
+
+            // 새로운 파일 저장
+            Path filePath = uploadPath.resolve(decodedFileName);
             Files.copy(file.getInputStream(), filePath);
 
             // 파일 URL 설정
-            String fileUrl = "/uploads/" + filename;
+            String fileUrl = "/uploads/" + decodedFileName;
+            System.out.println("Generated file URL: " + fileUrl);
             return new ResponseEntity<>(fileUrl, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Image upload failed", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/api/delete/image")
+    public ResponseEntity<String> deleteImage(@RequestBody Map<String, String> request) {
+        try {
+            String url = request.get("url");
+            System.out.println("삭제 요청 이미지 URL: " + url);
+
+            // URL에서 파일 경로만 추출
+            String filePathStr = url.replace("http://localhost:9095/uploads", "");
+            filePathStr = URLDecoder.decode(filePathStr, StandardCharsets.UTF_8.name()); // URL 디코딩
+            Path filePath = Paths.get(uploadDir, filePathStr);
+
+            System.out.println("파일 경로: " + filePath.toString());
+
+            // 파일이 존재하는지 확인하고 삭제
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+                return new ResponseEntity<>("Image deleted successfully", HttpStatus.OK);
+            } else {
+                System.out.println("파일을 찾을 수 없음: " + filePath.toString());
+                return new ResponseEntity<>("File not found", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.out.println("이미지 삭제 실패: " + e.getMessage());
+            return new ResponseEntity<>("Image deletion failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
