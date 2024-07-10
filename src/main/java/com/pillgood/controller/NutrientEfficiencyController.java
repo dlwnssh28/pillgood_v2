@@ -24,6 +24,7 @@ public class NutrientEfficiencyController {
 
     @PostMapping("/admin/nutrientefficiencies/create")
     public ResponseEntity<NutrientEfficiencyDto> createNutrientEfficiency(@RequestBody NutrientEfficiencyDto nutrientEfficiencyDTO) {
+        System.out.println("영양제-효능 생성 시도:" + nutrientEfficiencyDTO);
         NutrientEfficiencyDto createdNutrientEfficiency = nutrientEfficiencyService.createNutrientEfficiency(nutrientEfficiencyDTO);
         return ResponseEntity.ok(createdNutrientEfficiency);
     }

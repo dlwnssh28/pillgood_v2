@@ -124,8 +124,8 @@ public class MemberController {
         return memberService.findByEmail(email);
     }
 
-    
- // 로그아웃 엔드포인트 추가
+
+    // 로그아웃 엔드포인트 추가
     @PostMapping("/api/members/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         session.invalidate(); // 세션 무효화
@@ -167,4 +167,35 @@ public class MemberController {
         }
     }
 
+    // 사용자가 비밀번호 재설정을 위해 이메일 입력 -> 비밀번호 재설정 링크를 전송
+    @PostMapping("/api/members/forgotpassword")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        // 페이지에서 사용자가 작성한 이메일 추출
+        String email = request.get("email");
+
+        // 사용자가 작성한 이메일 주소로 일련번호 전송
+        boolean isSent = memberService.sendResetLink(email);
+
+        // 일련번호 전송에 성공하면, http 200 ok 응답 반환
+        if (isSent) {
+            return ResponseEntity.ok("Reset link sent");
+        } else {
+            // 일련번호 전송에 성공하면, http 400 bad request 응답 반환
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to send reset link");
+        }
+    }
+
+    // 사용자가 토큰을 사용하여 비밀번호를 재설정
+    @PostMapping("/api/members/resetpassword")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("newPassword");
+
+        boolean isReset = memberService.resetPassword(token, newPassword);
+        if (isReset) {
+            return ResponseEntity.ok("Password reset successful");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token");
+        }
+    }
 }
