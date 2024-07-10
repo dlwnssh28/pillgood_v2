@@ -13,4 +13,6 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 
     @Query("SELECT od.product.id, COUNT(od) as salesCount FROM OrderDetail od GROUP BY od.product.id ORDER BY salesCount DESC")
     List<Object[]> findTopSellingProducts();
+    
+    void deleteByOrderOrderNo(String orderNo);
 }

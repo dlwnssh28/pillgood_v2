@@ -98,20 +98,18 @@ public class PaymentService {
     }
 
     private String generatePaymentNo() {
-        // 현재 날짜를 YYMMDD 형식으로 가져옴
-        String datePart = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
-        // 영문자 3자리 생성
-        String alphaPart = generateRandomAlpha(3);
-        return datePart + alphaPart;
+        String dateTimePart = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMdd-HHmmss"));
+        String randomPart = generateRandomAlpha(4);
+        return dateTimePart + "-" + randomPart;
     }
 
     private String generateRandomAlpha(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        StringBuilder result = new StringBuilder();
         Random random = new Random();
-        StringBuilder sb = new StringBuilder();
-        String characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 혼동될 수 있는 문자 제외
         for (int i = 0; i < length; i++) {
-            sb.append(characters.charAt(random.nextInt(characters.length())));
+            result.append(characters.charAt(random.nextInt(characters.length())));
         }
-        return sb.toString();
+        return result.toString();
     }
 }
