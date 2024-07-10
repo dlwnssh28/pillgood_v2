@@ -45,7 +45,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 .requestMatchers("/login", "/css/**", "/images/**", "/js/**").permitAll()
                                 .requestMatchers("/api/**", "/admin/**").permitAll()
                                 .requestMatchers("/uploads/**").permitAll() // 업로드된 파일 경로 허용
-//                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/mypage").authenticated()
                                 .anyRequest().authenticated()
                 )

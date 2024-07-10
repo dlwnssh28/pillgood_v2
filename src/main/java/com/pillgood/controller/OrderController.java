@@ -2,22 +2,26 @@ package com.pillgood.controller;
 
 import com.pillgood.dto.OrderDto;
 import com.pillgood.dto.OrderItemDto;
+import com.pillgood.dto.PaymentRequest;
+import com.pillgood.dto.PaymentResponse;
 import com.pillgood.service.OrderService;
+import com.pillgood.service.PaymentService;
 
 import jakarta.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
+@RequiredArgsConstructor
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
     @GetMapping
     public List<OrderDto> getAllOrders() {
@@ -48,7 +52,7 @@ public class OrderController {
         OrderDto createdOrder = orderService.createOrder(orderDto, orderItems);
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
-
+    
     @PostMapping("/api/orders/prepare")
     public ResponseEntity<String> prepareOrder(@RequestBody List<OrderItemDto> orderItems, HttpSession session) {
         session.setAttribute("orderItems", orderItems);
@@ -65,7 +69,6 @@ public class OrderController {
         }
         return ResponseEntity.ok(orderItems);
     }
-
 
     @PutMapping("/api/orders/update/{orderNo}")
     public ResponseEntity<OrderDto> updateOrder(@PathVariable String orderNo, @RequestBody OrderDto orderDto) {

@@ -51,6 +51,8 @@ public class ReviewController {
 
     @PutMapping("/api/reviews/update/{reviewId}")
     public ResponseEntity<ReviewDto> updateReview(@PathVariable Integer reviewId, @RequestBody ReviewDto reviewDto) {
+        System.out.println("Update request received for reviewId: " + reviewId);
+        System.out.println("ReviewDto: " + reviewDto);
         return reviewService.updateReview(reviewId, reviewDto)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());

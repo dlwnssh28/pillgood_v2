@@ -33,6 +33,4 @@ build/
 .vscode/
 
 ### SecurityConfig ###
-### SecurityConfig.java ###
-
 /uploads
