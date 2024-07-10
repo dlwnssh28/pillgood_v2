@@ -26,6 +26,16 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @GetMapping("/api/products/top-selling")
+    public List<ProductDto> getTopSellingProducts() {
+        return productService.getTopSellingProducts();
+    }
+
+    @GetMapping("/api/products/latest")
+    public List<ProductDto> getLatestProducts() {
+        return productService.getLatestProducts();
+    }
+
     @PostMapping("/admin/products/create")
     public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDTO) {
         System.out.println("----adding new product.");

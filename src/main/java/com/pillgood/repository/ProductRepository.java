@@ -9,4 +9,6 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Integer>{
 
     List<Product> findByActive(boolean active);
+    
+    List<Product> findByOrderByProductRegistrationDateDesc();
 }

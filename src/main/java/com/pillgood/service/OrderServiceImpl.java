@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
     private String generateOrderNo() {
         // 고유한 주문 번호를 생성하는 로직을 구현합니다.
         // 예를 들어, 현재 시간과 랜덤 문자열을 조합하여 생성할 수 있습니다.
-        return "ORD-" + System.currentTimeMillis();
+        return "order-" + UUID.randomUUID().toString().replace("-", "");
     }
 
     @Override
