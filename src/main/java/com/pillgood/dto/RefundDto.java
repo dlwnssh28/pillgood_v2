@@ -23,4 +23,5 @@ public class RefundDto {
     private String accountHolder;
     private String refundStatus;
     private String orderNo;
+    private int orderTotalAmount; // 추가된 필드
 }
