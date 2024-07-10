@@ -3,6 +3,7 @@ package com.pillgood.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,31 +32,39 @@ public class AnswerController {
     public ResponseEntity<AnswerDto> getAnswerById(@PathVariable int id) {
         AnswerDto answerDto = answerService.getAnswerById(id);
         if (answerDto != null) {
-            return ResponseEntity.ok(answerDto);
+        	return ResponseEntity.ok(answerDto);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(new AnswerDto());  // 빈 객체 반환
         }
     }
 
     @PostMapping("/admin/answers/create")
     public ResponseEntity<AnswerDto> createAnswer(@RequestBody AnswerDto answerDto) {
+        System.out.println("Received AnswerDto: " + answerDto); // 전송된 데이터
+        if (answerDto.getInquiry() == null) {
+            System.out.println("InquiryDto is null");
+        } else {
+            System.out.println("InquiryDto: " + answerDto.getInquiry());
+        }
+        
         AnswerDto createdAnswer = answerService.createAnswer(answerDto);
+        System.out.println("created answer:" + createdAnswer);
         return ResponseEntity.ok(createdAnswer);
     }
 
     @PutMapping("/admin/answers/update/{id}")
     public ResponseEntity<AnswerDto> updateAnswer(@PathVariable int id, @RequestBody AnswerDto answerDto) {
         AnswerDto updatedAnswer = answerService.updateAnswer(id, answerDto);
-        if (updatedAnswer != null) {
-            return ResponseEntity.ok(updatedAnswer);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(updatedAnswer);
     }
 
     @DeleteMapping("/admin/answers/delete/{id}")
     public ResponseEntity<Void> deleteAnswer(@PathVariable int id) {
-        answerService.deleteAnswer(id);
-        return ResponseEntity.noContent().build();
+        try {
+            answerService.deleteAnswer(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 }
