@@ -64,6 +64,7 @@ public class MemberServiceImpl implements MemberService {
         Member member = convertToEntity(memberDto);
         member.setPassword(passwordEncoder.encode(memberDto.getPassword()));
         member.setMemberLevel(Role.USER);
+        member.setSubscriptionStatus(false);
         member.setRegistrationDate(LocalDateTime.now());
         member = memberRepository.save(member);
 

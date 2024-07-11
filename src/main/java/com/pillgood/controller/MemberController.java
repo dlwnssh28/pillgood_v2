@@ -2,16 +2,14 @@ package com.pillgood.controller;
 
 import com.pillgood.dto.MemberDto;
 import com.pillgood.service.MemberService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -127,8 +125,14 @@ public class MemberController {
 
     // 로그아웃 엔드포인트 추가
     @PostMapping("/api/members/logout")
-    public ResponseEntity<?> logout(HttpSession session) {
+    public ResponseEntity<?> logout(HttpSession session, HttpServletResponse response) {
         session.invalidate(); // 세션 무효화
+
+        // 캐시 관련 헤더 설정
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+        response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+        response.setHeader("Expires", "0"); // Proxies
+
         System.out.println("로그아웃: 세션 무효화");
         return ResponseEntity.ok("Logout successful");
     }
@@ -197,5 +201,23 @@ public class MemberController {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token");
         }
+    }
+
+    @GetMapping("/api/members/status")
+    public ResponseEntity<Map<String, Object>> getStatus(HttpSession session) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loggedIn");
+        Map<String, Object> response = new HashMap<>();
+
+        if (loggedIn != null && loggedIn) {
+            response.put("isLoggedIn", true);
+            response.put("memberId", session.getAttribute("memberId"));
+            response.put("member", session.getAttribute("member"));
+            response.put("isAdmin", session.getAttribute("isAdmin"));
+            response.put("userName", session.getAttribute("userName"));
+        } else {
+            response.put("isLoggedIn", false);
+        }
+
+        return ResponseEntity.ok(response);
     }
 }
