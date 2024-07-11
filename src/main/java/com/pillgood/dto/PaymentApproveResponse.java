@@ -6,6 +6,7 @@ import lombok.Data;
 public class PaymentApproveResponse {
     private String paymentKey;
     private String orderId;
-    private int amount;
+    private int totalAmount;
+    private String method;
     private String status;
 }
