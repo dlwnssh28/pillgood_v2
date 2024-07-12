@@ -51,7 +51,7 @@ public class OwnedcouponController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/api/ownedcoupons/create")
+    @PostMapping("/admin/ownedcoupons/create")
     public ResponseEntity<OwnedcouponDto> createOwnedCoupon(@RequestBody OwnedcouponDto ownedcouponDto) {
         OwnedcouponDto createdOwnedCoupon = ownedcouponService.createOwnedCoupon(ownedcouponDto);
         return ResponseEntity.ok(createdOwnedCoupon);
