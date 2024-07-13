@@ -17,5 +17,5 @@ public interface OwnedcouponService {
     OwnedcouponDto convertToDto(Ownedcoupon ownedcouponEntity);
     Ownedcoupon convertToEntity(OwnedcouponDto ownedcouponDto);
     void markCouponAsUsed(int ownedCouponId); // 추가된 메서드
-    
+    boolean checkCouponIssued(String memberId, String couponName); // 쿠폰 조회
 }

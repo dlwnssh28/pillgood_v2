@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OwnedcouponDto {
-    private int ownedCouponId;
-    private int couponId;
+    private Integer ownedCouponId;
+    private Integer couponId;
     private String memberUniqueId;
     private boolean couponUsed;
     private LocalDateTime issuedDate;

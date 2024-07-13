@@ -7,8 +7,6 @@ import com.pillgood.entity.Member;
 import com.pillgood.repository.MemberRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -133,7 +131,8 @@ public class MemberServiceImpl implements MemberService {
                 member.getRegistrationDate(),
                 member.getSubscriptionStatus(),
                 member.getModifiedDate(),
-                member.getMemberLevel()
+                member.getMemberLevel(),
+                member.isCouponIssued()
         );
     }
 
@@ -150,6 +149,7 @@ public class MemberServiceImpl implements MemberService {
         member.setSubscriptionStatus(memberDto.getSubscriptionStatus());
         member.setModifiedDate(memberDto.getModifiedDate());
         member.setMemberLevel(memberDto.getMemberLevel());
+        member.setCouponIssued(memberDto.isCouponIssued());
         return member;
     }
 
@@ -219,4 +219,16 @@ public class MemberServiceImpl implements MemberService {
             return false;
         }
     }
+
+    @Override
+    public Optional<MemberDto> updateCouponIssued(String memberId, boolean couponIssued) {
+        return memberRepository.findById(memberId)
+                .map(member -> {
+                    member.setCouponIssued(couponIssued);
+                    member.setModifiedDate(LocalDateTime.now());
+                    Member updatedMember = memberRepository.save(member);
+                    return convertToDto(updatedMember);
+                });
+    }
+
 }

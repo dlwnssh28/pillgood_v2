@@ -1,13 +1,9 @@
 package com.pillgood.controller;
 
-import com.pillgood.dto.CouponDto;
 import com.pillgood.dto.OwnedcouponDto;
 import com.pillgood.service.OwnedcouponService;
-
-import com.pillgood.service.ReviewService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,22 +22,17 @@ public class OwnedcouponController {
         return ResponseEntity.ok(ownedcoupons);
     }
 
-    //접속중인 회원의 보유쿠폰 가져오기
     @GetMapping("/api/ownedcoupons/findbyid")
     public ResponseEntity<?> getOwnedCouponsFindByMemberId(HttpSession session) {
         String memberId = (String) session.getAttribute("memberId");
-        
         if (memberId == null) {
             return new ResponseEntity<>("세션에 memberId가 없습니다.", HttpStatus.UNAUTHORIZED);
         }
-        
         System.out.println(memberId + ": 쿠폰 조회");
         List<OwnedcouponDto> ownedcoupons = ownedcouponService.getOwnedCouponByMemberId(memberId);
-        
         if (ownedcoupons.isEmpty()) {
             return new ResponseEntity<>("보유 쿠폰이 없습니다.", HttpStatus.NOT_FOUND);
         }
-        
         return new ResponseEntity<>(ownedcoupons, HttpStatus.OK);
     }
 
@@ -72,4 +63,6 @@ public class OwnedcouponController {
         }
         return ResponseEntity.notFound().build();
     }
+
+
 }

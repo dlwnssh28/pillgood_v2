@@ -220,4 +220,15 @@ public class MemberController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/api/members/updateCouponIssued/{id}")
+    public ResponseEntity<Void> updateCouponIssued(@PathVariable String id, @RequestBody Map<String, Boolean> request) {
+        Optional<MemberDto> updatedMember = memberService.updateCouponIssued(id, request.get("couponIssued"));
+        if (updatedMember.isPresent()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+
 }

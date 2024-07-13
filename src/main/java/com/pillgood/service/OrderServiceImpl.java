@@ -164,4 +164,16 @@ public class OrderServiceImpl implements OrderService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
+    public OrderDto updateOrderStatus(String orderNo, String status) {
+        Order order = orderRepository.findById(orderNo).orElse(null);
+        if (order != null) {
+            order.setOrderStatus(status);
+            orderRepository.save(order);
+            return new OrderDto(order);
+        }
+        return null;
+    }
+
+
 }
