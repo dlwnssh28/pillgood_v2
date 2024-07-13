@@ -43,7 +43,7 @@ public class Payment {
     private LocalDateTime refundDate;
 
     @Column(name = "subscription_status", nullable = false)
-    private boolean subscriptionStatus;
+    private String subscriptionStatus;
 
     @ManyToOne
     @JoinColumn(name = "order_no", referencedColumnName = "order_no", insertable = false, updatable = false)

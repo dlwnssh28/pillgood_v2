@@ -7,5 +7,5 @@ public class PaymentApproveRequest {
     private String paymentKey;
     private String orderId;
     private int amount;
-    private boolean subscriptionStatus;
+    private String subscriptionStatus;
 }

@@ -14,13 +14,17 @@ import org.springframework.web.client.RestTemplate;
 
 import com.pillgood.dto.BillingAuthRequest;
 import com.pillgood.dto.BillingAuthResponse;
+import com.pillgood.dto.BillingDto;
 import com.pillgood.dto.BillingPaymentRequest;
 import com.pillgood.dto.PaymentApproveRequest;
 import com.pillgood.dto.PaymentApproveResponse;
 import com.pillgood.entity.Billing;
 import com.pillgood.entity.Payment;
+import com.pillgood.entity.Subscription;
 import com.pillgood.repository.BillingRepository;
+import com.pillgood.repository.OrderRepository;
 import com.pillgood.repository.PaymentRepository;
+import com.pillgood.repository.SubscriptionRepository;
 
 @Service
 public class PaymentService {
@@ -29,13 +33,17 @@ public class PaymentService {
     private final String apiKey;
     private final PaymentRepository paymentRepository;
     private final BillingRepository billingRepository;
+    private final SubscriptionRepository subscriptionRepository;
+    private final OrderService orderService;
 
     public PaymentService(RestTemplate restTemplate, @Value("${toss.payments.secretKey}") String apiKey, PaymentRepository paymentRepository, 
-            BillingRepository billingRepository) {
+            BillingRepository billingRepository, SubscriptionRepository subscriptionRepository, OrderService orderService) {
         this.restTemplate = restTemplate;
         this.apiKey = apiKey;
         this.paymentRepository = paymentRepository;
         this.billingRepository = billingRepository;
+        this.subscriptionRepository = subscriptionRepository;
+        this.orderService = orderService;
     }
 
     public BillingAuthResponse issueBillingKey(BillingAuthRequest request) {
@@ -53,11 +61,12 @@ public class PaymentService {
         return responseEntity.getBody();
     }
 
-    public void saveBillingKey(String billingKey, String memberUniqueId) {
+    public BillingDto saveBillingKey(String billingKey, String memberUniqueId) {
         Billing billing = new Billing();
         billing.setBillingKey(billingKey);
         billing.setMemberUniqueId(memberUniqueId);
-        billingRepository.save(billing); // 인스턴스 메서드 호출
+        Billing savedBilling = billingRepository.save(billing); // 인스턴스 메서드 호출
+        return convertToDto(savedBilling);
     }
 
     public Billing getBillingByMemberUniqueId(String memberUniqueId) {
@@ -75,15 +84,19 @@ public class PaymentService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<BillingPaymentRequest> requestEntity = new HttpEntity<>(request, headers);
-        try {
-            ResponseEntity<PaymentApproveResponse> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, PaymentApproveResponse.class);
-            return responseEntity.getBody();
-        } catch (Exception e) {
-            System.out.println("RestTemplate 예외 발생: " + e.getMessage());
-            e.printStackTrace();
-            return null;
+
+        PaymentApproveResponse response = restTemplate.postForObject(url, requestEntity, PaymentApproveResponse.class);
+        
+        // 결제 승인 성공 시 콘솔에 로그 출력
+        if (response != null) {
+            System.out.println("결제 승인 성공: " + response);
+            savePaymentDetails(request, response);
+        } else {
+            System.out.println("결제 승인 실패");
         }
-    }
+        return response;
+
+	}
 
     public PaymentApproveResponse approvePayment(PaymentApproveRequest approveRequest) {
         String url = "https://api.tosspayments.com/v1/payments/confirm";
@@ -118,9 +131,41 @@ public class PaymentService {
         payment.setStatus(approveResponse.getStatus());
         payment.setMethod(approveResponse.getMethod());
         payment.setPaymentDate(LocalDateTime.now());
-        payment.setSubscriptionStatus(approveRequest.isSubscriptionStatus()); // 수정된 부분
+        payment.setSubscriptionStatus(approveResponse.getType()); // 수정된 부분
 
         // 추가 정보를 설정할 수 있습니다.
         paymentRepository.save(payment);
+        orderService.updateOrderStatusToPaid(approveResponse.getOrderId()); // 주문 상태 업데이트
+    }
+    
+    private void savePaymentDetails(BillingPaymentRequest request, PaymentApproveResponse approveResponse) {
+
+        Payment payment = new Payment();
+        payment.setPaymentNo(approveResponse.getPaymentKey());
+        payment.setOrderNo(approveResponse.getOrderId());
+        payment.setAmount(approveResponse.getTotalAmount());
+        payment.setStatus(approveResponse.getStatus());
+        payment.setMethod(approveResponse.getMethod());
+        payment.setPaymentDate(LocalDateTime.now());
+        payment.setSubscriptionStatus(approveResponse.getType()); // 수정된 부분
+
+        // 추가 정보를 설정할 수 있습니다.
+        paymentRepository.save(payment);
+        
+        Subscription subscription = new Subscription();
+        subscription.setMemberUniqueId(request.getCustomerKey());
+        subscription.setStartDate(LocalDateTime.now());
+        subscription.setSubscriptionStatus("T");
+        subscription.setPaymentNo(approveResponse.getPaymentKey());
+        
+        subscriptionRepository.save(subscription);
+        orderService.updateOrderStatusToPaid(approveResponse.getOrderId()); // 주문 상태 업데이트
+    }
+    
+    private BillingDto convertToDto(Billing billing) {
+        BillingDto billingDto = new BillingDto();
+        billingDto.setBillingKey(billing.getBillingKey());
+        billingDto.setMemberUniqueId(billing.getMemberUniqueId());
+        return billingDto;
     }
 }

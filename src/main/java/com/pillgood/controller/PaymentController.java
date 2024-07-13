@@ -59,17 +59,17 @@ public class PaymentController {
     }
 
     @PostMapping("/issue-billing-key")
-    public ResponseEntity<BillingAuthResponse> issueBillingKey(@RequestBody BillingAuthRequest request, HttpSession session) {
+    public ResponseEntity<BillingAuthResponse> issueBillingKey(@RequestBody BillingAuthRequest request) {
         try {
             BillingAuthResponse response = paymentService.issueBillingKey(request);
             if (response != null) {
                 System.out.println("빌링키 발급 : " + response);
-                // 세션에서 memberId 가져오기
-                String memberId = (String) session.getAttribute("memberId");
+                
+                String memberId = response.getCustomerKey();
                 if (memberId != null) {
                     paymentService.saveBillingKey(response.getBillingKey(), memberId);
                 } else {
-                    System.out.println("memberId가 세션에 없습니다.");
+                    System.out.println("memberId가 없습니다.");
                 }
                 return ResponseEntity.ok(response);
             } else {
@@ -81,18 +81,19 @@ public class PaymentController {
     }
 
     @PostMapping("/confirm-billing")
-    public ResponseEntity<PaymentApproveResponse> confirmBilling(HttpSession session, @RequestBody BillingPaymentRequest request) {
+    public ResponseEntity<PaymentApproveResponse> confirmBilling(@RequestBody BillingPaymentRequest request) {
         try {
             System.out.println("API 호출 확인 - confirmBilling");
 
             // 세션에서 memberUniqueId 가져오기
-            String memberUniqueId = (String) session.getAttribute("memberId");
-            if (memberUniqueId == null) {
+            String memberId = request.getCustomerKey();
+            if (memberId == null) {
+            	System.out.println("memberId가 없습니다");
                 return ResponseEntity.status(400).body(null);
             }
 
             // memberUniqueId로 billingKey 가져오기
-            Billing billing = paymentService.getBillingByMemberUniqueId(memberUniqueId);
+            Billing billing = paymentService.getBillingByMemberUniqueId(memberId);
             if (billing == null) {
                 return ResponseEntity.status(404).body(null);
             }

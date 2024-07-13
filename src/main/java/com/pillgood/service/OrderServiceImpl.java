@@ -188,5 +188,17 @@ public class OrderServiceImpl implements OrderService {
         }
         return result.toString();
     }
-
+    
+    @Override
+    @Transactional
+    public void updateOrderStatusToPaid(String orderNo) {
+        Optional<Order> orderOpt = orderRepository.findByOrderNo(orderNo);
+        if (orderOpt.isPresent()) {
+            Order order = orderOpt.get();
+            order.setOrderStatus("결제완료");
+            orderRepository.save(order);
+        } else {
+            throw new IllegalArgumentException("Order not found: " + orderNo);
+        }
+    }
 }

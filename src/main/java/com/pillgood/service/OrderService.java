@@ -13,4 +13,5 @@ public interface OrderService {
     void deleteOrder(String orderNo);
     List<OrderDto> getOrdersByUserId(String memberId); // 메서드 추가
 	void cancelOrder(String orderNo);
+	void updateOrderStatusToPaid(String orderNo);
 }
