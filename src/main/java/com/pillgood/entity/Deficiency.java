@@ -1,5 +1,7 @@
 package com.pillgood.entity;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -30,4 +32,7 @@ public class Deficiency {
     public void setDeficiencyName(String deficiencyName) {
         this.deficiencyName = deficiencyName;
     }
+    
+    @ManyToMany(mappedBy = "deficiencies")
+    private List<Product> products;
 }

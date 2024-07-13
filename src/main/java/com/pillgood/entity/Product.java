@@ -1,6 +1,7 @@
 package com.pillgood.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -46,4 +47,12 @@ public class Product {
 
     @Column(name = "active", nullable = false, columnDefinition = "TINYINT(1)")
     private boolean active;
+    
+    @ManyToMany
+    @JoinTable(
+        name = "product_deficiency",
+        joinColumns = @JoinColumn(name = "product_id"),
+        inverseJoinColumns = @JoinColumn(name = "deficiency_id")
+    )
+    private List<Deficiency> deficiencies;
 }

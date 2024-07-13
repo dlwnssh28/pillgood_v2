@@ -5,7 +5,6 @@ import com.pillgood.entity.Survey;
 import com.pillgood.repository.MemberRepository;
 import com.pillgood.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,42 +43,14 @@ public class SurveyServiceImpl implements SurveyService {
                 .collect(Collectors.toList());
     }
 
-//    @Override
-//    public SurveyDto createSurvey(SurveyDto surveyDto) {
-//        // member_unique_id가 null이거나 해당 ID가 존재하지 않는 경우 예외를 던짐
-//        if (surveyDto.getMemberUniqueId() == null || !memberRepository.existsById(surveyDto.getMemberUniqueId())) {
-//            throw new IllegalArgumentException("Invalid member ID: " + surveyDto.getMemberUniqueId());
-//        }
-//
-//        // 설문 엔티티로 변환
-//        Survey surveyEntity = convertToEntity(surveyDto);
-//
-//        // 설문 엔티티를 데이터베이스에 저장
-//        Survey savedSurvey = surveyRepository.save(surveyEntity);
-//
-//        // 저장된 설문 엔티티를 DTO로 변환하여 반환
-//        return convertToDto(savedSurvey);
-//    }
-    
     @Override
     public SurveyDto createSurvey(SurveyDto surveyDto) {
-    	
-    	//수식된 데이터 로그로 출력
-    	System.out.println("impl; Received surveyDto: "+surveyDto);
-    	
-        // member_unique_id가 null이거나 해당 ID가 존재하지 않는 경우 예외를 던짐
         if (surveyDto.getMemberUniqueId() == null || !memberRepository.existsById(surveyDto.getMemberUniqueId())) {
-            System.out.println("Invalid member ID: " + surveyDto.getMemberUniqueId()); // 로그 추가
             throw new IllegalArgumentException("Invalid member ID: " + surveyDto.getMemberUniqueId());
         }
 
-        // 설문 엔티티로 변환
         Survey surveyEntity = convertToEntity(surveyDto);
-
-        // 설문 엔티티를 데이터베이스에 저장
         Survey savedSurvey = surveyRepository.save(surveyEntity);
-
-        // 저장된 설문 엔티티를 DTO로 변환하여 반환
         return convertToDto(savedSurvey);
     }
 
@@ -149,5 +120,30 @@ public class SurveyServiceImpl implements SurveyService {
                 surveyDto.getRecommendedProducts(),
                 surveyDto.getKeywords()
         );
+    }
+
+    @Override
+    public SurveyDto createOrUpdateSurvey(SurveyDto surveyDto) {
+        List<Survey> existingSurveys = surveyRepository.findByMemberUniqueId(surveyDto.getMemberUniqueId());
+
+        if (existingSurveys.isEmpty()) {
+            return createSurvey(surveyDto);
+        } else {
+            Survey existingSurvey = existingSurveys.get(0);
+            existingSurvey.setMemberUniqueId(surveyDto.getMemberUniqueId());
+            existingSurvey.setName(surveyDto.getName());
+            existingSurvey.setAge(surveyDto.getAge());
+            existingSurvey.setGender(surveyDto.getGender());
+            existingSurvey.setHeight(surveyDto.getHeight());
+            existingSurvey.setWeight(surveyDto.getWeight());
+            existingSurvey.setDeficiencyId1(surveyDto.getDeficiencyId1());
+            existingSurvey.setDeficiencyId2(surveyDto.getDeficiencyId2());
+            existingSurvey.setDeficiencyId3(surveyDto.getDeficiencyId3());
+            existingSurvey.setSurveyDate(surveyDto.getSurveyDate());
+            existingSurvey.setRecommendedProducts(surveyDto.getRecommendedProducts());
+            existingSurvey.setKeywords(surveyDto.getKeywords());
+            Survey updatedSurvey = surveyRepository.save(existingSurvey);
+            return convertToDto(updatedSurvey);
+        }
     }
 }

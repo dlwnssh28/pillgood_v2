@@ -84,4 +84,12 @@ public class ProductController {
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+    
+    @GetMapping("/api/products/by-deficiency")
+    public ResponseEntity<List<ProductDto>> getProductsByDeficiency(@RequestParam List<Integer> deficiencyIds) {
+    	System.out.println("(controller) Fetching products for deficiencies: {}"+ deficiencyIds);
+        List<ProductDto> products = productService.getProductsByDeficiency(deficiencyIds);
+        System.out.println("(controller) Found products: {}"+ products);
+        return ResponseEntity.ok(products);
+    }
 }
