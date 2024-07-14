@@ -54,4 +54,6 @@ public class Product {
         inverseJoinColumns = @JoinColumn(name = "deficiency_id")
     )
     private List<Deficiency> deficiencies;
+
 }
+
