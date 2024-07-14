@@ -2,6 +2,7 @@ package com.pillgood.service;
 
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -19,12 +20,15 @@ import com.pillgood.dto.BillingPaymentRequest;
 import com.pillgood.dto.PaymentApproveRequest;
 import com.pillgood.dto.PaymentApproveResponse;
 import com.pillgood.entity.Billing;
+import com.pillgood.entity.OrderDetail;
 import com.pillgood.entity.Payment;
 import com.pillgood.entity.Subscription;
 import com.pillgood.repository.BillingRepository;
 import com.pillgood.repository.OrderRepository;
 import com.pillgood.repository.PaymentRepository;
 import com.pillgood.repository.SubscriptionRepository;
+
+import jakarta.servlet.http.HttpSession;
 
 @Service
 public class PaymentService {
@@ -35,15 +39,20 @@ public class PaymentService {
     private final BillingRepository billingRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final OrderService orderService;
+    private final CartService cartService;
+    private final HttpSession session;
 
     public PaymentService(RestTemplate restTemplate, @Value("${toss.payments.secretKey}") String apiKey, PaymentRepository paymentRepository, 
-            BillingRepository billingRepository, SubscriptionRepository subscriptionRepository, OrderService orderService) {
+            BillingRepository billingRepository, SubscriptionRepository subscriptionRepository, OrderService orderService, 
+            CartService cartService, HttpSession session)  {
         this.restTemplate = restTemplate;
         this.apiKey = apiKey;
         this.paymentRepository = paymentRepository;
         this.billingRepository = billingRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.orderService = orderService;
+        this.cartService = cartService;
+        this.session = session;
     }
 
     public BillingAuthResponse issueBillingKey(BillingAuthRequest request) {
@@ -121,7 +130,8 @@ public class PaymentService {
 
         return response;
     }
-
+    
+    // 결제 승인 후 결제 정보를 저장하고, 장바구니에서 결제한 상품을 삭제하는 메서드
     private void savePaymentDetails(PaymentApproveRequest approveRequest, PaymentApproveResponse approveResponse) {
 
         Payment payment = new Payment();
@@ -136,8 +146,12 @@ public class PaymentService {
         // 추가 정보를 설정할 수 있습니다.
         paymentRepository.save(payment);
         orderService.updateOrderStatusToPaid(approveResponse.getOrderId()); // 주문 상태 업데이트
+
+        String memberId = (String) session.getAttribute("memberId");
+        deletePurchasedItemsFromCart(memberId, approveRequest.getOrderId());
     }
     
+    // BillingPaymentRequest에 대한 결제 정보 저장 메서드 추가
     private void savePaymentDetails(BillingPaymentRequest request, PaymentApproveResponse approveResponse) {
 
         Payment payment = new Payment();
@@ -160,6 +174,17 @@ public class PaymentService {
         
         subscriptionRepository.save(subscription);
         orderService.updateOrderStatusToPaid(approveResponse.getOrderId()); // 주문 상태 업데이트
+        deletePurchasedItemsFromCart(request.getCustomerKey(), request.getOrderId());
+    }
+    
+    private void deletePurchasedItemsFromCart(String memberUniqueId, String orderId) {
+        // OrderId를 통해 주문 상세 내역을 가져옴
+        List<OrderDetail> orderDetails = orderService.getOrderDetailsByOrderId(orderId);
+
+        // 각 주문 상세 내역의 상품을 장바구니에서 삭제
+        for (OrderDetail orderDetail : orderDetails) {
+            cartService.deleteCart(orderDetail.getProduct().getProductId(), memberUniqueId);
+        }
     }
     
     private BillingDto convertToDto(Billing billing) {

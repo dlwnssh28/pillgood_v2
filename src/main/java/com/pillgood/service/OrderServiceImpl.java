@@ -172,6 +172,12 @@ public class OrderServiceImpl implements OrderService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<OrderDetail> getOrderDetailsByOrderId(String orderId) {
+        return orderDetailRepository.findByOrderOrderNo(orderId);
+    }
+
     
     private String generateOrderNo() {
         String datePart = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
