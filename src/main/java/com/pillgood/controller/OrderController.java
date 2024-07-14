@@ -1,22 +1,27 @@
 package com.pillgood.controller;
 
 import com.pillgood.dto.OrderDto;
+import com.pillgood.dto.OrderItemDto;
+import com.pillgood.dto.PaymentRequest;
+import com.pillgood.dto.PaymentResponse;
 import com.pillgood.service.OrderService;
+import com.pillgood.service.PaymentService;
 
 import jakarta.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
+@RequiredArgsConstructor
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
     @GetMapping
     public List<OrderDto> getAllOrders() {
@@ -40,8 +45,29 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         orderDto.setMemberUniqueId(memberId);
-        OrderDto createdOrder = orderService.createOrder(orderDto);
+
+        // 주문 상품 목록 가져오기
+        List<OrderItemDto> orderItems = (List<OrderItemDto>) session.getAttribute("orderItems");
+
+        OrderDto createdOrder = orderService.createOrder(orderDto, orderItems);
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+    }
+    
+    @PostMapping("/api/orders/prepare")
+    public ResponseEntity<String> prepareOrder(@RequestBody List<OrderItemDto> orderItems, HttpSession session) {
+        session.setAttribute("orderItems", orderItems);
+        System.out.println("주문 상품 정보 POST : " + orderItems);
+        return new ResponseEntity<>("Order details set in session", HttpStatus.OK);
+    }
+
+    @GetMapping("/api/orders/prepare")
+    public ResponseEntity<?> getPreparedOrder(HttpSession session) {
+        List<OrderItemDto> orderItems = (List<OrderItemDto>) session.getAttribute("orderItems");
+        System.out.println("주문 상품 정보 GET : " + orderItems);
+        if (orderItems == null) {
+            return new ResponseEntity<>("No order details in session", HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(orderItems);
     }
 
     @PutMapping("/api/orders/update/{orderNo}")
@@ -58,5 +84,20 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrder(@PathVariable String orderNo) {
         orderService.deleteOrder(orderNo);
         return ResponseEntity.noContent().build();
+    }
+
+    // 사용자 ID 기반 주문 내역 조회
+    @GetMapping("/api/orders/member")
+    public ResponseEntity<List<OrderDto>> getOrdersByUserId(HttpSession session) {
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        List<OrderDto> orders = orderService.getOrdersByUserId(memberId);
+        if (orders != null && !orders.isEmpty()) {
+            return ResponseEntity.ok(orders);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
     }
 }

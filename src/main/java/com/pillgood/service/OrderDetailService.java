@@ -10,4 +10,5 @@ public interface OrderDetailService {
     OrderDetailDto createOrderDetail(OrderDetailDto orderDetailDto);
     OrderDetailDto updateOrderDetail(int orderDetailNo, OrderDetailDto orderDetailDto);
     void deleteOrderDetail(int orderDetailNo);
+    List<OrderDetailDto> getOrderDetailsByOrderNo(String orderNo);
 }

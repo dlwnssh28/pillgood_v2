@@ -44,7 +44,7 @@ public class CartServiceImpl implements CartService {
     public List<CartDto> getCartByMemberId(String memberId) {
         System.out.println(memberId + ": 상품 조회");
         return cartRepository.findByMemberUniqueId(memberId).stream()
-                .map(this::convertToDto)
+                .map(this::convertToDtoWithProductName)
                 .collect(Collectors.toList());
     }
 
@@ -68,6 +68,23 @@ public class CartServiceImpl implements CartService {
         }
         return false;
     }
+    
+    @Override
+    public Optional<CartDto> addOrUpdateCart(CartDto cartDto) {
+        List<Cart> existingCarts = cartRepository.findByMemberUniqueId(cartDto.getMemberUniqueId());
+        Optional<Cart> existingCart = existingCarts.stream()
+                .filter(cart -> cart.getProductId() == cartDto.getProductId())
+                .findFirst();
+
+        if (existingCart.isPresent()) {
+            Cart cart = existingCart.get();
+            cart.setProductQuantity(cart.getProductQuantity() + cartDto.getProductQuantity());
+            cartRepository.save(cart);
+            return Optional.of(convertToDto(cart));
+        } else {
+            return Optional.of(createCart(cartDto));
+        }
+    }
 
     private CartDto convertToDto(Cart cart) {
         CartDto cartDto = new CartDto();
@@ -76,10 +93,21 @@ public class CartServiceImpl implements CartService {
         cartDto.setProductId(cart.getProductId());
         cartDto.setProductQuantity(cart.getProductQuantity());
         
-        // productId를 통해 products 테이블에서 price 정보를 가져옴
+     // productId를 통해 products 테이블에서 상품 정보를 가져옴
         Product product = productRepository.findById(cart.getProductId())
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다: " + cart.getProductId()));
         cartDto.setPrice(product.getPrice());
+        cartDto.setProductName(product.getProductName()); // 상품 이름 설정
+        
+        return cartDto;
+    }
+
+    private CartDto convertToDtoWithProductName(Cart cart) {
+        CartDto cartDto = convertToDto(cart);
+        // productId를 통해 products 테이블에서 productName 정보를 가져옴
+        Product product = productRepository.findById(cart.getProductId())
+                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다: " + cart.getProductId()));
+        cartDto.setProductName(product.getProductName());
         
         return cartDto;
     }

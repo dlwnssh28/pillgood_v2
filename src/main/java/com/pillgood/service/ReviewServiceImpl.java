@@ -1,12 +1,16 @@
 package com.pillgood.service;
 
+import com.pillgood.dto.MemberDto;
 import com.pillgood.dto.ReviewDto;
+import com.pillgood.entity.OrderDetail;
 import com.pillgood.entity.Review;
+import com.pillgood.repository.OrderDetailRepository;
 import com.pillgood.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,6 +21,8 @@ import java.util.stream.Collectors;
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final OrderDetailRepository orderDetailRepository;
+    private final MemberService memberService;
 
     @Override
     public List<ReviewDto> getAllReviews() {
@@ -24,6 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public Optional<ReviewDto> getReviewById(int reviewId) {
@@ -33,7 +40,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewDto createReview(ReviewDto reviewDto) {
-        Review reviewEntity = convertToEntity(reviewDto);
+        OrderDetail orderDetail = orderDetailRepository.findById(reviewDto.getOrderDetailNo())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid order detail ID"));
+
+        reviewDto.setReviewDate(LocalDateTime.now());
+
+        Review reviewEntity = convertToEntity(reviewDto, orderDetail);
         Review savedReview = reviewRepository.save(reviewEntity);
         return convertToDto(savedReview);
     }
@@ -64,7 +76,7 @@ public class ReviewServiceImpl implements ReviewService {
         return new ReviewDto(
                 reviewEntity.getReviewId(),
                 reviewEntity.getMemberUniqueId(),
-                reviewEntity.getOrderNo(),
+                reviewEntity.getOrderDetail().getOrderDetailNo(),
                 reviewEntity.getReviewDate(),
                 reviewEntity.getReviewContent(),
                 reviewEntity.getRating(),
@@ -73,11 +85,11 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Review convertToEntity(ReviewDto reviewDto) {
+    public Review convertToEntity(ReviewDto reviewDto, OrderDetail orderDetail) {
         return new Review(
-                reviewDto.getReviewId(),
+                null, // reviewId는 자동으로 생성됨
                 reviewDto.getMemberUniqueId(),
-                reviewDto.getOrderNo(),
+                orderDetail,
                 reviewDto.getReviewDate(),
                 reviewDto.getReviewContent(),
                 reviewDto.getRating(),

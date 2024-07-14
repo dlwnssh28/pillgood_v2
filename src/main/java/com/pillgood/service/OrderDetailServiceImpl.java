@@ -2,7 +2,11 @@ package com.pillgood.service;
 
 import com.pillgood.dto.OrderDetailDto;
 import com.pillgood.entity.OrderDetail;
+import com.pillgood.entity.Order;
+import com.pillgood.entity.Product;
 import com.pillgood.repository.OrderDetailRepository;
+import com.pillgood.repository.OrderRepository;
+import com.pillgood.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +19,12 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Autowired
     private OrderDetailRepository orderDetailRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Override
     public List<OrderDetailDto> getAllOrderDetails() {
@@ -56,8 +66,8 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     private OrderDetailDto convertToDto(OrderDetail orderDetailEntity) {
         return new OrderDetailDto(
                 orderDetailEntity.getOrderDetailNo(),
-                orderDetailEntity.getOrderNo(),
-                orderDetailEntity.getProductId(),
+                orderDetailEntity.getOrder().getOrderNo(),
+                orderDetailEntity.getProduct().getProductId(),
                 orderDetailEntity.getQuantity(),
                 orderDetailEntity.getAmount()
         );
@@ -66,17 +76,33 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     private OrderDetail convertToEntity(OrderDetailDto orderDetailDto) {
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setOrderDetailNo(orderDetailDto.getOrderDetailNo());
-        orderDetail.setOrderNo(orderDetailDto.getOrderNo());
-        orderDetail.setProductId(orderDetailDto.getProductId());
+
+        Optional<Order> orderOpt = orderRepository.findById(orderDetailDto.getOrderNo());
+        orderOpt.ifPresent(order -> orderDetail.setOrder(order));
+
+        Optional<Product> productOpt = productRepository.findById(orderDetailDto.getProductId());
+        productOpt.ifPresent(product -> orderDetail.setProduct(product));
+
         orderDetail.setQuantity(orderDetailDto.getQuantity());
         orderDetail.setAmount(orderDetailDto.getAmount());
         return orderDetail;
     }
 
     private void updateEntityFromDto(OrderDetail orderDetailEntity, OrderDetailDto orderDetailDto) {
-        orderDetailEntity.setOrderNo(orderDetailDto.getOrderNo());
-        orderDetailEntity.setProductId(orderDetailDto.getProductId());
+        Optional<Order> orderOpt = orderRepository.findById(orderDetailDto.getOrderNo());
+        orderOpt.ifPresent(order -> orderDetailEntity.setOrder(order));
+
+        Optional<Product> productOpt = productRepository.findById(orderDetailDto.getProductId());
+        productOpt.ifPresent(product -> orderDetailEntity.setProduct(product));
+
         orderDetailEntity.setQuantity(orderDetailDto.getQuantity());
         orderDetailEntity.setAmount(orderDetailDto.getAmount());
+    }
+
+    @Override
+    public List<OrderDetailDto> getOrderDetailsByOrderNo(String orderNo) {
+        return orderDetailRepository.findByOrderOrderNo(orderNo).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 }

@@ -2,6 +2,7 @@ package com.pillgood.service;
 
 import com.pillgood.dto.ReviewDto;
 import com.pillgood.entity.Review;
+import com.pillgood.entity.OrderDetail;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,5 +14,5 @@ public interface ReviewService {
     Optional<ReviewDto> updateReview(int reviewId, ReviewDto updatedReviewDto);
     boolean deleteReview(int reviewId);
     ReviewDto convertToDto(Review reviewEntity);
-    Review convertToEntity(ReviewDto reviewDto);
+    Review convertToEntity(ReviewDto reviewDto, OrderDetail orderDetail);
 }

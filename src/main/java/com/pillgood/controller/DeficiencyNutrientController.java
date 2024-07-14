@@ -3,6 +3,7 @@ package com.pillgood.controller;
 import com.pillgood.dto.DeficiencyNutrientDto;
 import com.pillgood.service.DeficiencyNutrientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,10 +33,9 @@ public class DeficiencyNutrientController {
     }
 
     @GetMapping("/api/deficiency-nutrients/list")
-    public String getAllDeficiencyNutrients(Model model) {
+    public ResponseEntity<List<DeficiencyNutrientDto>> getAllDeficiencyNutrients() {
         List<DeficiencyNutrientDto> deficiencyNutrients = deficiencyNutrientService.getAllDeficiencyNutrients();
-        model.addAttribute("deficiencyNutrients", deficiencyNutrients);
-        return "deficiencyNutrients";
+        return ResponseEntity.ok(deficiencyNutrients);
     }
 
     @DeleteMapping("/admin/deficiency-nutrients/delete/{id}")

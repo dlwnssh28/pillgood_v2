@@ -9,7 +9,6 @@ import java.util.Optional;
 
 public interface OwnedcouponService {
     List<OwnedcouponDto> getAllOwnedCoupons();
-    List<OwnedcouponDto> getOwnedCouponsByMember(String memberUniqueId);
     List<OwnedcouponDto> getOwnedCouponByMemberId(String memberId);
     Optional<OwnedcouponDto> getOwnedCouponById(int ownedCouponId);
     OwnedcouponDto createOwnedCoupon(OwnedcouponDto ownedcouponDto);
@@ -17,4 +16,6 @@ public interface OwnedcouponService {
     boolean deleteOwnedCoupon(int ownedCouponId);
     OwnedcouponDto convertToDto(Ownedcoupon ownedcouponEntity);
     Ownedcoupon convertToEntity(OwnedcouponDto ownedcouponDto);
+    void markCouponAsUsed(int ownedCouponId); // 추가된 메서드
+    
 }

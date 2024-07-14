@@ -12,12 +12,18 @@ import com.pillgood.dto.InquiryDto;
 import com.pillgood.entity.Answer;
 import com.pillgood.entity.Inquiry;
 import com.pillgood.repository.AnswerRepository;
+import com.pillgood.repository.InquiryRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class AnswerServiceImpl implements AnswerService {
 
     @Autowired
     private AnswerRepository answerRepository;
+    
+    @Autowired
+    private InquiryRepository inquiryRepository;
 
     @Override
     public List<AnswerDto> getAllAnswers() {
@@ -33,29 +39,51 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     @Override
+    @Transactional
     public AnswerDto createAnswer(AnswerDto answerDto) {
-        Answer answerEntity = convertToEntity(answerDto);
-        answerRepository.save(answerEntity);
-        return convertToDto(answerEntity);
+        Answer answer = new Answer();
+        answer.setAnswerContent(answerDto.getAnswerContent());
+        answer.setAnswerDate(answerDto.getAnswerDate());
+
+        Inquiry inquiry = inquiryRepository.findById(answerDto.getInquiry().getInquiryNo())
+                .orElseThrow(() -> new RuntimeException("Inquiry not found"));
+        answer.setInquiry(inquiry);
+
+        // 문의 상태를 '답변 완료'로 변경
+        inquiry.setInquiryStatus("답변 완료");
+        inquiryRepository.save(inquiry);
+
+        Answer savedAnswer = answerRepository.save(answer);
+
+        return new AnswerDto(savedAnswer);
     }
 
     @Override
-    public AnswerDto updateAnswer(int inquiryNo, AnswerDto answerDto) {
-        Optional<Answer> answerOpt = answerRepository.findById(inquiryNo);
+    public AnswerDto updateAnswer(int id, AnswerDto answerDto) {
+        Answer answer = answerRepository.findById(id).orElseThrow(() -> new RuntimeException("Answer not found"));
+        answer.setAnswerContent(answerDto.getAnswerContent());
+        answer.setAnswerDate(answerDto.getAnswerDate());
+
+        Answer updatedAnswer = answerRepository.save(answer);
+        return new AnswerDto(updatedAnswer.getInquiry().getInquiryNo(), updatedAnswer.getAnswerContent(), updatedAnswer.getAnswerDate(), new InquiryDto(updatedAnswer.getInquiry()));
+    }
+
+    @Override
+    public void deleteAnswer(int id) {
+        Optional<Answer> answerOpt = answerRepository.findById(id);
         if (answerOpt.isPresent()) {
-            Answer answerEntity = answerOpt.get();
-            updateEntityFromDto(answerEntity, answerDto);
-            answerRepository.save(answerEntity);
-            return convertToDto(answerEntity);
+            Answer answer = answerOpt.get();
+            Inquiry inquiry = answer.getInquiry();
+            if (inquiry != null) {
+                inquiry.setInquiryStatus("미답변"); // 상태 변경
+                inquiryRepository.save(inquiry); // 문의 상태 저장
+            }
+            answerRepository.delete(answer);
+        } else {
+            throw new RuntimeException("답변을 찾을 수 없습니다.");
         }
-        return null;
     }
-
-    @Override
-    public void deleteAnswer(int inquiryNo) {
-        answerRepository.deleteById(inquiryNo);
-    }
-
+    
     private AnswerDto convertToDto(Answer answerEntity) {
         return new AnswerDto(
                 answerEntity.getInquiryNo(),
@@ -74,10 +102,14 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     private Answer convertToEntity(AnswerDto answerDto) {
+        if (answerDto == null || answerDto.getInquiry() == null) {
+            throw new NullPointerException("AnswerDto or InquiryDto is null");
+        }
+
         Answer answer = new Answer();
-        answer.setInquiryNo(answerDto.getInquiryNo());
         answer.setAnswerContent(answerDto.getAnswerContent());
         answer.setAnswerDate(answerDto.getAnswerDate());
+
         Inquiry inquiry = new Inquiry();
         inquiry.setInquiryNo(answerDto.getInquiry().getInquiryNo());
         inquiry.setMemberUniqueId(answerDto.getInquiry().getMemberUniqueId());
@@ -86,6 +118,7 @@ public class AnswerServiceImpl implements AnswerService {
         inquiry.setInquiryType(answerDto.getInquiry().getInquiryType());
         inquiry.setInquiryTitle(answerDto.getInquiry().getInquiryTitle());
         inquiry.setInquiryContent(answerDto.getInquiry().getInquiryContent());
+
         answer.setInquiry(inquiry);
         return answer;
     }

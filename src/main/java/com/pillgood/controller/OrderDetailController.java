@@ -50,4 +50,9 @@ public class OrderDetailController {
         orderDetailService.deleteOrderDetail(orderDetailNo);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/api/order-details/order/{orderNo}")
+    public List<OrderDetailDto> getOrderDetailsByOrderNo(@PathVariable String orderNo) {
+        return orderDetailService.getOrderDetailsByOrderNo(orderNo);
+    }
 }

@@ -4,6 +4,7 @@ import com.pillgood.security.CustomAuthenticationSuccessHandler;
 import com.pillgood.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -41,12 +42,12 @@ public class SecurityConfig implements WebMvcConfigurer {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/css/**", "/images/**", "/js/**").permitAll()
-                        .requestMatchers("/api/**", "/admin/**").permitAll()
-                        .requestMatchers("/uploads/**").permitAll() // 업로드된 파일 경로 허용
-//                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/mypage").authenticated()
-                        .anyRequest().authenticated()
+                                .requestMatchers("/login", "/css/**", "/images/**", "/js/**").permitAll()
+                                .requestMatchers("/api/**", "/admin/**").permitAll()
+                                .requestMatchers("/uploads/**").permitAll() // 업로드된 파일 경로 허용
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/mypage").authenticated()
+                                .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
                         .loginPage("/api/members/login")
@@ -87,7 +88,14 @@ public class SecurityConfig implements WebMvcConfigurer {
                 registry.addMapping("/**")
                         .allowedOrigins("http://localhost:8080")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
+//                        .allowedMethods(
+//                        		HttpMethod.GET.name(),
+//                        		HttpMethod.POST.name(),
+//                        		HttpMethod.PUT.name(),
+//                        		HttpMethod.DELETE.name(),
+//                        		HttpMethod.OPTIONS.name()
+//                        		)
+//                        .allowedHeaders("*")
                         .allowCredentials(true);
             }
 

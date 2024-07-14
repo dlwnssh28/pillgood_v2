@@ -1,13 +1,13 @@
 package com.pillgood.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 @Entity
 @Table(name = "products")
@@ -46,4 +46,12 @@ public class Product {
 
     @Column(name = "active", nullable = false, columnDefinition = "TINYINT(1)")
     private boolean active;
+
+    @ManyToMany
+    @JoinTable(
+        name = "deficiency_product",
+        joinColumns = @JoinColumn(name = "product_id"),
+        inverseJoinColumns = @JoinColumn(name = "deficiency_id")
+    )
+    private List<Deficiency> deficiencies;
 }

@@ -26,6 +26,16 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @GetMapping("/api/products/top-selling")
+    public List<ProductDto> getTopSellingProducts() {
+        return productService.getTopSellingProducts();
+    }
+
+    @GetMapping("/api/products/latest")
+    public List<ProductDto> getLatestProducts() {
+        return productService.getLatestProducts();
+    }
+
     @PostMapping("/admin/products/create")
     public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDTO) {
         System.out.println("----adding new product.");
@@ -73,5 +83,13 @@ public class ProductController {
         return productDTO
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+    
+    @GetMapping("/api/products/by-deficiency")
+    public ResponseEntity<List<ProductDto>> getProductsByDeficiency(@RequestParam List<Integer> deficiencyIds) {
+    	System.out.println("(controller) Fetching products for deficiencies: {}"+ deficiencyIds);
+        List<ProductDto> products = productService.getProductsByDeficiency(deficiencyIds);
+        System.out.println("(controller) Found products: {}"+ products);
+        return ResponseEntity.ok(products);
     }
 }
