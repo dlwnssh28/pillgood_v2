@@ -7,8 +7,5 @@ public class PaymentRequest {
 	private int amount;
     private String orderId;
     private String orderName;
-    private String customerName;
-    private String email;
-    private String phoneNumber;
     private String successUrl;
 }

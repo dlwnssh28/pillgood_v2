@@ -47,6 +47,10 @@ public class Member {
     @Column(name = "modified_date")
     private LocalDateTime modifiedDate;
 
+
+    @Column(name = "coupon_issued", nullable = false)
+    private boolean couponIssued;
+
     @Column(name = "member_level", length = 10, columnDefinition = "VARCHAR(10) DEFAULT 'USER'")
     @Enumerated(EnumType.STRING)
     private Role memberLevel;

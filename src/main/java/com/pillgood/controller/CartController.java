@@ -67,10 +67,18 @@ public class CartController {
     }
 
     @DeleteMapping("/api/carts/delete/{id}")
-    public void deleteCart(@PathVariable int id) {
-        boolean deleted = cartService.deleteCart(id);
-        if (!deleted) {
-            throw new RuntimeException("삭제할 Cart 찾을 수 없음");
+    public ResponseEntity<?> deleteCart(@PathVariable int id, HttpSession session) {
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return new ResponseEntity<>("세션에 memberId가 없습니다.", HttpStatus.UNAUTHORIZED);
         }
+
+        boolean deleted = cartService.deleteCart(id, memberId);
+        if (!deleted) {
+            return new ResponseEntity<>("삭제할 Cart를 찾을 수 없거나 권한이 없습니다.", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
 }

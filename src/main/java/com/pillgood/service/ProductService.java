@@ -17,4 +17,5 @@ public interface ProductService {
     Optional<ProductDto> getProductById(int id);
 	List<ProductDto> getTopSellingProducts();
 	List<ProductDto> getLatestProducts();
+	List<ProductDto> getProductsByDeficiency(List<Integer> deficiencyIds);
 }

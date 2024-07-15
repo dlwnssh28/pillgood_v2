@@ -14,10 +14,9 @@ public interface MemberService {
     boolean deleteMember(String id);
     Optional<MemberDto> findByEmail(String email);
     boolean checkPassword(String rawPassword, String encodedPassword);
-
     Optional<MemberDto> findById(String memberId);
+    boolean sendResetLink(String email);
+    boolean resetPassword(String token, String newPassword);
 
-    // 추가된 메서드
-    boolean checkSocialId(String socialId, String provider);
-    boolean regSocialMember(SocialMemberDto socialMemberDto);
+    Optional<MemberDto> updateCouponIssued(String memberId, boolean couponIssued);
 }

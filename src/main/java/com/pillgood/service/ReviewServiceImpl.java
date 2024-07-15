@@ -31,7 +31,6 @@ public class ReviewServiceImpl implements ReviewService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public Optional<ReviewDto> getReviewById(int reviewId) {
         return reviewRepository.findById(reviewId)
@@ -80,20 +79,29 @@ public class ReviewServiceImpl implements ReviewService {
                 reviewEntity.getReviewDate(),
                 reviewEntity.getReviewContent(),
                 reviewEntity.getRating(),
-                reviewEntity.getReviewImage()
+                reviewEntity.getReviewImage(),
+                reviewEntity.isCouponIssued() // 새로운 필드 추가
         );
     }
 
     @Override
     public Review convertToEntity(ReviewDto reviewDto, OrderDetail orderDetail) {
         return new Review(
-                null, // reviewId는 자동으로 생성됨
+                reviewDto.getReviewId(), // reviewId는 자동으로 생성됨
                 reviewDto.getMemberUniqueId(),
                 orderDetail,
                 reviewDto.getReviewDate(),
                 reviewDto.getReviewContent(),
                 reviewDto.getRating(),
-                reviewDto.getReviewImage()
+                reviewDto.getReviewImage(),
+                reviewDto.isCouponIssued() // 새로운 필드 추가
         );
+    }
+
+    @Override
+    public void updateCouponIssued(int reviewId, boolean couponIssued) {
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new RuntimeException("Review not found"));
+        review.setCouponIssued(couponIssued);
+        reviewRepository.save(review);
     }
 }

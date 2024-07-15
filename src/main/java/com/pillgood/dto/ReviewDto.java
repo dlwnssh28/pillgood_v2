@@ -19,4 +19,6 @@ public class ReviewDto {
     private String reviewContent;
     private Integer rating;
     private String reviewImage;
+    private boolean couponIssued;
+
 }

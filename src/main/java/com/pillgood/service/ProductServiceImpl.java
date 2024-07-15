@@ -18,11 +18,14 @@ import com.pillgood.repository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
-@RequiredArgsConstructor
-class ProductServiceImpl implements ProductService {
+@RequiredArgsConstructor 
+public class ProductServiceImpl implements ProductService {
 
+	private static final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
     private final ProductRepository productRepository;
     private final NutrientRepository nutrientRepository;
     private final OrderDetailRepository orderDetailRepository;
@@ -142,4 +145,15 @@ class ProductServiceImpl implements ProductService {
         return productRepository.findById(id).map(ProductDto::new);
     }
 
+    @Override
+    public List<ProductDto> getProductsByDeficiency(List<Integer> deficiencyIds) {
+//        System.out.println("Getting products by deficiency IDs: " + deficiencyIds);
+        List<Product> products = productRepository.findByDeficiencyIds(deficiencyIds);
+        List<ProductDto> productDtos = products.stream()
+                .map(ProductDto::new)
+                .collect(Collectors.toList());
+//        System.out.println("Mapped products to DTOs: " + productDtos);
+        return productDtos;
+    }
+    
 }

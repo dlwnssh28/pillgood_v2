@@ -3,6 +3,7 @@ package com.pillgood.controller;
 import com.pillgood.dto.MemberDto;
 import com.pillgood.dto.SocialMemberDto;
 import com.pillgood.service.MemberService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -10,10 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -103,10 +101,17 @@ public class MemberController {
     public Optional<MemberDto> findByEmail(@PathVariable String email) {
         return memberService.findByEmail(email);
     }
-
+  
+    // 로그아웃 엔드포인트 추가
     @PostMapping("/api/members/logout")
-    public ResponseEntity<?> logout(HttpSession session) {
+    public ResponseEntity<?> logout(HttpSession session, HttpServletResponse response) {
         session.invalidate(); // 세션 무효화
+
+        // 캐시 관련 헤더 설정
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+        response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+        response.setHeader("Expires", "0"); // Proxies
+
         System.out.println("로그아웃: 세션 무효화");
         return ResponseEntity.ok("Logout successful");
     }
@@ -144,102 +149,64 @@ public class MemberController {
         }
     }
 
-    // 카카오 로그인 처리하는 서버 엔드포인트
-    @PostMapping("/api/members/kakaoLogin")
-    @ResponseBody
-    public ResponseEntity<?> kakaoLogin(@RequestBody Map<String, Object> requestBody, HttpSession session) {
-        System.out.println("카카오 로그인 엔드포인트 도달"); // 추가된 로그
-        String code = (String) requestBody.get("code");
-        String clientId = "03f074279f45f35b6bed2cfbcc42ec4d"; // 카카오 개발자 콘솔에서 발급받은 REST API 키
-        String redirectUri = "http://localhost:8080/kakaocallback"; // 리디렉트 URI 확인
+    // 사용자가 비밀번호 재설정을 위해 이메일 입력 -> 비밀번호 재설정 링크를 전송
+    @PostMapping("/api/members/forgotpassword")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        // 페이지에서 사용자가 작성한 이메일 추출
+        String email = request.get("email");
 
-        // 액세스 토큰 발급을 위한 요청
-        String tokenUrl = "https://kauth.kakao.com/oauth/token";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED);
-        org.springframework.util.MultiValueMap<String, String> params = new org.springframework.util.LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", clientId);
-        params.add("redirect_uri", redirectUri);
-        params.add("code", code);
+        // 사용자가 작성한 이메일 주소로 일련번호 전송
+        boolean isSent = memberService.sendResetLink(email);
 
-        HttpEntity<org.springframework.util.MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-
-        // 토큰 요청 로그
-        System.out.println("카카오 토큰 요청 URL: " + tokenUrl);
-        System.out.println("카카오 토큰 요청 파라미터: " + params);
-
-        ResponseEntity<Map> tokenResponse;
-        try {
-            tokenResponse = restTemplate.postForEntity(tokenUrl, request, Map.class);
-            // 토큰 응답 로그
-            System.out.println("카카오 토큰 응답 상태 코드: " + tokenResponse.getStatusCode());
-            System.out.println("카카오 토큰 응답 바디: " + tokenResponse.getBody());
-        } catch (HttpClientErrorException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "액세스 토큰 발급 실패"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "message", "카카오 API 호출 중 오류가 발생했습니다."));
+        // 일련번호 전송에 성공하면, http 200 ok 응답 반환
+        if (isSent) {
+            return ResponseEntity.ok("Reset link sent");
+        } else {
+            // 일련번호 전송에 성공하면, http 400 bad request 응답 반환
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to send reset link");
         }
-
-        String accessToken = (String) tokenResponse.getBody().get("access_token");
-
-        // 액세스 토큰을 사용하여 카카오 API 호출
-        headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<Map> response;
-        try {
-            response = restTemplate.exchange(
-                "https://kapi.kakao.com/v2/user/me",
-                HttpMethod.GET,
-                entity,
-                Map.class
-            );
-            // 카카오 사용자 정보 응답 로그
-            System.out.println("카카오 사용자 정보 응답 상태 코드: " + response.getStatusCode());
-            System.out.println("카카오 사용자 정보 응답 바디: " + response.getBody());
-        } catch (HttpClientErrorException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "유효하지 않은 액세스 토큰입니다."));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "message", "카카오 API 호출 중 오류가 발생했습니다."));
-        }
-
-        Map<String, Object> userInfo = response.getBody();
-        if (userInfo == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "사용자 정보를 가져오지 못했습니다."));
-        }
-
-        String kakaoId = String.valueOf(userInfo.get("id"));
-        Map<String, Object> properties = (Map<String, Object>) userInfo.get("properties");
-        String nickname = properties != null ? String.valueOf(properties.get("nickname")) : "N/A";
-
-        try {
-            if (!memberService.checkSocialId(kakaoId, "kakao")) {
-                SocialMemberDto socialMemberDto = new SocialMemberDto();
-                socialMemberDto.setSocialId(kakaoId);
-                socialMemberDto.setProvider("kakao");
-                socialMemberDto.setNickname(nickname);
-
-                boolean isRegistered = memberService.regSocialMember(socialMemberDto);
-                if (isRegistered) {
-                    System.out.println("새 소셜 멤버 등록 성공: " + socialMemberDto);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "message", "사용자 정보를 저장하는데 실패했습니다."));
-        }
-
-        session.setAttribute("memberId", kakaoId);
-        session.setAttribute("nickname", nickname);
-
-        System.out.println("카카오 로그인 성공: 사용자 ID - " + kakaoId + ", 닉네임 - " + nickname);
-        return ResponseEntity.ok(Map.of("success", true));
     }
+
+    // 사용자가 토큰을 사용하여 비밀번호를 재설정
+    @PostMapping("/api/members/resetpassword")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("newPassword");
+
+        boolean isReset = memberService.resetPassword(token, newPassword);
+        if (isReset) {
+            return ResponseEntity.ok("Password reset successful");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token");
+        }
+    }
+
+    @GetMapping("/api/members/status")
+    public ResponseEntity<Map<String, Object>> getStatus(HttpSession session) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loggedIn");
+        Map<String, Object> response = new HashMap<>();
+
+        if (loggedIn != null && loggedIn) {
+            response.put("isLoggedIn", true);
+            response.put("memberId", session.getAttribute("memberId"));
+            response.put("member", session.getAttribute("member"));
+            response.put("isAdmin", session.getAttribute("isAdmin"));
+            response.put("userName", session.getAttribute("userName"));
+        } else {
+            response.put("isLoggedIn", false);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/api/members/updateCouponIssued/{id}")
+    public ResponseEntity<Void> updateCouponIssued(@PathVariable String id, @RequestBody Map<String, Boolean> request) {
+        Optional<MemberDto> updatedMember = memberService.updateCouponIssued(id, request.get("couponIssued"));
+        if (updatedMember.isPresent()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+
 }
