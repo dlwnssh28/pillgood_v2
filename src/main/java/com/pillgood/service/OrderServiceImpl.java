@@ -11,10 +11,13 @@ import com.pillgood.repository.OrderRepository;
 import com.pillgood.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -57,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
         orderEntity.setOrderDate(LocalDateTime.now());
         orderRepository.save(orderEntity);
 
-        // OrderDetails 저장
+     // OrderDetails 저장
         for (OrderItemDto item : orderItems) {
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrder(orderEntity);
@@ -65,6 +68,8 @@ public class OrderServiceImpl implements OrderService {
             Optional<Product> productOpt = productRepository.findById(item.getProductId());
             if (productOpt.isPresent()) {
                 orderDetail.setProduct(productOpt.get());
+            } else {
+                throw new IllegalArgumentException("Product not found: " + item.getProductId());
             }
 
             orderDetail.setQuantity(item.getProductQuantity());
@@ -81,11 +86,14 @@ public class OrderServiceImpl implements OrderService {
         }
         return convertToDto(orderEntity);
     }
-
-    private String generateOrderNo() {
-        // 고유한 주문 번호를 생성하는 로직을 구현합니다.
-        // 예를 들어, 현재 시간과 랜덤 문자열을 조합하여 생성할 수 있습니다.
-        return "order-" + UUID.randomUUID().toString().replace("-", "");
+    
+    @Override
+    @Transactional
+    public void cancelOrder(String orderNo) {
+    	// 주문 디테일 삭제
+        orderDetailRepository.deleteByOrderOrderNo(orderNo);
+        // 주문 삭제
+        orderRepository.deleteById(orderNo);
     }
 
     @Override
@@ -163,5 +171,40 @@ public class OrderServiceImpl implements OrderService {
         return orders.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderDetail> getOrderDetailsByOrderId(String orderId) {
+        return orderDetailRepository.findByOrderOrderNo(orderId);
+    }
+
+    
+    private String generateOrderNo() {
+        String datePart = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
+        String randomPart = generateRandomAlphaNumeric(6);
+        return datePart + "-" + randomPart;
+    }
+
+    private String generateRandomAlphaNumeric(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder result = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            result.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return result.toString();
+    }
+    
+    @Override
+    @Transactional
+    public void updateOrderStatusToPaid(String orderNo) {
+        Optional<Order> orderOpt = orderRepository.findByOrderNo(orderNo);
+        if (orderOpt.isPresent()) {
+            Order order = orderOpt.get();
+            order.setOrderStatus("결제완료");
+            orderRepository.save(order);
+        } else {
+            throw new IllegalArgumentException("Order not found: " + orderNo);
+        }
     }
 }

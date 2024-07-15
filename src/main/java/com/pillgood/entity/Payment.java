@@ -20,10 +20,7 @@ public class Payment {
 
     @Column(name = "order_no", nullable = false, length = 50)
     private String orderNo;
-
-    @Column(name = "payment_key", nullable = false, length = 100)
-    private String paymentKey;
-
+    
     @Column(nullable = false)
     private int amount;
 
@@ -39,20 +36,16 @@ public class Payment {
     @Column(columnDefinition = "TEXT")
     private String detail;
 
-    @Column(name = "member_unique_id", length = 32)
-    private String memberUniqueId;
-
     @Column(name = "refund_status", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'NOT_REFUNDED'")
     private String refundStatus;
 
     @Column(name = "refund_date")
     private LocalDateTime refundDate;
 
+    @Column(name = "subscription_status", nullable = false)
+    private String subscriptionStatus;
+
     @ManyToOne
     @JoinColumn(name = "order_no", referencedColumnName = "order_no", insertable = false, updatable = false)
     private Order order;
-
-    @ManyToOne
-    @JoinColumn(name = "member_unique_id", referencedColumnName = "member_unique_id", insertable = false, updatable = false)
-    private Member member;
 }
