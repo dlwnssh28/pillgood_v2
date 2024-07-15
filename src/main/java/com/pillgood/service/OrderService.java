@@ -13,7 +13,7 @@ public interface OrderService {
     OrderDto updateOrder(String orderNo, OrderDto orderDto);
     void deleteOrder(String orderNo);
     List<OrderDto> getOrdersByUserId(String memberId); // 메서드 추가
-	void cancelOrder(String orderNo);
-	void updateOrderStatusToPaid(String orderNo);
-	List<OrderDetail> getOrderDetailsByOrderId(String orderId);
+    void cancelOrder(String orderNo);
+    void updateOrderStatusToPaid(String orderNo);
+    List<OrderDetail> getOrderDetailsByOrderId(String orderId);
 }

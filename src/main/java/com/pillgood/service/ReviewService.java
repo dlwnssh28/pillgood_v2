@@ -15,4 +15,5 @@ public interface ReviewService {
     boolean deleteReview(int reviewId);
     ReviewDto convertToDto(Review reviewEntity);
     Review convertToEntity(ReviewDto reviewDto, OrderDetail orderDetail);
+    void updateCouponIssued(int reviewId, boolean couponIssued); // 새로운 메서드 추가
 }
