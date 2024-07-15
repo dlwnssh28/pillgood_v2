@@ -63,14 +63,14 @@ public class SurveyController {
     
     @PostMapping("/api/surveys/create")
     public ResponseEntity<SurveyDto> createSurvey(@RequestBody SurveyDto surveyDto) {
-        System.out.println("Received survey data: " + surveyDto); // 디버깅용 로그 추가
+        System.out.println("Received survey data: " + surveyDto); // 디버그 로그 추가
         SurveyDto createdSurvey = surveyService.createOrUpdateSurvey(surveyDto);
         return ResponseEntity.ok(createdSurvey);
     }
-    
 
     @PutMapping("/api/surveys/update/{id}")
     public ResponseEntity<SurveyDto> updateSurvey(@PathVariable Integer id, @RequestBody SurveyDto surveyDto) {
+        System.out.println("Updating survey data: " + surveyDto); // 디버그 로그 추가
         return surveyService.updateSurvey(id, surveyDto)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
