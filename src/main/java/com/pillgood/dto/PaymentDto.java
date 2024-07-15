@@ -6,10 +6,12 @@ import java.time.LocalDateTime;
 @Data
 public class PaymentDto {
     private String paymentNo;
-    private String paymentMethod;
-    private int paymentAmount;
     private String orderNo;
+    private int amount;
+    private String status;
+    private String method;
     private LocalDateTime paymentDate;
-    private String paymentStatus;
-    private boolean subscriptionPaymentStatus;
+    private String detail;
+    private String refundStatus;
+    private LocalDateTime refundDate;
 }

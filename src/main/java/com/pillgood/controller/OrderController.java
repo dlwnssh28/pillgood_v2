@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
@@ -79,6 +80,11 @@ public class OrderController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @DeleteMapping("/api/orders/cancel/{orderNo}")
+    public void cancelOrder(@PathVariable String orderNo) {
+        orderService.cancelOrder(orderNo);
+    }
 
     @DeleteMapping("/admin/orders/delete/{orderNo}")
     public ResponseEntity<Void> deleteOrder(@PathVariable String orderNo) {
@@ -100,4 +106,17 @@ public class OrderController {
             return ResponseEntity.noContent().build();
         }
     }
+
+    @PutMapping("/api/orders/update-status/{orderNo}")
+    public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable String orderNo, @RequestBody Map<String, String> status) {
+        String orderStatus = status.get("status");
+        OrderDto updatedOrder = orderService.updateOrderStatus(orderNo, orderStatus);
+        if (updatedOrder != null) {
+            return ResponseEntity.ok(updatedOrder);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
 }

@@ -2,16 +2,14 @@ package com.pillgood.controller;
 
 import com.pillgood.dto.MemberDto;
 import com.pillgood.service.MemberService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -124,11 +122,17 @@ public class MemberController {
         return memberService.findByEmail(email);
     }
 
-    
- // 로그아웃 엔드포인트 추가
+
+    // 로그아웃 엔드포인트 추가
     @PostMapping("/api/members/logout")
-    public ResponseEntity<?> logout(HttpSession session) {
+    public ResponseEntity<?> logout(HttpSession session, HttpServletResponse response) {
         session.invalidate(); // 세션 무효화
+
+        // 캐시 관련 헤더 설정
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+        response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+        response.setHeader("Expires", "0"); // Proxies
+
         System.out.println("로그아웃: 세션 무효화");
         return ResponseEntity.ok("Logout successful");
     }
@@ -166,5 +170,65 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid member");
         }
     }
+
+    // 사용자가 비밀번호 재설정을 위해 이메일 입력 -> 비밀번호 재설정 링크를 전송
+    @PostMapping("/api/members/forgotpassword")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        // 페이지에서 사용자가 작성한 이메일 추출
+        String email = request.get("email");
+
+        // 사용자가 작성한 이메일 주소로 일련번호 전송
+        boolean isSent = memberService.sendResetLink(email);
+
+        // 일련번호 전송에 성공하면, http 200 ok 응답 반환
+        if (isSent) {
+            return ResponseEntity.ok("Reset link sent");
+        } else {
+            // 일련번호 전송에 성공하면, http 400 bad request 응답 반환
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to send reset link");
+        }
+    }
+
+    // 사용자가 토큰을 사용하여 비밀번호를 재설정
+    @PostMapping("/api/members/resetpassword")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("newPassword");
+
+        boolean isReset = memberService.resetPassword(token, newPassword);
+        if (isReset) {
+            return ResponseEntity.ok("Password reset successful");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token");
+        }
+    }
+
+    @GetMapping("/api/members/status")
+    public ResponseEntity<Map<String, Object>> getStatus(HttpSession session) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loggedIn");
+        Map<String, Object> response = new HashMap<>();
+
+        if (loggedIn != null && loggedIn) {
+            response.put("isLoggedIn", true);
+            response.put("memberId", session.getAttribute("memberId"));
+            response.put("member", session.getAttribute("member"));
+            response.put("isAdmin", session.getAttribute("isAdmin"));
+            response.put("userName", session.getAttribute("userName"));
+        } else {
+            response.put("isLoggedIn", false);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/api/members/updateCouponIssued/{id}")
+    public ResponseEntity<Void> updateCouponIssued(@PathVariable String id, @RequestBody Map<String, Boolean> request) {
+        Optional<MemberDto> updatedMember = memberService.updateCouponIssued(id, request.get("couponIssued"));
+        if (updatedMember.isPresent()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
 
 }

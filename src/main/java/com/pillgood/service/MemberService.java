@@ -13,6 +13,9 @@ public interface MemberService {
     boolean deleteMember(String id);
     Optional<MemberDto> findByEmail(String email);
     boolean checkPassword(String rawPassword, String encodedPassword);
-
     Optional<MemberDto> findById(String memberId);
+    boolean sendResetLink(String email);
+    boolean resetPassword(String token, String newPassword);
+
+    Optional<MemberDto> updateCouponIssued(String memberId, boolean couponIssued);
 }

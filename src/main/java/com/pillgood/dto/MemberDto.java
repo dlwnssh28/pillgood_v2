@@ -23,7 +23,8 @@ public class MemberDto {
     private Boolean subscriptionStatus;
     private LocalDateTime modifiedDate;
     private Role memberLevel; // 수정 불가능 필드
-
+    private boolean couponIssued; // 신규 가입 쿠폰 발급 상태
+    
     // 매개변수가 있는 생성자
     public MemberDto(String email) {
         this.email = email;

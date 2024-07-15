@@ -50,7 +50,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
-                        .loginPage("/api/members/login")
+//                        .loginPage("/api/members/login")
                         .loginProcessingUrl("/login")
                         .successHandler(successHandler)
                         .permitAll()
@@ -58,7 +58,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .failureUrl("/login?error=true")
                 )
                 .sessionManagement(session -> session
-                        .invalidSessionUrl("/api/members/login")
+                        .invalidSessionUrl("/login")
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

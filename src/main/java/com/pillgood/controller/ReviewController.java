@@ -65,4 +65,10 @@ public class ReviewController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @PutMapping("/admin/reviews/update-coupon-issued")
+    public ResponseEntity<Void> updateCouponIssued(@RequestParam int reviewId, @RequestParam boolean couponIssued) {
+        reviewService.updateCouponIssued(reviewId, couponIssued);
+        return ResponseEntity.ok().build();
+    }
 }
