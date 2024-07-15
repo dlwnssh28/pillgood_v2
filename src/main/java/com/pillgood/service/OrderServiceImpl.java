@@ -207,4 +207,14 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Order not found: " + orderNo);
         }
     }
+    
+    public OrderDto updateOrderStatus(String orderNo, String status) {
+        Order order = orderRepository.findById(orderNo).orElse(null);
+        if (order != null) {
+            order.setOrderStatus(status);
+            orderRepository.save(order);
+            return new OrderDto(order);
+        }
+        return null;
+    }
 }

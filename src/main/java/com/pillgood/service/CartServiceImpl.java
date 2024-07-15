@@ -71,6 +71,16 @@ public class CartServiceImpl implements CartService {
     }
     
     @Override
+    public void deleteCarts(List<Integer> productIds, String memberId) {
+        List<Cart> carts = cartRepository.findByMemberUniqueId(memberId);
+        for (Cart cart : carts) {
+            if (productIds.contains(cart.getProductId())) {
+                cartRepository.delete(cart);
+            }
+        }
+    }
+    
+    @Override
     public Optional<CartDto> addOrUpdateCart(CartDto cartDto) {
         List<Cart> existingCarts = cartRepository.findByMemberUniqueId(cartDto.getMemberUniqueId());
         Optional<Cart> existingCart = existingCarts.stream()

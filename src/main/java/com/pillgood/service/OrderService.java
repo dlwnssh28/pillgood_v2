@@ -16,4 +16,5 @@ public interface OrderService {
     void cancelOrder(String orderNo);
     void updateOrderStatusToPaid(String orderNo);
     List<OrderDetail> getOrderDetailsByOrderId(String orderId);
+    OrderDto updateOrderStatus(String orderNo, String status);
 }

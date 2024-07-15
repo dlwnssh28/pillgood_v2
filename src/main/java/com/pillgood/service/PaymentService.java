@@ -3,6 +3,7 @@ package com.pillgood.service;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -177,14 +178,15 @@ public class PaymentService {
         deletePurchasedItemsFromCart(request.getCustomerKey(), request.getOrderId());
     }
     
+    
     private void deletePurchasedItemsFromCart(String memberUniqueId, String orderId) {
-        // OrderId를 통해 주문 상세 내역을 가져옴
         List<OrderDetail> orderDetails = orderService.getOrderDetailsByOrderId(orderId);
 
-        // 각 주문 상세 내역의 상품을 장바구니에서 삭제
-        for (OrderDetail orderDetail : orderDetails) {
-            cartService.deleteCart(orderDetail.getProduct().getProductId(), memberUniqueId);
-        }
+        List<Integer> productIds = orderDetails.stream()
+                                               .map(orderDetail -> orderDetail.getProduct().getProductId())
+                                               .collect(Collectors.toList());
+                                               
+        cartService.deleteCarts(productIds, memberUniqueId);
     }
     
     private BillingDto convertToDto(Billing billing) {

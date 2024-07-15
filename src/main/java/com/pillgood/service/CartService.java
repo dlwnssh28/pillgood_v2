@@ -13,4 +13,5 @@ public interface CartService {
     Optional<CartDto> updateCart(int id, CartDto cartDto);
     Optional<CartDto> addOrUpdateCart(CartDto cartDto); // 새로운 메소드 추가
 	boolean deleteCart(int cartId, String memberId);
+	void deleteCarts(List<Integer> productIds, String memberId);
 }

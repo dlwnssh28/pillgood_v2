@@ -50,7 +50,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
-                        .loginPage("/api/members/login")
+//                        .loginPage("/api/members/login")
                         .loginProcessingUrl("/login")
                         .successHandler(successHandler)
                         .permitAll()
