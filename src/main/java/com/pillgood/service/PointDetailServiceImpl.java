@@ -1,13 +1,12 @@
 package com.pillgood.service;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pillgood.dto.PointDetailDto;
 import com.pillgood.entity.PointDetail;
 import com.pillgood.repository.PointDetailRepository;
+import com.pillgood.service.PointDetailService;
 
 @Service
 public class PointDetailServiceImpl implements PointDetailService {
@@ -16,17 +15,18 @@ public class PointDetailServiceImpl implements PointDetailService {
     private PointDetailRepository pointDetailRepository;
 
     @Override
-    public Optional<PointDetailDto> updatePointDetail(int id, PointDetailDto pointDetailDto) {
-        return pointDetailRepository.findById(id)
-                .map(pointDetail -> {
-                    pointDetail.setMemberUniqueId(pointDetailDto.getMemberUniqueId());
-                    pointDetail.setPointStatusCode(pointDetailDto.getPointStatusCode());
-                    pointDetail.setPoints(pointDetailDto.getPoints());
-                    pointDetail.setDetailHistoryId(pointDetailDto.getDetailHistoryId());
-                    pointDetail.setPointId(pointDetailDto.getPointId());
-                    PointDetail updatedPointDetail = pointDetailRepository.save(pointDetail);
-                    return convertToDTO(updatedPointDetail);
-                });
+    public PointDetailDto createPointDetail(PointDetailDto pointDetailDto) {
+        PointDetail pointDetail = new PointDetail();
+        pointDetail.setMemberUniqueId(pointDetailDto.getMemberUniqueId());
+        pointDetail.setPointStatusCode(pointDetailDto.getPointStatusCode());
+        pointDetail.setPoints(pointDetailDto.getPoints());
+        pointDetail.setDetailHistoryId(pointDetailDto.getDetailHistoryId());
+        pointDetail.setPointId(pointDetailDto.getPointId());
+        pointDetail.setTransactionDate(pointDetailDto.getTransactionDate());
+        pointDetail.setExpiryDate(pointDetailDto.getExpiryDate());
+
+        PointDetail savedPointDetail = pointDetailRepository.save(pointDetail);
+        return convertToDTO(savedPointDetail);
     }
 
     private PointDetailDto convertToDTO(PointDetail pointDetail) {
@@ -36,7 +36,9 @@ public class PointDetailServiceImpl implements PointDetailService {
                 pointDetail.getPointStatusCode(),
                 pointDetail.getPoints(),
                 pointDetail.getDetailHistoryId(),
-                pointDetail.getPointId()
+                pointDetail.getPointId(),
+                pointDetail.getTransactionDate(),
+                pointDetail.getExpiryDate()
         );
     }
 }

@@ -1,32 +1,23 @@
 package com.pillgood.controller;
 
-import java.util.Optional;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.pillgood.dto.PointDetailDto;
 import com.pillgood.service.PointDetailService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
-@RequiredArgsConstructor
+@RequestMapping("/api/point-details")
 public class PointDetailController {
 
-    private final PointDetailService pointDetailService;
+    @Autowired
+    private PointDetailService pointDetailService;
 
-    @PutMapping("/api/pointDetail/update/{id}")
-    public ResponseEntity<PointDetailDto> updatePointDetail(
-            @PathVariable int id,
-            @RequestBody PointDetailDto pointDetailDto) {
-        Optional<PointDetailDto> updatedPointDetail = pointDetailService.updatePointDetail(id, pointDetailDto);
-        return updatedPointDetail
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @PostMapping
+    public ResponseEntity<PointDetailDto> createPointDetail(@RequestBody PointDetailDto pointDetailDto) {
+        PointDetailDto createdPointDetail = pointDetailService.createPointDetail(pointDetailDto);
+        return new ResponseEntity<>(createdPointDetail, HttpStatus.CREATED);
     }
 }

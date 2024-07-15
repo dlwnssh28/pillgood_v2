@@ -1,60 +1,62 @@
 package com.pillgood.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pillgood.dto.PointDto;
 import com.pillgood.service.PointService;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequiredArgsConstructor
 public class PointController {
 
     private final PointService pointService;
 
+    public PointController(PointService pointService) {
+        this.pointService = pointService;
+    }
+
     @GetMapping("/api/points/list")
-    public List<PointDto> getAllPoints() {
-        return pointService.getAllPoints();
+    public ResponseEntity<List<PointDto>> getPointsByMemberUniqueId(HttpSession session) {
+        String memberUniqueId = (String) session.getAttribute("memberId");
+        if (memberUniqueId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+        }
+
+        List<PointDto> pointsList = pointService.getPointsByMemberUniqueId(memberUniqueId);
+        return new ResponseEntity<>(pointsList, HttpStatus.OK);
     }
 
-    @GetMapping("/api/points/{id}")
-    public ResponseEntity<PointDto> getPointById(@PathVariable int id) {
-        Optional<PointDto> pointDto = pointService.getPointById(id);
-        return pointDto
-                .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    @GetMapping("/api/points/totalPoints")
+    public ResponseEntity<Integer> getTotalPointsByMemberUniqueId(HttpSession session) {
+        String memberUniqueId = (String) session.getAttribute("memberId");
+        if (memberUniqueId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+        }
+
+        Integer totalPoints = pointService.getTotalPointsByMemberUniqueId(memberUniqueId);
+        return new ResponseEntity<>(totalPoints, HttpStatus.OK);
     }
 
-    @PostMapping("/api/points/create")
-    public ResponseEntity<PointDto> createPoint(@RequestBody PointDto pointDto) {
-        PointDto createdPointDto = pointService.createPoint(pointDto);
-        return new ResponseEntity<>(createdPointDto, HttpStatus.CREATED);
-    }
+    @PostMapping("/api/points/use")
+    public ResponseEntity<Void> usePoints(HttpSession session, @RequestParam Integer pointsToUse) {
+        String memberUniqueId = (String) session.getAttribute("memberId");
+        if (memberUniqueId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+        }
 
-    @PutMapping("/api/points/update/{id}")
-    public ResponseEntity<PointDto> updatePoint(@PathVariable int id, @RequestBody PointDto updatedPointDto) {
-        Optional<PointDto> pointDto = pointService.updatePoint(id, updatedPointDto);
-        return pointDto
-                .map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    @DeleteMapping("/api/points/delete/{id}")
-    public ResponseEntity<Void> deletePoint(@PathVariable int id) {
-        boolean deleted = pointService.deletePoint(id);
-        return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            pointService.usePoints(memberUniqueId, pointsToUse);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // 400 Bad Request
+        }
     }
 }
