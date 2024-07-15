@@ -1,5 +1,7 @@
 package com.pillgood.entity;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -13,6 +15,9 @@ public class Deficiency {
 
     @Column(name = "deficiency_name")
     private String deficiencyName;
+
+    @ManyToMany(mappedBy = "deficiencies")
+    private List<Product> products;
 
     // Getters and Setters
     public int getDeficiencyId() {
@@ -29,5 +34,13 @@ public class Deficiency {
 
     public void setDeficiencyName(String deficiencyName) {
         this.deficiencyName = deficiencyName;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 }

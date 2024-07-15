@@ -32,23 +32,6 @@ public class Survey {
     private LocalDateTime surveyDate;
     private String recommendedProducts;
     private String keywords;
-    /*
-    @ManyToOne
-    @JoinColumn(name = "member_unique_id", insertable = false, updatable = false)
-    private MemberEntity member;
 
-    @ManyToOne
-    @JoinColumn(name = "deficiency_id1", insertable = false, updatable = false)
-    private DeficiencyEntity deficiency1;
-
-    @ManyToOne
-    @JoinColumn(name = "deficiency_id2", insertable = false, updatable = false)
-    private DeficiencyEntity deficiency2;
-
-    @ManyToOne
-    @JoinColumn(name = "deficiency_id3", insertable = false, updatable = false)
-    private DeficiencyEntity deficiency3;
-    */
-    
     
 }

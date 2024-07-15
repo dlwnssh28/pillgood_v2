@@ -15,4 +15,5 @@ public interface SurveyService {
     boolean deleteSurvey(int id);
     SurveyDto convertToDto(Survey surveyEntity);
     Survey convertToEntity(SurveyDto surveyDto);
+    SurveyDto createOrUpdateSurvey(SurveyDto surveyDto); // 추가
 }
