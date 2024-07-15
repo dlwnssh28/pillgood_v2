@@ -19,4 +19,6 @@ public interface MemberService {
     boolean resetPassword(String token, String newPassword);
 
     Optional<MemberDto> updateCouponIssued(String memberId, boolean couponIssued);
+	boolean checkSocialId(String socialId, String provider);
+	boolean regSocialMember(SocialMemberDto socialMemberDto);
 }

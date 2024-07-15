@@ -107,16 +107,4 @@ public class OrderController {
         }
     }
 
-    @PutMapping("/api/orders/update-status/{orderNo}")
-    public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable String orderNo, @RequestBody Map<String, String> status) {
-        String orderStatus = status.get("status");
-        OrderDto updatedOrder = orderService.updateOrderStatus(orderNo, orderStatus);
-        if (updatedOrder != null) {
-            return ResponseEntity.ok(updatedOrder);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-
 }
