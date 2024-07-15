@@ -1,6 +1,7 @@
 package com.pillgood.service;
 
 import com.pillgood.dto.MemberDto;
+import com.pillgood.dto.SocialMemberDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,4 +16,8 @@ public interface MemberService {
     boolean checkPassword(String rawPassword, String encodedPassword);
 
     Optional<MemberDto> findById(String memberId);
+
+    // 추가된 메서드
+    boolean checkSocialId(String socialId, String provider);
+    boolean regSocialMember(SocialMemberDto socialMemberDto);
 }

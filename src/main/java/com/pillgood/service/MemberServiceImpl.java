@@ -2,6 +2,7 @@ package com.pillgood.service;
 
 import com.pillgood.config.Role;
 import com.pillgood.dto.MemberDto;
+import com.pillgood.dto.SocialMemberDto;
 import com.pillgood.entity.Member;
 import com.pillgood.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,21 +30,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Optional<MemberDto> findById(String memberId) {
         return memberRepository.findById(memberId)
-                .map(member -> {
-                    MemberDto memberDto = new MemberDto();
-                    memberDto.setEmail(member.getEmail());
-                    memberDto.setPassword(member.getPassword());
-                    memberDto.setMemberUniqueId(member.getMemberUniqueId());
-                    memberDto.setName(member.getName());
-                    memberDto.setAge(member.getAge());
-                    memberDto.setGender(member.getGender());
-                    memberDto.setPhoneNumber(member.getPhoneNumber());
-                    memberDto.setRegistrationDate(member.getRegistrationDate());
-                    memberDto.setSubscriptionStatus(member.getSubscriptionStatus());
-                    memberDto.setModifiedDate(member.getModifiedDate());
-                    memberDto.setMemberLevel(member.getMemberLevel());
-                    return memberDto;
-                });
+                .map(this::convertToDto);
     }
 
     @Override
@@ -78,9 +65,6 @@ public class MemberServiceImpl implements MemberService {
                     updatedMember.setMemberUniqueId(existingMember.getMemberUniqueId());
                     updatedMember.setPassword(existingMember.getPassword()); // 기존 비밀번호 유지
                     updatedMember.setModifiedDate(LocalDateTime.now());
-                    if (!memberDto.getPassword().isEmpty()) {
-//                        member.setPassword(passwordEncoder.encode(memberDto.getPassword()));
-                    }
                     updatedMember = memberRepository.save(updatedMember);
                     return convertToDto(updatedMember);
                 });
@@ -98,13 +82,29 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Optional<MemberDto> findByEmail(String email) {
         return memberRepository.findByEmail(email)
-                .map(member -> {
-                    MemberDto memberDto = new MemberDto();
-                    memberDto.setEmail(member.getEmail());
-                    memberDto.setPassword(member.getPassword());
-                    memberDto.setMemberUniqueId(member.getMemberUniqueId());
-                    return memberDto;
-                });
+                .map(this::convertToDto);
+    }
+
+    @Override
+    public boolean checkSocialId(String socialId, String provider) {
+        return memberRepository.existsBySocialIdAndProvider(socialId, provider);
+    }
+
+    @Override
+    public boolean regSocialMember(SocialMemberDto socialMemberDto) {
+        Member member = new Member();
+        member.setMemberUniqueId(UUID.randomUUID().toString().replace("-", ""));
+        member.setName(socialMemberDto.getNickname());
+        member.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        member.setMemberLevel(Role.USER);
+        member.setRegistrationDate(LocalDateTime.now());
+        member.setProvider(socialMemberDto.getProvider());
+        member.setSocialId(socialMemberDto.getSocialId());
+        // Kakao 사용자 정보는 age와 gender를 제공하지 않으므로 null 체크를 위해 기본값 설정
+        member.setAge(0); // 기본값 설정
+        member.setGender("unknown"); // 기본값 설정
+        memberRepository.save(member);
+        return true;
     }
 
     private MemberDto convertToDto(Member member) {
