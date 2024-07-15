@@ -96,29 +96,7 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.findByEmail(email)
                 .map(this::convertToDto);
     }
-
-    @Override
-    public boolean checkSocialId(String socialId, String provider) {
-        return memberRepository.existsBySocialIdAndProvider(socialId, provider);
-    }
-
-    @Override
-    public boolean regSocialMember(SocialMemberDto socialMemberDto) {
-        Member member = new Member();
-        member.setMemberUniqueId(UUID.randomUUID().toString().replace("-", ""));
-        member.setName(socialMemberDto.getNickname());
-        member.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-        member.setMemberLevel(Role.USER);
-        member.setRegistrationDate(LocalDateTime.now());
-        member.setProvider(socialMemberDto.getProvider());
-        member.setSocialId(socialMemberDto.getSocialId());
-        // Kakao 사용자 정보는 age와 gender를 제공하지 않으므로 null 체크를 위해 기본값 설정
-        member.setAge(0); // 기본값 설정
-        member.setGender("unknown"); // 기본값 설정
-        memberRepository.save(member);
-        return true;
-    }
-
+    
     private MemberDto convertToDto(Member member) {
         return new MemberDto(
                 member.getMemberUniqueId(),

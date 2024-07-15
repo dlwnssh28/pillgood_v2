@@ -57,10 +57,7 @@ public class Member {
 
     @Column(name = "provider", length = 50) // 소셜 로그인 제공자 필드 추가
     private String provider;
-
-    @Column(name = "social_id", length = 50, unique = true) // 소셜 로그인 ID 필드 추가
-    private String socialId;
-
+    
     @PrePersist
     protected void onCreate() {
         if (this.memberUniqueId == null) {
