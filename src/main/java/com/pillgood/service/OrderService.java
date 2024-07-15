@@ -2,6 +2,7 @@ package com.pillgood.service;
 
 import com.pillgood.dto.OrderDto;
 import com.pillgood.dto.OrderItemDto;
+import com.pillgood.entity.OrderDetail;
 
 import java.util.List;
 
@@ -12,5 +13,7 @@ public interface OrderService {
     OrderDto updateOrder(String orderNo, OrderDto orderDto);
     void deleteOrder(String orderNo);
     List<OrderDto> getOrdersByUserId(String memberId); // 메서드 추가
-    OrderDto updateOrderStatus(String orderNo, String status);
+    void cancelOrder(String orderNo);
+    void updateOrderStatusToPaid(String orderNo);
+    List<OrderDetail> getOrderDetailsByOrderId(String orderId);
 }

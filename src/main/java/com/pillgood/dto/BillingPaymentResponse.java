@@ -1,16 +1,14 @@
 package com.pillgood.dto;
 
-import java.time.LocalDateTime;
-
 import lombok.Data;
 
 @Data
-public class PaymentApproveResponse {
+public class BillingPaymentResponse {
     private String paymentKey;
     private String orderId;
+    private String status;
     private int totalAmount;
     private String method;
-    private String status;
-    private String type;
-    private String approvedAt;
+    private String orderName;
+
 }

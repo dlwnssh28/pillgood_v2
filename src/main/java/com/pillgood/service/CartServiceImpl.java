@@ -61,9 +61,10 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public boolean deleteCart(int id) {
-        if (cartRepository.existsById(id)) {
-            cartRepository.deleteById(id);
+    public boolean deleteCart(int cartId, String memberId) {
+        Optional<Cart> cart = cartRepository.findById(cartId);
+        if (cart.isPresent() && cart.get().getMemberUniqueId().equals(memberId)) {
+            cartRepository.delete(cart.get());
             return true;
         }
         return false;

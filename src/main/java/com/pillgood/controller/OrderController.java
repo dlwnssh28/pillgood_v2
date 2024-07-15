@@ -80,6 +80,11 @@ public class OrderController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @DeleteMapping("/api/orders/cancel/{orderNo}")
+    public void cancelOrder(@PathVariable String orderNo) {
+        orderService.cancelOrder(orderNo);
+    }
 
     @DeleteMapping("/admin/orders/delete/{orderNo}")
     public ResponseEntity<Void> deleteOrder(@PathVariable String orderNo) {

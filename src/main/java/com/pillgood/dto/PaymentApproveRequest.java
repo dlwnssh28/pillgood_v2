@@ -7,5 +7,5 @@ public class PaymentApproveRequest {
     private String paymentKey;
     private String orderId;
     private int amount;
-    private String memberUniqueId; // 추가된 필드
+    private String subscriptionStatus;
 }
