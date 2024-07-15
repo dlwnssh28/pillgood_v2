@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -55,6 +54,12 @@ public class Member {
     @Column(name = "member_level", length = 10, columnDefinition = "VARCHAR(10) DEFAULT 'USER'")
     @Enumerated(EnumType.STRING)
     private Role memberLevel;
+
+    @Column(name = "provider", length = 50) // 소셜 로그인 제공자 필드 추가
+    private String provider;
+
+    @Column(name = "social_id", length = 50, unique = true) // 소셜 로그인 ID 필드 추가
+    private String socialId;
 
     @PrePersist
     protected void onCreate() {

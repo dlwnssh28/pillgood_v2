@@ -1,6 +1,7 @@
 package com.pillgood.service;
 
 import com.pillgood.dto.MemberDto;
+import com.pillgood.dto.SocialMemberDto;
 
 import java.util.List;
 import java.util.Optional;
