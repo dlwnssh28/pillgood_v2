@@ -24,7 +24,6 @@ import lombok.Setter;
 public class PointDetail {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "point_detail_id")
     private int pointDetailId;
 

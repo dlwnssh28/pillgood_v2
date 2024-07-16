@@ -1,6 +1,5 @@
 package com.pillgood.service;
 
-import com.pillgood.dto.OrderDetailDto;
 import com.pillgood.dto.OrderDto;
 import com.pillgood.dto.OrderItemDto;
 import com.pillgood.entity.Order;
@@ -18,7 +17,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +34,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OwnedcouponService ownedcouponService;
 
+    @Autowired
+    private PointService pointService;
+
     @Override
     public List<OrderDto> getAllOrders() {
         return orderRepository.findAll().stream()
@@ -50,6 +51,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderDto createOrder(OrderDto orderDto, List<OrderItemDto> orderItems) {
         Order orderEntity = convertToEntity(orderDto);
 
@@ -60,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
         orderEntity.setOrderDate(LocalDateTime.now());
         orderRepository.save(orderEntity);
 
-     // OrderDetails 저장
+        // OrderDetails 저장
         for (OrderItemDto item : orderItems) {
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrder(orderEntity);
@@ -84,16 +86,31 @@ public class OrderServiceImpl implements OrderService {
         } else {
             orderEntity.setOwnedCouponId(null); // 쿠폰이 없을 경우 null로 설정
         }
+
+        // 포인트 사용
+        if (orderDto.getPointsToUse() != null && orderDto.getPointsToUse() > 0) {
+            pointService.usePoints(orderEntity.getMemberUniqueId(), orderDto.getPointsToUse(), orderEntity.getOrderNo());
+        }
+
         return convertToDto(orderEntity);
     }
-    
+
     @Override
     @Transactional
     public void cancelOrder(String orderNo) {
-    	// 주문 디테일 삭제
+        // 주문 디테일 삭제
         orderDetailRepository.deleteByOrderOrderNo(orderNo);
-        // 주문 삭제
-        orderRepository.deleteById(orderNo);
+
+        // 주문 은 주문취소상태로 변경
+        Order order = orderRepository.findById(orderNo)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        order.setOrderStatus("주문취소");
+        orderRepository.save(order);
+
+        // 포인트 반환
+        if (order.getPointsToUse() != null && order.getPointsToUse() > 0) {
+            pointService.refundPoints(order.getMemberUniqueId(), order.getPointsToUse(), orderNo);
+        }
     }
 
     @Override
@@ -127,7 +144,8 @@ public class OrderServiceImpl implements OrderService {
                 orderEntity.getMemberUniqueId(),
                 orderEntity.getOwnedCouponId(),
                 orderEntity.getOrderStatus(),
-                orderEntity.isSubscriptionStatus()
+                orderEntity.isSubscriptionStatus(),
+                orderEntity.getPointsToUse() // 추가된 부분
         );
         return orderDto;
     }
@@ -147,6 +165,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOwnedCouponId(orderDto.getOwnedCouponId());
         order.setOrderStatus(orderDto.getOrderStatus());
         order.setSubscriptionStatus(orderDto.isSubscriptionStatus());
+        order.setPointsToUse(orderDto.getPointsToUse()); // 추가된 부분
         return order;
     }
 
@@ -163,6 +182,7 @@ public class OrderServiceImpl implements OrderService {
         orderEntity.setOwnedCouponId(orderDto.getOwnedCouponId());
         orderEntity.setOrderStatus(orderDto.getOrderStatus());
         orderEntity.setSubscriptionStatus(orderDto.isSubscriptionStatus());
+        orderEntity.setPointsToUse(orderDto.getPointsToUse()); // 추가된 부분
     }
 
     @Override
@@ -172,13 +192,12 @@ public class OrderServiceImpl implements OrderService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
-  
+
     @Override
     public List<OrderDetail> getOrderDetailsByOrderId(String orderId) {
         return orderDetailRepository.findByOrderOrderNo(orderId);
     }
 
-    
     private String generateOrderNo() {
         String datePart = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
         String randomPart = generateRandomAlphaNumeric(6);
@@ -194,7 +213,7 @@ public class OrderServiceImpl implements OrderService {
         }
         return result.toString();
     }
-    
+
     @Override
     @Transactional
     public void updateOrderStatusToPaid(String orderNo) {
@@ -207,7 +226,7 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Order not found: " + orderNo);
         }
     }
-    
+
     public OrderDto updateOrderStatus(String orderNo, String status) {
         Order order = orderRepository.findById(orderNo).orElse(null);
         if (order != null) {
