@@ -19,18 +19,17 @@ public class OwnedcouponDto {
     private boolean couponUsed;
     private LocalDateTime issuedDate;
     private LocalDateTime expiryDate;
-//    private String couponName;
-//    private Integer discountAmount;
+    private String couponName;
+    private Integer discountAmount;
 
-    public OwnedcouponDto(Integer ownedCouponId, Integer couponId, String memberUniqueId, boolean couponUsed, LocalDateTime issuedDate, LocalDateTime expiryDate, String couponName, Integer discountAmount) {
+    public OwnedcouponDto(Integer ownedCouponId, Integer couponId, String memberUniqueId, boolean couponUsed, LocalDateTime issuedDate, LocalDateTime expiryDate, Integer discountAmount) {
         this.ownedCouponId = ownedCouponId;
         this.couponId = couponId;
         this.memberUniqueId = memberUniqueId;
         this.couponUsed = couponUsed;
         this.issuedDate = issuedDate;
         this.expiryDate = expiryDate;
-//        this.couponName = couponName;
-//        this.discountAmount = discountAmount;
+        this.discountAmount = discountAmount;
     }
 
     @Override
@@ -42,8 +41,8 @@ public class OwnedcouponDto {
                 ", couponUsed=" + couponUsed +
                 ", issuedDate=" + issuedDate +
                 ", expiryDate=" + expiryDate +
-//                ", couponName='" + couponName + '\'' +
-//                ", discountAmount=" + discountAmount +
+                ", couponName='" + couponName + '\'' +
+                ", discountAmount=" + discountAmount +
                 '}';
     }
 }

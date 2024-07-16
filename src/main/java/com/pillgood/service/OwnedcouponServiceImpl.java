@@ -65,7 +65,7 @@ public class OwnedcouponServiceImpl implements OwnedcouponService {
                 .map(ownedcoupon -> {
                     Coupon coupon = couponRepository.findById(updatedOwnedcouponDto.getCouponId())
                             .orElseThrow(() -> new RuntimeException("Coupon not found"));
-                    ownedcoupon.setCouponId(updatedOwnedcouponDto.getCouponId());
+                    ownedcoupon.setCoupon(coupon);
                     ownedcoupon.setMemberUniqueId(updatedOwnedcouponDto.getMemberUniqueId());
                     ownedcoupon.setCouponUsed(updatedOwnedcouponDto.isCouponUsed());
                     ownedcoupon.setIssuedDate(updatedOwnedcouponDto.getIssuedDate());
@@ -86,27 +86,49 @@ public class OwnedcouponServiceImpl implements OwnedcouponService {
 
     @Override
     public OwnedcouponDto convertToDto(Ownedcoupon ownedcouponEntity) {
+        // 디버깅 로그 추가
+        System.out.println("Converting to DTO with entity data: " + ownedcouponEntity.toString());
+
         OwnedcouponDto ownedcouponDto = new OwnedcouponDto();
         ownedcouponDto.setOwnedCouponId(ownedcouponEntity.getOwnedCouponId());
-        ownedcouponDto.setCouponId(ownedcouponEntity.getCouponId());
+        ownedcouponDto.setCouponId(ownedcouponEntity.getCoupon().getCouponId());
         ownedcouponDto.setMemberUniqueId(ownedcouponEntity.getMemberUniqueId());
         ownedcouponDto.setCouponUsed(ownedcouponEntity.isCouponUsed());
         ownedcouponDto.setIssuedDate(ownedcouponEntity.getIssuedDate());
         ownedcouponDto.setExpiryDate(ownedcouponEntity.getExpiryDate());
+
+        // Coupon 정보 추가
+        Coupon coupon = ownedcouponEntity.getCoupon();
+        ownedcouponDto.setCouponName(coupon.getCouponName());
+        ownedcouponDto.setDiscountAmount(coupon.getDiscountAmount());
+
+        // 디버깅 로그 추가
+        System.out.println("Converted DTO: " + ownedcouponDto.toString());
+
         return ownedcouponDto;
     }
 
+
     @Override
     public Ownedcoupon convertToEntity(OwnedcouponDto ownedcouponDto) {
+        // Coupon 조회
+        Coupon coupon = couponRepository.findById(ownedcouponDto.getCouponId())
+                .orElseThrow(() -> new RuntimeException("Coupon not found"));
+
         // Ownedcoupon 엔티티 생성
-        return new Ownedcoupon(
+        Ownedcoupon ownedcoupon = new Ownedcoupon(
                 ownedcouponDto.getOwnedCouponId(),
-                ownedcouponDto.getCouponId(),
+                coupon,
                 ownedcouponDto.getMemberUniqueId(),
                 ownedcouponDto.isCouponUsed(),
                 ownedcouponDto.getIssuedDate(),
                 ownedcouponDto.getExpiryDate()
         );
+
+        // 디버깅 로그 추가
+        System.out.println("Converted entity: " + ownedcoupon.toString());
+
+        return ownedcoupon;
     }
 
 
@@ -132,7 +154,7 @@ public class OwnedcouponServiceImpl implements OwnedcouponService {
         // 해당 회원이 해당 쿠폰을 소유하고 있는지 확인
         List<Ownedcoupon> ownedCoupons = ownedcouponRepository.findByMemberUniqueId(memberId);
         return ownedCoupons.stream()
-                .anyMatch(ownedCoupon -> ownedCoupon.getCouponId().equals(couponId));
+                .anyMatch(ownedCoupon -> ownedCoupon.getCoupon().getCouponId().equals(couponId));
     }
 
 }
