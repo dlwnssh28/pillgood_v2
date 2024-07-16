@@ -29,6 +29,7 @@ public class OrderDto {
     private Integer ownedCouponId; // Integer로 변경
     private String orderStatus;
     private boolean subscriptionStatus;
+    private Integer pointsToUse; 
     private List<OrderDetailDto> orderDetails = new ArrayList<>(); // 초기화
 
     // 기존 필드만 포함한 생성자

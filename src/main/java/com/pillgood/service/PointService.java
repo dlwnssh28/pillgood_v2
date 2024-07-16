@@ -1,14 +1,13 @@
 package com.pillgood.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.pillgood.dto.PointDto;
 
 public interface PointService {
-    List<PointDto> getAllPoints();
-    Optional<PointDto> getPointById(int id);
     PointDto createPoint(PointDto pointDto);
-    Optional<PointDto> updatePoint(int id, PointDto updatedPointDto);
-    boolean deletePoint(int id);
+    void usePoints(String memberUniqueId, Integer pointsToUse);
+    List<PointDto> getPointsByMemberUniqueId(String memberUniqueId);
+    Integer getTotalPointsByMemberUniqueId(String memberUniqueId);
+    void refundPoints(String memberUniqueId, Integer pointsToRefund);
 }

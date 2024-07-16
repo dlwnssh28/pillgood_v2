@@ -1,5 +1,7 @@
 package com.pillgood.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -40,6 +42,12 @@ public class PointDetail {
 
     @Column(name = "point_id")
     private int pointId;
+
+    @Column(name = "transaction_date", nullable = false)
+    private LocalDateTime transactionDate;
+
+    @Column(name = "expiry_date")
+    private LocalDateTime expiryDate;
 
     @ManyToOne
     @JoinColumn(name = "member_unique_id", referencedColumnName = "member_unique_id", insertable = false, updatable = false)

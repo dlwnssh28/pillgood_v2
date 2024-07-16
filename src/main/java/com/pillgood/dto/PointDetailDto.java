@@ -1,5 +1,7 @@
 package com.pillgood.dto;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -10,22 +12,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PointDetailDto {
-
-    @JsonProperty("point_detail_id")
-    private int pointDetailId;
-
-    @JsonProperty("member_unique_id")
+    private Integer pointDetailId;
     private String memberUniqueId;
-
-    @JsonProperty("point_status_code")
     private String pointStatusCode;
-
-    @JsonProperty("points")
-    private int points;
-
-    @JsonProperty("detail_history_id")
-    private int detailHistoryId;
-
-    @JsonProperty("point_id")
-    private int pointId;
+    private Integer points;
+    private Integer detailHistoryId;
+    private Integer pointId;
+    private LocalDateTime transactionDate;
+    private LocalDateTime expiryDate;
 }

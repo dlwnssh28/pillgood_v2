@@ -12,9 +12,10 @@ public interface OrderService {
     OrderDto createOrder(OrderDto orderDto, List<OrderItemDto> orderItems);
     OrderDto updateOrder(String orderNo, OrderDto orderDto);
     void deleteOrder(String orderNo);
-    List<OrderDto> getOrdersByUserId(String memberId); // 메서드 추가
+    List<OrderDto> getOrdersByUserId(String memberId);
     void cancelOrder(String orderNo);
     void updateOrderStatusToPaid(String orderNo);
     List<OrderDetail> getOrderDetailsByOrderId(String orderId);
     OrderDto updateOrderStatus(String orderNo, String status);
+    
 }
