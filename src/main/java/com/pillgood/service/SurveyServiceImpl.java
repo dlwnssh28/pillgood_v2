@@ -124,6 +124,7 @@ public class SurveyServiceImpl implements SurveyService {
 
     @Override
     public SurveyDto createOrUpdateSurvey(SurveyDto surveyDto) {
+        System.out.println("Creating or updating survey with data: " + surveyDto); // 디버그 로그 추가
         List<Survey> existingSurveys = surveyRepository.findByMemberUniqueId(surveyDto.getMemberUniqueId());
 
         if (existingSurveys.isEmpty()) {
@@ -141,9 +142,11 @@ public class SurveyServiceImpl implements SurveyService {
             existingSurvey.setDeficiencyId3(surveyDto.getDeficiencyId3());
             existingSurvey.setSurveyDate(surveyDto.getSurveyDate());
             existingSurvey.setRecommendedProducts(surveyDto.getRecommendedProducts());
-            existingSurvey.setKeywords(surveyDto.getKeywords());
+            existingSurvey.setKeywords(surveyDto.getKeywords());  // keywords 값을 저장
             Survey updatedSurvey = surveyRepository.save(existingSurvey);
+            System.out.println("Updated survey data: " + updatedSurvey); // 디버그 로그 추가
             return convertToDto(updatedSurvey);
         }
     }
+
 }
