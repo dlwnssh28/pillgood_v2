@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 public class Ownedcoupon {
 
     @Id
@@ -22,11 +22,8 @@ public class Ownedcoupon {
     private Integer ownedCouponId;
 
     @ManyToOne
-    @JoinColumn(name = "coupon_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "coupon_id", nullable = false)
     private Coupon coupon;
-
-//    @Column(name = "coupon_id", nullable = false)
-//    private Integer couponId;
 
     @Column(name = "member_unique_id", length = 36, nullable = false)
     private String memberUniqueId;
@@ -40,6 +37,24 @@ public class Ownedcoupon {
     @Column(name = "expiry_date", nullable = false)
     private LocalDateTime expiryDate;
 
-    public Ownedcoupon(int ownedCouponId, int couponId, String memberUniqueId, boolean couponUsed, LocalDateTime issuedDate, LocalDateTime expiryDate) {
+    public Ownedcoupon(Integer ownedCouponId, Coupon coupon, String memberUniqueId, boolean couponUsed, LocalDateTime issuedDate, LocalDateTime expiryDate) {
+        this.ownedCouponId = ownedCouponId;
+        this.coupon = coupon;
+        this.memberUniqueId = memberUniqueId;
+        this.couponUsed = couponUsed;
+        this.issuedDate = issuedDate;
+        this.expiryDate = expiryDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Ownedcoupon{" +
+                "ownedCouponId=" + ownedCouponId +
+                ", couponId=" + (coupon != null ? coupon.getCouponId() : null) +
+                ", memberUniqueId='" + memberUniqueId + '\'' +
+                ", couponUsed=" + couponUsed +
+                ", issuedDate=" + issuedDate +
+                ", expiryDate=" + expiryDate +
+                '}';
     }
 }

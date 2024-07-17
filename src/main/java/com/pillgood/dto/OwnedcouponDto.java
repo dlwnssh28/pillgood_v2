@@ -21,7 +21,7 @@ public class OwnedcouponDto {
     private LocalDateTime expiryDate;
     private String couponName;
     private Integer discountAmount;
-    
+
     public OwnedcouponDto(Integer ownedCouponId, Integer couponId, String memberUniqueId, boolean couponUsed, LocalDateTime issuedDate, LocalDateTime expiryDate, Integer discountAmount) {
         this.ownedCouponId = ownedCouponId;
         this.couponId = couponId;
@@ -32,4 +32,17 @@ public class OwnedcouponDto {
         this.discountAmount = discountAmount;
     }
 
+    @Override
+    public String toString() {
+        return "OwnedcouponDto{" +
+                "ownedCouponId=" + ownedCouponId +
+                ", couponId=" + couponId +
+                ", memberUniqueId='" + memberUniqueId + '\'' +
+                ", couponUsed=" + couponUsed +
+                ", issuedDate=" + issuedDate +
+                ", expiryDate=" + expiryDate +
+                ", couponName='" + couponName + '\'' +
+                ", discountAmount=" + discountAmount +
+                '}';
+    }
 }

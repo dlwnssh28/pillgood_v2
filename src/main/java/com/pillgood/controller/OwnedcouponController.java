@@ -45,6 +45,7 @@ public class OwnedcouponController {
 
     @PostMapping("/admin/ownedcoupons/create")
     public ResponseEntity<OwnedcouponDto> createOwnedCoupon(@RequestBody OwnedcouponDto ownedcouponDto) {
+        System.out.println("Received data: " + ownedcouponDto.toString());
         OwnedcouponDto createdOwnedCoupon = ownedcouponService.createOwnedCoupon(ownedcouponDto);
         return ResponseEntity.ok(createdOwnedCoupon);
     }
