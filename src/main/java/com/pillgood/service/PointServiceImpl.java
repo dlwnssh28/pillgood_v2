@@ -2,7 +2,8 @@ package com.pillgood.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,6 @@ import com.pillgood.entity.Point;
 import com.pillgood.entity.PointDetail;
 import com.pillgood.repository.PointRepository;
 import com.pillgood.repository.PointDetailRepository;
-import com.pillgood.service.PointService;
-import com.pillgood.service.PointDetailService;
 
 @Service
 public class PointServiceImpl implements PointService {
@@ -46,17 +45,25 @@ public class PointServiceImpl implements PointService {
         pointDto.setPointId(point.getPointId());
 
         // 포인트 적립 상세 생성
+        int pointDetailId = generateNewPointDetailId();
         PointDetailDto pointDetailDto = new PointDetailDto();
+        pointDetailDto.setPointDetailId(pointDetailId); // Set the generated ID
         pointDetailDto.setMemberUniqueId(point.getMemberUniqueId());
         pointDetailDto.setPointStatusCode(point.getPointStatusCode());
         pointDetailDto.setPoints(point.getPoints());
-        pointDetailDto.setDetailHistoryId(point.getPointId());
+        pointDetailDto.setDetailHistoryId(pointDetailId); // Use the generated ID
         pointDetailDto.setPointId(point.getPointId());
         pointDetailDto.setTransactionDate(point.getTransactionDate());
+        pointDetailDto.setExpiryDate(point.getExpiryDate()); // 만료일 설정
 
         pointDetailService.createPointDetail(pointDetailDto);
 
         return pointDto;
+    }
+
+    private int generateNewPointDetailId() {
+        Integer maxId = pointDetailRepository.findMaxPointDetailId();
+        return (maxId == null ? 0 : maxId) + 1;
     }
 
     @Override
@@ -67,7 +74,7 @@ public class PointServiceImpl implements PointService {
 
     @Override
     @Transactional
-    public void usePoints(String memberUniqueId, Integer pointsToUse) {
+    public void usePoints(String memberUniqueId, Integer pointsToUse, String referenceId) {
         List<PointDetail> pointDetailsList = pointDetailRepository.findByMemberUniqueIdAndPointsGreaterThanOrderByTransactionDateAsc(memberUniqueId, 0);
         int remainingPoints = pointsToUse;
 
@@ -78,9 +85,10 @@ public class PointServiceImpl implements PointService {
         pointEvent.setPointStatusCode("PU");
         pointEvent.setPoints(-pointsToUse);
         pointEvent.setTransactionDate(LocalDateTime.now());
-        pointEvent.setReferenceId(UUID.randomUUID().toString());
+        pointEvent.setReferenceId(referenceId);
 
-        pointEvent = pointRepository.save(pointEvent);
+        pointEvent = pointRepository.save(pointEvent);  // Point 이벤트를 저장
+        int pointEventId = pointEvent.getPointId();
 
         for (PointDetail pointDetail : pointDetailsList) {
             if (remainingPoints <= 0) break;
@@ -89,12 +97,14 @@ public class PointServiceImpl implements PointService {
             int pointsToDeduct = Math.min(pointsAvailable, remainingPoints);
 
             PointDetail deductionDetail = new PointDetail();
+            deductionDetail.setPointDetailId(generateNewPointDetailId()); 
             deductionDetail.setMemberUniqueId(pointDetail.getMemberUniqueId());
             deductionDetail.setPointStatusCode("PU");
             deductionDetail.setPoints(-pointsToDeduct);
             deductionDetail.setDetailHistoryId(pointDetail.getPointDetailId());
-            deductionDetail.setPoint(pointEvent); // 현재 사용 이벤트에 대한 point_id 참조
-            deductionDetail.setTransactionDate(LocalDateTime.now());  // transactionDate 초기화
+            deductionDetail.setPointId(pointEventId);  // 현재 사용 이벤트에 대한 point_id 참조
+            deductionDetail.setTransactionDate(LocalDateTime.now());
+            deductionDetail.setExpiryDate(pointDetail.getExpiryDate());
 
             pointDetailRepository.save(deductionDetail);
 
@@ -108,26 +118,53 @@ public class PointServiceImpl implements PointService {
 
     @Override
     @Transactional
-    public void refundPoints(String memberUniqueId, Integer pointsToRefund) {
+    public void refundPoints(String memberUniqueId, Integer pointsToRefund, String referenceId) {
+        List<Point> usedPoints = pointRepository.findByMemberUniqueIdAndPointStatusCodeAndReferenceId(memberUniqueId, "PU", referenceId);
+        int totalRefundedPoints = 0;
+
         Point pointEvent = new Point();
         pointEvent.setMemberUniqueId(memberUniqueId);
         pointEvent.setPointMasterId("REFUND");
         pointEvent.setPointStatusCode("UC");
         pointEvent.setPoints(pointsToRefund);
         pointEvent.setTransactionDate(LocalDateTime.now());
-        pointEvent.setReferenceId(UUID.randomUUID().toString());
+        pointEvent.setReferenceId(referenceId);
 
-        pointRepository.save(pointEvent);
+        pointEvent = pointRepository.save(pointEvent);  // Point를 저장
 
-        PointDetailDto pointDetailDto = new PointDetailDto();
-        pointDetailDto.setMemberUniqueId(memberUniqueId);
-        pointDetailDto.setPointStatusCode("UC");
-        pointDetailDto.setPoints(pointsToRefund);
-        pointDetailDto.setDetailHistoryId(pointEvent.getPointId());
-        pointDetailDto.setPointId(pointEvent.getPointId());
-        pointDetailDto.setTransactionDate(LocalDateTime.now());
+        for (Point usedPoint : usedPoints) {
+            List<PointDetail> usedPointsDetails = pointDetailRepository.findByMemberUniqueIdAndPointStatusCodeAndPointId(memberUniqueId, "PU", usedPoint.getPointId());
 
-        pointDetailService.createPointDetail(pointDetailDto);
+            for (PointDetail usedPointDetail : usedPointsDetails) {
+                if (totalRefundedPoints >= pointsToRefund) {
+                    break;
+                }
+
+                int pointsToReturn = Math.min(pointsToRefund - totalRefundedPoints, -usedPointDetail.getPoints());
+
+                PointDetail returnDetail = new PointDetail();
+                returnDetail.setPointDetailId(generateNewPointDetailId()); // Generate new ID
+                returnDetail.setMemberUniqueId(memberUniqueId);
+                returnDetail.setPointStatusCode("UC");
+                returnDetail.setPoints(pointsToReturn);
+                returnDetail.setDetailHistoryId(usedPointDetail.getPointDetailId());
+                returnDetail.setPointId(pointEvent.getPointId());
+                returnDetail.setTransactionDate(LocalDateTime.now());
+                returnDetail.setExpiryDate(usedPointDetail.getExpiryDate());
+
+                pointDetailRepository.save(returnDetail);
+
+                totalRefundedPoints += pointsToReturn;
+            }
+
+            if (totalRefundedPoints >= pointsToRefund) {
+                break;
+            }
+        }
+
+        if (totalRefundedPoints < pointsToRefund) {
+            throw new RuntimeException("Not enough points to refund");
+        }
     }
 
     @Override

@@ -46,14 +46,29 @@ public class PointController {
     }
 
     @PostMapping("/api/points/use")
-    public ResponseEntity<Void> usePoints(HttpSession session, @RequestParam Integer pointsToUse) {
+    public ResponseEntity<Void> usePoints(HttpSession session, @RequestParam Integer pointsToUse, @RequestParam String referenceId) {
         String memberUniqueId = (String) session.getAttribute("memberId");
         if (memberUniqueId == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
         }
 
         try {
-            pointService.usePoints(memberUniqueId, pointsToUse);
+            pointService.usePoints(memberUniqueId, pointsToUse, referenceId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // 400 Bad Request
+        }
+    }
+
+    @PostMapping("/api/points/refund")
+    public ResponseEntity<Void> refundPoints(HttpSession session, @RequestParam Integer pointsToRefund, @RequestParam String referenceId) {
+        String memberUniqueId = (String) session.getAttribute("memberId");
+        if (memberUniqueId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+        }
+
+        try {
+            pointService.refundPoints(memberUniqueId, pointsToRefund, referenceId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // 400 Bad Request

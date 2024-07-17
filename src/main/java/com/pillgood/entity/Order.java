@@ -55,6 +55,9 @@ public class Order {
     @Column(name = "subscription_status")
     private boolean subscriptionStatus;
 
+    @Column(name = "points_to_use")
+    private Integer pointsToUse;
+
     @ManyToOne
     @JoinColumn(name = "member_unique_id", insertable = false, updatable = false)
     private Member member;

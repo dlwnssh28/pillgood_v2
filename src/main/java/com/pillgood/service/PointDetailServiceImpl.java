@@ -17,6 +17,7 @@ public class PointDetailServiceImpl implements PointDetailService {
     @Override
     public PointDetailDto createPointDetail(PointDetailDto pointDetailDto) {
         PointDetail pointDetail = new PointDetail();
+        pointDetail.setPointDetailId(pointDetailDto.getPointDetailId());
         pointDetail.setMemberUniqueId(pointDetailDto.getMemberUniqueId());
         pointDetail.setPointStatusCode(pointDetailDto.getPointStatusCode());
         pointDetail.setPoints(pointDetailDto.getPoints());

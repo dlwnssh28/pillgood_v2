@@ -2,10 +2,7 @@ package com.pillgood.controller;
 
 import com.pillgood.dto.OrderDto;
 import com.pillgood.dto.OrderItemDto;
-import com.pillgood.dto.PaymentRequest;
-import com.pillgood.dto.PaymentResponse;
 import com.pillgood.service.OrderService;
-import com.pillgood.service.PaymentService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -51,6 +48,7 @@ public class OrderController {
         List<OrderItemDto> orderItems = (List<OrderItemDto>) session.getAttribute("orderItems");
 
         OrderDto createdOrder = orderService.createOrder(orderDto, orderItems);
+
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
     
@@ -82,9 +80,22 @@ public class OrderController {
     }
     
     @DeleteMapping("/api/orders/cancel/{orderNo}")
-    public void cancelOrder(@PathVariable String orderNo) {
-        orderService.cancelOrder(orderNo);
+    public ResponseEntity<Void> cancelOrder(HttpSession session, @PathVariable String orderNo) {
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+        }
+
+        // 주문 취소 로직 추가
+        OrderDto order = orderService.getOrderById(orderNo);
+        if (order != null) {
+            // 주문을 취소합니다.
+            orderService.cancelOrder(orderNo);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
+
 
     @DeleteMapping("/admin/orders/delete/{orderNo}")
     public ResponseEntity<Void> deleteOrder(@PathVariable String orderNo) {

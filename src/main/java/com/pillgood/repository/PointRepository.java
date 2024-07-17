@@ -14,4 +14,6 @@ public interface PointRepository extends JpaRepository<Point, Integer> {
 
     @Query("SELECT SUM(p.points) FROM Point p WHERE p.memberUniqueId = :memberUniqueId")
     Integer findTotalPointsByMemberUniqueId(String memberUniqueId);
+    
+    List<Point> findByMemberUniqueIdAndPointStatusCodeAndReferenceId(String memberUniqueId, String pointStatusCode, String referenceId);
 }

@@ -3,15 +3,12 @@ package com.pillgood.service;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -23,13 +20,11 @@ import com.pillgood.dto.BillingPaymentRequest;
 import com.pillgood.dto.PaymentApproveRequest;
 import com.pillgood.dto.PaymentApproveResponse;
 import com.pillgood.dto.PointDto;
-import com.pillgood.dto.PointDetailDto;
 import com.pillgood.entity.Billing;
 import com.pillgood.entity.OrderDetail;
 import com.pillgood.entity.Payment;
 import com.pillgood.entity.Subscription;
 import com.pillgood.repository.BillingRepository;
-import com.pillgood.repository.OrderRepository;
 import com.pillgood.repository.PaymentRepository;
 import com.pillgood.repository.SubscriptionRepository;
 
@@ -47,11 +42,10 @@ public class PaymentService {
     private final CartService cartService;
     private final HttpSession session;
     private final PointService pointService;
-    private final PointDetailService pointDetailService;
 
     public PaymentService(RestTemplate restTemplate, @Value("${toss.payments.secretKey}") String apiKey, PaymentRepository paymentRepository, 
             BillingRepository billingRepository, SubscriptionRepository subscriptionRepository, OrderService orderService, 
-            CartService cartService, HttpSession session, PointService pointService, PointDetailService pointDetailService)  {
+            CartService cartService, HttpSession session, PointService pointService) {
         this.restTemplate = restTemplate;
         this.apiKey = apiKey;
         this.paymentRepository = paymentRepository;
@@ -61,7 +55,6 @@ public class PaymentService {
         this.cartService = cartService;
         this.session = session;
         this.pointService = pointService;
-        this.pointDetailService = pointDetailService;
     }
 
     public BillingAuthResponse issueBillingKey(BillingAuthRequest request) {
@@ -74,16 +67,14 @@ public class PaymentService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<BillingAuthRequest> requestEntity = new HttpEntity<>(request, headers);
-        ResponseEntity<BillingAuthResponse> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, BillingAuthResponse.class);
-
-        return responseEntity.getBody();
+        return restTemplate.postForEntity(url, requestEntity, BillingAuthResponse.class).getBody();
     }
 
     public BillingDto saveBillingKey(String billingKey, String memberUniqueId) {
         Billing billing = new Billing();
         billing.setBillingKey(billingKey);
         billing.setMemberUniqueId(memberUniqueId);
-        Billing savedBilling = billingRepository.save(billing); // 인스턴스 메서드 호출
+        Billing savedBilling = billingRepository.save(billing);
         return convertToDto(savedBilling);
     }
 
@@ -93,8 +84,6 @@ public class PaymentService {
 
     public PaymentApproveResponse confirmBilling(BillingPaymentRequest request, String billingKey) {
         String url = "https://api.tosspayments.com/v1/billing/" + billingKey;
-        System.out.println(url);
-        System.out.println(request);
         String encryptedSecretKey = "Basic " + Base64.getEncoder().encodeToString((apiKey + ":").getBytes());
 
         HttpHeaders headers = new HttpHeaders();
@@ -102,23 +91,17 @@ public class PaymentService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<BillingPaymentRequest> requestEntity = new HttpEntity<>(request, headers);
-
         PaymentApproveResponse response = restTemplate.postForObject(url, requestEntity, PaymentApproveResponse.class);
-        
-        // 결제 승인 성공 시 콘솔에 로그 출력
-        if (response != null) {
-            System.out.println("결제 승인 성공: " + response);
-            savePaymentDetails(request, response);
-        } else {
-            System.out.println("결제 승인 실패");
-        }
-        return response;
 
+        if (response != null) {
+            savePaymentDetails(request, response);
+        }
+
+        return response;
     }
 
     public PaymentApproveResponse approvePayment(PaymentApproveRequest approveRequest) {
         String url = "https://api.tosspayments.com/v1/payments/confirm";
-
         String encryptedSecretKey = "Basic " + Base64.getEncoder().encodeToString((apiKey + ":").getBytes());
 
         HttpHeaders headers = new HttpHeaders();
@@ -128,22 +111,15 @@ public class PaymentService {
         HttpEntity<PaymentApproveRequest> requestEntity = new HttpEntity<>(approveRequest, headers);
         PaymentApproveResponse response = restTemplate.postForObject(url, requestEntity, PaymentApproveResponse.class);
 
-        // 결제 승인 성공 시 콘솔에 로그 출력
         if (response != null) {
-            System.out.println("결제 승인 성공: " + response);
-            // 결제 내역 저장
             savePaymentDetails(approveRequest, response);
-        } else {
-            System.out.println("결제 승인 실패");
         }
 
         return response;
     }
-    
-    // 결제 승인 후 결제 정보를 저장하고, 장바구니에서 결제한 상품을 삭제하는 메서드
+
     @Transactional
     private void savePaymentDetails(PaymentApproveRequest approveRequest, PaymentApproveResponse approveResponse) {
-
         Payment payment = new Payment();
         payment.setPaymentNo(approveResponse.getPaymentKey());
         payment.setOrderNo(approveResponse.getOrderId());
@@ -153,22 +129,19 @@ public class PaymentService {
         payment.setPaymentDate(LocalDateTime.now());
         payment.setSubscriptionStatus(approveResponse.getType());
 
-        // 추가 정보를 설정할 수 있습니다.
         paymentRepository.save(payment);
-        orderService.updateOrderStatusToPaid(approveResponse.getOrderId()); // 주문 상태 업데이트
+        orderService.updateOrderStatusToPaid(approveResponse.getOrderId());
 
         String memberId = (String) session.getAttribute("memberId");
         deletePurchasedItemsFromCart(memberId, approveRequest.getOrderId());
-        
+
         // 포인트 적립
         int pointsToSave = (int) (approveResponse.getTotalAmount() * 0.01);
-        savePoints(memberId, pointsToSave, "ORDER");
+        savePoints(memberId, pointsToSave, "ORDER", approveResponse.getOrderId());
     }
-    
-    // BillingPaymentRequest에 대한 결제 정보 저장 메서드 추가
+
     @Transactional
     private void savePaymentDetails(BillingPaymentRequest request, PaymentApproveResponse approveResponse) {
-
         Payment payment = new Payment();
         payment.setPaymentNo(approveResponse.getPaymentKey());
         payment.setOrderNo(approveResponse.getOrderId());
@@ -178,66 +151,49 @@ public class PaymentService {
         payment.setPaymentDate(LocalDateTime.now());
         payment.setSubscriptionStatus(approveResponse.getType());
 
-        // 추가 정보를 설정할 수 있습니다.
         paymentRepository.save(payment);
-        
+
         Subscription subscription = new Subscription();
         subscription.setMemberUniqueId(request.getCustomerKey());
         subscription.setStartDate(LocalDateTime.now());
         subscription.setSubscriptionStatus("T");
         subscription.setPaymentNo(approveResponse.getPaymentKey());
-        
+
         subscriptionRepository.save(subscription);
-        orderService.updateOrderStatusToPaid(approveResponse.getOrderId()); // 주문 상태 업데이트
+        orderService.updateOrderStatusToPaid(approveResponse.getOrderId());
         deletePurchasedItemsFromCart(request.getCustomerKey(), request.getOrderId());
-        
-        // 포인트 적립
+
         int pointsToSave = (int) (approveResponse.getTotalAmount() * 0.01);
-        savePoints(request.getCustomerKey(), pointsToSave, "BILLING_APPROVAL");
+        savePoints(request.getCustomerKey(), pointsToSave, "BILLING", approveResponse.getOrderId());
     }
-    
-    
+
     private void deletePurchasedItemsFromCart(String memberUniqueId, String orderId) {
         List<OrderDetail> orderDetails = orderService.getOrderDetailsByOrderId(orderId);
-
         List<Integer> productIds = orderDetails.stream()
                                                .map(orderDetail -> orderDetail.getProduct().getProductId())
                                                .collect(Collectors.toList());
-                                               
+
         cartService.deleteCarts(productIds, memberUniqueId);
     }
-    
+
     private BillingDto convertToDto(Billing billing) {
         BillingDto billingDto = new BillingDto();
         billingDto.setBillingKey(billing.getBillingKey());
         billingDto.setMemberUniqueId(billing.getMemberUniqueId());
         return billingDto;
     }
-    
+
     @Transactional
-    private void savePoints(String memberUniqueId, int points, String reason) {
-        // 포인트 생성
+    private void savePoints(String memberUniqueId, int points, String reason, String orderId) {
         PointDto pointDto = new PointDto();
         pointDto.setMemberUniqueId(memberUniqueId);
         pointDto.setPoints(points);
         pointDto.setPointStatusCode("PS");
         pointDto.setTransactionDate(LocalDateTime.now());
-        pointDto.setExpiryDate(LocalDateTime.now().plusYears(1)); // 1년 후 만료
+        pointDto.setExpiryDate(LocalDateTime.now().plusYears(1));
         pointDto.setPointMasterId(reason);
-        pointDto.setReferenceId(UUID.randomUUID().toString());
+        pointDto.setReferenceId(orderId);
 
-        PointDto savedPointDto = pointService.createPoint(pointDto);
-
-        // 포인트 상세 생성
-        PointDetailDto pointDetailDto = new PointDetailDto();
-        pointDetailDto.setMemberUniqueId(savedPointDto.getMemberUniqueId());
-        pointDetailDto.setPointStatusCode("PS");
-        pointDetailDto.setPoints(savedPointDto.getPoints());
-        pointDetailDto.setDetailHistoryId(savedPointDto.getPointId());
-        pointDetailDto.setPointId(savedPointDto.getPointId());
-        pointDetailDto.setTransactionDate(LocalDateTime.now());
-        pointDetailDto.setExpiryDate(LocalDateTime.now().plusYears(1)); // 1년 후 만료
-
-        pointDetailService.createPointDetail(pointDetailDto);
+        pointService.createPoint(pointDto);
     }
 }
