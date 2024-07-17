@@ -19,4 +19,12 @@ public interface MemberService {
     boolean resetPassword(String token, String newPassword);
 
     Optional<MemberDto> updateCouponIssued(String memberId, boolean couponIssued);
+    
+    // 소셜 로그인 관련 추가 메서드
+    boolean checkSocialId(String socialId, String provider);
+    boolean regSocialMember(SocialMemberDto socialMemberDto);
+    
+    // 추가된 메서드
+    Optional<MemberDto> findBySocialId(String socialId, String provider);
+
 }
