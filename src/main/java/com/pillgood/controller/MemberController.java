@@ -152,17 +152,11 @@ public class MemberController {
     // 사용자가 비밀번호 재설정을 위해 이메일 입력 -> 비밀번호 재설정 링크를 전송
     @PostMapping("/api/members/forgotpassword")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
-        // 페이지에서 사용자가 작성한 이메일 추출
         String email = request.get("email");
-
-        // 사용자가 작성한 이메일 주소로 일련번호 전송
         boolean isSent = memberService.sendResetLink(email);
-
-        // 일련번호 전송에 성공하면, http 200 ok 응답 반환
         if (isSent) {
             return ResponseEntity.ok("Reset link sent");
         } else {
-            // 일련번호 전송에 성공하면, http 400 bad request 응답 반환
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to send reset link");
         }
     }
