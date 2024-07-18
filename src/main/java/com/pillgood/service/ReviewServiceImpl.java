@@ -72,7 +72,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewDto convertToDto(Review reviewEntity) {
-        return new ReviewDto(
+        ReviewDto reviewDto = new ReviewDto(
                 reviewEntity.getReviewId(),
                 reviewEntity.getMemberUniqueId(),
                 reviewEntity.getOrderDetail().getOrderDetailNo(),
@@ -80,8 +80,18 @@ public class ReviewServiceImpl implements ReviewService {
                 reviewEntity.getReviewContent(),
                 reviewEntity.getRating(),
                 reviewEntity.getReviewImage(),
-                reviewEntity.isCouponIssued() // 새로운 필드 추가
+                reviewEntity.isCouponIssued()
         );
+
+        // 작성자의 이름을 MemberService를 통해 조회하여 설정
+        memberService.getMemberById(reviewEntity.getMemberUniqueId())
+                .ifPresent(memberDto -> {
+                    reviewDto.setMemberName(memberDto.getName());
+                    System.out.println("Review Member Unique ID: " + reviewEntity.getMemberUniqueId());
+                    System.out.println("Review Member Name: " + memberDto.getName());
+                });
+
+        return reviewDto;
     }
 
     @Override
