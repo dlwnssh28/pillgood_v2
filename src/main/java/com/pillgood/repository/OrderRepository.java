@@ -19,4 +19,8 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     Optional<Order> findByOrderNo(String orderNo);
     
     List<Order> findByMemberUniqueId(String memberUniqueId);
+    
+    @Modifying
+    @Query("UPDATE Order o SET o.orderStatus = :status WHERE o.orderNo = :orderNo")
+    void updateOrderStatus(@Param("orderNo") String orderNo, @Param("status") String status);
 }
