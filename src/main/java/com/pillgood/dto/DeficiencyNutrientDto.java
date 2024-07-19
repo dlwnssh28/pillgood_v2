@@ -11,4 +11,6 @@ public class DeficiencyNutrientDto {
     private int deficiencyNutrientId;
     private int deficiencyId;
     private int nutrientId;
+    private String deficiencyName;
+
 }

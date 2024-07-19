@@ -77,6 +77,12 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findById(id)
                 .map(product -> {
                     product.setProductName(updatedProductDTO.getProductName());
+
+                    // Fetch the Nutrient entity using the provided nutrient ID
+                    Nutrient nutrient = nutrientRepository.findById(updatedProductDTO.getNutrientId())
+                            .orElseThrow(() -> new IllegalArgumentException("Invalid nutrient ID: " + updatedProductDTO.getNutrientId()));
+                    product.setNutrient(nutrient);
+//                    product.setNutrient(updatedProductDTO.getNutrientId());
                     product.setProductImage(updatedProductDTO.getProductImage());
                     product.setPrice(updatedProductDTO.getPrice());
                     product.setStock(updatedProductDTO.getStock());

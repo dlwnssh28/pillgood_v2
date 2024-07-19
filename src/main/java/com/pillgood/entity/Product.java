@@ -55,5 +55,6 @@ public class Product {
     )
     private List<Deficiency> deficiencies;
 
+
 }
 

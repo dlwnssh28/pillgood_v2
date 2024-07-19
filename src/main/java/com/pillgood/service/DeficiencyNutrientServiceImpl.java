@@ -45,7 +45,8 @@ public class DeficiencyNutrientServiceImpl implements DeficiencyNutrientService 
                 .map(deficiencyNutrient -> new DeficiencyNutrientDto(
                         deficiencyNutrient.getDeficiencyNutrientId(),
                         deficiencyNutrient.getDeficiency().getDeficiencyId(),
-                        deficiencyNutrient.getNutrient().getNutrientId()
+                        deficiencyNutrient.getNutrient().getNutrientId(),
+                        deficiencyNutrient.getNutrient().getNutrientName()
                 ));
     }
 
@@ -55,7 +56,8 @@ public class DeficiencyNutrientServiceImpl implements DeficiencyNutrientService 
                 .map(deficiencyNutrient -> new DeficiencyNutrientDto(
                         deficiencyNutrient.getDeficiencyNutrientId(),
                         deficiencyNutrient.getDeficiency().getDeficiencyId(),
-                        deficiencyNutrient.getNutrient().getNutrientId()
+                        deficiencyNutrient.getNutrient().getNutrientId(),
+                        deficiencyNutrient.getNutrient().getNutrientName()
                 ))
                 .collect(Collectors.toList());
     }

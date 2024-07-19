@@ -16,8 +16,19 @@ public class Deficiency {
     @Column(name = "deficiency_name")
     private String deficiencyName;
 
+    @Override
+    public String toString() {
+        return "Deficiency{" +
+                "deficiencyId=" + deficiencyId +
+                ", deficiencyName='" + deficiencyName + '\'' +
+                '}';
+    }
+
     @ManyToMany(mappedBy = "deficiencies")
     private List<Product> products;
+
+    @OneToMany(mappedBy = "deficiency")
+    private List<DeficiencyNutrient> deficiencyNutrients;
 
     // Getters and Setters
     public int getDeficiencyId() {
@@ -42,5 +53,13 @@ public class Deficiency {
 
     public void setProducts(List<Product> products) {
         this.products = products;
+    }
+
+    public List<DeficiencyNutrient> getDeficiencyNutrients() {
+        return deficiencyNutrients;
+    }
+
+    public void setDeficiencyNutrients(List<DeficiencyNutrient> deficiencyNutrients) {
+        this.deficiencyNutrients = deficiencyNutrients;
     }
 }

@@ -1,6 +1,7 @@
 package com.pillgood.service;
 
 import com.pillgood.dto.DeficiencyDto;
+import com.pillgood.dto.DeficiencyNutrientDto;
 import com.pillgood.entity.Deficiency;
 import com.pillgood.repository.DeficiencyRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,5 +18,6 @@ public interface DeficiencyService {
     List<DeficiencyDto> getAllDeficiencies();
     Optional<DeficiencyDto> updateDeficiency(int id, DeficiencyDto deficiencyDto);
     boolean deleteDeficiency(int id);
+    List<DeficiencyNutrientDto> getDeficiencyNutrientsWithNames();
 }
 
