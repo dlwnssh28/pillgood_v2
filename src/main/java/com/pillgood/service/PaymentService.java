@@ -18,6 +18,7 @@ import com.pillgood.dto.BillingAuthRequest;
 import com.pillgood.dto.BillingAuthResponse;
 import com.pillgood.dto.BillingDto;
 import com.pillgood.dto.BillingPaymentRequest;
+import com.pillgood.dto.Cancels;
 import com.pillgood.dto.PaymentApproveRequest;
 import com.pillgood.dto.PaymentApproveResponse;
 import com.pillgood.dto.PaymentCancelRequest;
@@ -145,8 +146,12 @@ public class PaymentService {
         Payment payment = paymentRepository.findByPaymentNo(cancelResponse.getPaymentKey())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid payment key: " + cancelResponse.getPaymentKey()));
         System.out.println(cancelResponse);
-        payment.setStatus("CANCELLED");
-        payment.setDetail(cancelResponse.getCancelReason());
+        payment.setStatus("CANCELLED");StringBuilder cancelReasons = new StringBuilder();
+        for (Cancels cancel : cancelResponse.getCancels()) {
+            cancelReasons.append(cancel.getCancelReason()).append("; ");
+        }
+
+        payment.setDetail(cancelReasons.toString()); // 모든 취소 사유를 합쳐서 저장
         payment.setRefundStatus("REFUNDED");
         payment.setRefundDate(LocalDateTime.now());
 
