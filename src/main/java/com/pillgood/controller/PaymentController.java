@@ -1,5 +1,7 @@
 package com.pillgood.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +16,10 @@ import com.pillgood.dto.BillingAuthResponse;
 import com.pillgood.dto.BillingPaymentRequest;
 import com.pillgood.dto.PaymentApproveRequest;
 import com.pillgood.dto.PaymentApproveResponse;
+import com.pillgood.dto.PaymentCancelRequest;
+import com.pillgood.dto.PaymentCancelResponse;
 import com.pillgood.entity.Billing;
+import com.pillgood.entity.Payment;
 import com.pillgood.repository.BillingRepository;
 import com.pillgood.repository.MemberRepository;
 import com.pillgood.service.PaymentService;
@@ -125,6 +130,34 @@ public class PaymentController {
             return ResponseEntity.ok(null); // billingKey가 없음
         } else {
             return ResponseEntity.ok(billing.getBillingKey()); // billingKey 반환
+        }
+    }
+
+    @PostMapping("/cancel")
+    public ResponseEntity<PaymentCancelResponse> cancelPayment(@RequestBody PaymentCancelRequest cancelRequest) {
+        try {
+            PaymentCancelResponse cancelResponse = paymentService.cancelPayment(cancelRequest);
+            System.out.println(cancelResponse);
+            if (cancelResponse != null) {
+                paymentService.updatePaymentStatus(cancelResponse);
+                paymentService.updateOrderStatusToCanceled(cancelRequest.getPaymentKey(), "취소완료");
+                return ResponseEntity.ok(cancelResponse);
+            } else {
+                return ResponseEntity.status(500).build();
+            }
+        } catch (Exception e) {
+            System.out.println("결제 취소 요청 중 오류 발생: " + e.getMessage());
+            return ResponseEntity.status(500).build();
+        }
+    }
+    
+    @GetMapping("/payment-info/{orderNo}")
+    public ResponseEntity<Payment> getPaymentInfo(@PathVariable String orderNo) {
+        Optional<Payment> paymentOpt = paymentService.getPaymentByOrderNo(orderNo);
+        if (paymentOpt.isPresent()) {
+            return ResponseEntity.ok(paymentOpt.get());
+        } else {
+            return ResponseEntity.status(404).body(null);
         }
     }
 }

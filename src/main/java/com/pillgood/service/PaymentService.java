@@ -3,6 +3,7 @@ package com.pillgood.service;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +18,11 @@ import com.pillgood.dto.BillingAuthRequest;
 import com.pillgood.dto.BillingAuthResponse;
 import com.pillgood.dto.BillingDto;
 import com.pillgood.dto.BillingPaymentRequest;
+import com.pillgood.dto.Cancels;
 import com.pillgood.dto.PaymentApproveRequest;
 import com.pillgood.dto.PaymentApproveResponse;
+import com.pillgood.dto.PaymentCancelRequest;
+import com.pillgood.dto.PaymentCancelResponse;
 import com.pillgood.dto.PointDto;
 import com.pillgood.entity.Billing;
 import com.pillgood.entity.OrderDetail;
@@ -118,6 +122,60 @@ public class PaymentService {
         return response;
     }
 
+    public PaymentCancelResponse cancelPayment(PaymentCancelRequest cancelRequest) {
+        String url = "https://api.tosspayments.com/v1/payments/" + cancelRequest.getPaymentKey() + "/cancel";
+        String encryptedSecretKey = "Basic " + Base64.getEncoder().encodeToString((apiKey + ":").getBytes());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", encryptedSecretKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<PaymentCancelRequest> requestEntity = new HttpEntity<>(cancelRequest, headers);
+        PaymentCancelResponse response = restTemplate.postForObject(url, requestEntity, PaymentCancelResponse.class);
+
+        if (response != null) {
+            updatePaymentStatus(response);
+            updateOrderStatusToCanceled(cancelRequest.getPaymentKey(), "결제취소");
+        }
+
+        return response;
+    }
+
+    @Transactional
+    public void updatePaymentStatus(PaymentCancelResponse cancelResponse) {
+        Payment payment = paymentRepository.findByPaymentNo(cancelResponse.getPaymentKey())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid payment key: " + cancelResponse.getPaymentKey()));
+        System.out.println(cancelResponse);
+        payment.setStatus("CANCELLED");StringBuilder cancelReasons = new StringBuilder();
+        for (Cancels cancel : cancelResponse.getCancels()) {
+            cancelReasons.append(cancel.getCancelReason()).append("; ");
+        }
+
+        payment.setDetail(cancelReasons.toString()); // 모든 취소 사유를 합쳐서 저장
+        payment.setRefundStatus("REFUNDED");
+        payment.setRefundDate(LocalDateTime.now());
+
+        paymentRepository.save(payment);
+    }
+    
+    @Transactional
+    public void updateOrderStatusToCanceled(String paymentKey, String status) {
+        Payment payment = paymentRepository.findByPaymentNo(paymentKey)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid payment key: " + paymentKey));
+        String orderNo = payment.getOrderNo();
+        orderService.updateOrderStatus(orderNo, status);
+    }
+
+    
+    public Optional<Payment> getPaymentByOrderNo(String orderNo) {
+        return paymentRepository.findByOrderNo(orderNo);
+    }
+
+    @Transactional
+    public void updateOrderStatusToPaid(String orderNo) {
+        orderService.updateOrderStatus(orderNo, "결제완료");
+    }
+
     @Transactional
     private void savePaymentDetails(PaymentApproveRequest approveRequest, PaymentApproveResponse approveResponse) {
         Payment payment = new Payment();
@@ -130,12 +188,11 @@ public class PaymentService {
         payment.setSubscriptionStatus(approveResponse.getType());
 
         paymentRepository.save(payment);
-        orderService.updateOrderStatusToPaid(approveResponse.getOrderId());
+        updateOrderStatusToPaid(approveResponse.getOrderId());
 
         String memberId = (String) session.getAttribute("memberId");
         deletePurchasedItemsFromCart(memberId, approveRequest.getOrderId());
 
-        // 포인트 적립
         int pointsToSave = (int) (approveResponse.getTotalAmount() * 0.01);
         savePoints(memberId, pointsToSave, "ORDER", approveResponse.getOrderId());
     }
@@ -160,7 +217,7 @@ public class PaymentService {
         subscription.setPaymentNo(approveResponse.getPaymentKey());
 
         subscriptionRepository.save(subscription);
-        orderService.updateOrderStatusToPaid(approveResponse.getOrderId());
+        updateOrderStatusToPaid(approveResponse.getOrderId());
         deletePurchasedItemsFromCart(request.getCustomerKey(), request.getOrderId());
 
         int pointsToSave = (int) (approveResponse.getTotalAmount() * 0.01);
