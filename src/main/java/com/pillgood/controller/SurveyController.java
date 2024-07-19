@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -79,6 +80,12 @@ public class SurveyController {
     @GetMapping("/api/surveys/age-group-deficiency")
     public ResponseEntity<List<Object[]>> getAgeGroupDeficiencyData() {
         List<Object[]> data = surveyService.getAgeGroupDeficiencyData();
+        return ResponseEntity.ok(data);
+    }
+    
+    @GetMapping("/api/surveys/top-products")
+    public ResponseEntity<List<Map<String, Object>>> getTopProducts() {
+        List<Map<String, Object>> data = surveyService.getTopProducts();
         return ResponseEntity.ok(data);
     }
 }

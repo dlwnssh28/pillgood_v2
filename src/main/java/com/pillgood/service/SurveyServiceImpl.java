@@ -11,7 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -171,5 +175,31 @@ public class SurveyServiceImpl implements SurveyService {
 
         Query query = entityManager.createNativeQuery(sql);
         return query.getResultList();
+    }
+    @Override
+    public List<Map<String, Object>> getTopProducts() {
+        String sql = "SELECT p.product_id, p.product_name, SUM(od.quantity) AS total_quantity_sold " +
+                     "FROM orders o " +
+                     "JOIN order_details od ON o.order_no = od.order_no " +
+                     "JOIN products p ON od.product_id = p.product_id " +
+                     "JOIN payments pay ON o.order_no = pay.order_no " +
+                     "WHERE pay.status = 'DONE' " +
+                     "GROUP BY p.product_id, p.product_name " +
+                     "ORDER BY total_quantity_sold DESC " +
+                     "LIMIT 3";
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> results = query.getResultList();
+
+        List<Map<String, Object>> topProducts = new ArrayList<>();
+        for (Object[] result : results) {
+            Map<String, Object> productInfo = new HashMap<>();
+            productInfo.put("product_id", result[0]);
+            productInfo.put("product_name", result[1]);
+            productInfo.put("total_quantity_sold", result[2]);
+            topProducts.add(productInfo);
+        }
+
+        return topProducts;
     }
 }
