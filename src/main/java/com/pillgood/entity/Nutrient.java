@@ -25,4 +25,12 @@ public class Nutrient {
     public Nutrient(int nutrientId) {
         this.nutrientId = nutrientId;
     }
+
+    @Override
+    public String toString() {
+        return "Nutrient{" +
+                "nutrientId=" + nutrientId +
+                ", nutrientName='" + nutrientName + '\'' +
+                '}';
+    }
 }

@@ -48,15 +48,12 @@ public class MemberController {
         if (optionalMember.isPresent()) {
             MemberDto foundMember = optionalMember.get();
             if (memberService.checkPassword(memberDto.getPassword(), foundMember.getPassword())) {
-                System.out.println("비밀번호 확인: 로그인 성공");
                 session.setAttribute("memberId", foundMember.getMemberUniqueId());
                 return ResponseEntity.ok("Login successful");
             } else {
-                System.out.println("비밀번호 확인: 로그인 실패 - 비밀번호가 일치하지 않습니다.");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
             }
         } else {
-            System.out.println("멤버가 존재하지 않습니다.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }

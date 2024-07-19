@@ -1,7 +1,10 @@
 package com.pillgood.service;
 
 import com.pillgood.dto.DeficiencyDto;
+import com.pillgood.dto.DeficiencyNutrientDto;
 import com.pillgood.entity.Deficiency;
+import com.pillgood.entity.DeficiencyNutrient;
+import com.pillgood.repository.DeficiencyNutrientRepository;
 import com.pillgood.repository.DeficiencyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,4 +72,41 @@ public class DeficiencyServiceImpl implements DeficiencyService {
         }
         return false;
     }
+
+    @Autowired
+    private final DeficiencyNutrientRepository deficiencyNutrientRepository;
+
+    @Override
+    public List<DeficiencyNutrientDto> getDeficiencyNutrientsWithNames() {
+        List<DeficiencyNutrient> deficiencyNutrients = deficiencyNutrientRepository.findAll();
+        System.out.println("Fetched Deficiency Nutrients: {}"+ deficiencyNutrients);
+
+        return deficiencyNutrients.stream().map(dn -> {
+            Deficiency deficiency = dn.getDeficiency();
+//            logger.debug("Deficiency: {}", deficiency);
+            System.out.println("Deficiency: {}"+ deficiency);
+
+            int deficiencyNutrientId = dn.getDeficiencyNutrientId();
+            int deficiencyId = deficiency != null ? deficiency.getDeficiencyId() : -1;
+            String deficiencyName = deficiency != null ? deficiency.getDeficiencyName() : "N/A";
+            int nutrientId = dn.getNutrient().getNutrientId();
+
+//            logger.debug("Mapping DTO: deficiencyNutrientId={}, deficiencyId={}, nutrientId={}, deficiencyName={}",
+//                    deficiencyNutrientId, deficiencyId, nutrientId, deficiencyName);
+            System.out.println("Mapping DTO: deficiencyNutrientId={}, deficiencyId={}, nutrientId={}, deficiencyName={}"+
+                    deficiencyNutrientId+deficiencyId+nutrientId+deficiencyName);
+
+            DeficiencyNutrientDto dto = new DeficiencyNutrientDto(
+                    deficiencyNutrientId,
+                    deficiencyId,
+                    nutrientId,
+                    deficiencyName
+            );
+
+//            logger.debug("Mapped DTO: {}", dto);
+            System.out.println("Mapped DTO: {}"+ dto);
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
 }

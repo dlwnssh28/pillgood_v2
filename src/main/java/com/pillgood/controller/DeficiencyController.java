@@ -1,8 +1,10 @@
 package com.pillgood.controller;
 
 import com.pillgood.dto.DeficiencyDto;
+import com.pillgood.dto.DeficiencyNutrientDto;
 import com.pillgood.service.DeficiencyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +50,15 @@ public class DeficiencyController {
         return deficiencyService.getAllDeficiencies();
     }
 
+    @GetMapping("/api/deficiencies/nutrients")
+    public ResponseEntity<List<DeficiencyNutrientDto>> getDeficiencyNutrientsWithNames() {
+        System.out.println("GET /api/deficiencies/nutrients called");
+
+        List<DeficiencyNutrientDto> deficiencyNutrients = deficiencyService.getDeficiencyNutrientsWithNames();
+        System.out.println("Deficiency Nutrients: {}"+ deficiencyNutrients);
+
+        return ResponseEntity.ok(deficiencyNutrients);
+    }
 
     // 부족 수정 폼
     @GetMapping("/admin/deficiencies/update/{id}")
