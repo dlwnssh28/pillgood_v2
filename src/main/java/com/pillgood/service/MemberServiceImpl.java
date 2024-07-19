@@ -183,8 +183,4 @@ public class MemberServiceImpl implements MemberService {
         member.setCouponIssued(memberDto.isCouponIssued());
         return member;
     }
-
-	private <U> U convertToDto(MemberDto memberdto1) {
-		return null;
-	}
 }

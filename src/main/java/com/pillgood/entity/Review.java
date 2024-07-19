@@ -43,6 +43,11 @@ public class Review {
     @Column(name = "coupon_issued", nullable = false)
     private boolean couponIssued;
 
+    @ManyToOne
+    @JoinColumn(name = "member_unique_id", referencedColumnName = "member_unique_id", insertable = false, updatable = false)
+    private Member member;
+
+    // 기존 생성자
     public Review(Integer reviewId, String memberUniqueId, OrderDetail orderDetail, LocalDateTime reviewDate, String reviewContent, Integer rating, String reviewImage) {
         this.reviewId = reviewId;
         this.memberUniqueId = memberUniqueId;
@@ -53,4 +58,17 @@ public class Review {
         this.reviewImage = reviewImage;
         this.couponIssued = false; // 기본 값 설정
     }
+
+    // 새로운 생성자
+    public Review(Integer reviewId, String memberUniqueId, OrderDetail orderDetail, LocalDateTime reviewDate, String reviewContent, Integer rating, String reviewImage, boolean couponIssued) {
+        this.reviewId = reviewId;
+        this.memberUniqueId = memberUniqueId;
+        this.orderDetail = orderDetail;
+        this.reviewDate = reviewDate;
+        this.reviewContent = reviewContent;
+        this.rating = rating;
+        this.reviewImage = reviewImage;
+        this.couponIssued = couponIssued;
+    }
 }
+
