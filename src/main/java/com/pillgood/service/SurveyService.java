@@ -16,4 +16,5 @@ public interface SurveyService {
     SurveyDto convertToDto(Survey surveyEntity);
     Survey convertToEntity(SurveyDto surveyDto);
     SurveyDto createOrUpdateSurvey(SurveyDto surveyDto); // 추가
+    List<Object[]> getAgeGroupDeficiencyData(); // 추가된 부분 설문조사 결과 나이대별 부족한 영양소 통계 차트
 }

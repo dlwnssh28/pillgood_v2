@@ -53,14 +53,6 @@ public class SurveyController {
         return new ResponseEntity<>(surveys, HttpStatus.OK);
     }
 
-//    @PostMapping("/api/surveys/create")
-//    public ResponseEntity<SurveyDto> createSurvey(@RequestBody SurveyDto surveyDto) {
-//        System.out.println("Received survey data: " + surveyDto); // 디버깅용 로그 추가
-//        SurveyDto createdSurvey = surveyService.createSurvey(surveyDto);
-//        return ResponseEntity.ok(createdSurvey);
-//    }
-    
-    
     @PostMapping("/api/surveys/create")
     public ResponseEntity<SurveyDto> createSurvey(@RequestBody SurveyDto surveyDto) {
         System.out.println("Received survey data: " + surveyDto); // 디버그 로그 추가
@@ -83,5 +75,10 @@ public class SurveyController {
         }
         return ResponseEntity.notFound().build();
     }
-    
+
+    @GetMapping("/api/surveys/age-group-deficiency")
+    public ResponseEntity<List<Object[]>> getAgeGroupDeficiencyData() {
+        List<Object[]> data = surveyService.getAgeGroupDeficiencyData();
+        return ResponseEntity.ok(data);
+    }
 }

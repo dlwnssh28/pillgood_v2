@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,9 +21,10 @@ import java.util.stream.Collectors;
 public class SurveyServiceImpl implements SurveyService {
 
     private final SurveyRepository surveyRepository;
-    
+    private final MemberRepository memberRepository;
+
     @Autowired
-    private MemberRepository memberRepository;
+    private EntityManager entityManager;
 
     @Override
     public List<SurveyDto> getAllSurveys() {
@@ -87,38 +90,38 @@ public class SurveyServiceImpl implements SurveyService {
     @Override
     public SurveyDto convertToDto(Survey surveyEntity) {
         return new SurveyDto(
-                surveyEntity.getSurveyNo(), 
-                surveyEntity.getMemberUniqueId(),
-                surveyEntity.getName(),
-                surveyEntity.getAge(),
-                surveyEntity.getGender(),
-                surveyEntity.getHeight(),
-                surveyEntity.getWeight(),
-                surveyEntity.getDeficiencyId1(),
-                surveyEntity.getDeficiencyId2(),
-                surveyEntity.getDeficiencyId3(),
-                surveyEntity.getSurveyDate(),
-                surveyEntity.getRecommendedProducts(),
-                surveyEntity.getKeywords()
+            surveyEntity.getSurveyNo(),
+            surveyEntity.getMemberUniqueId(),
+            surveyEntity.getName(),
+            surveyEntity.getAge(),
+            surveyEntity.getGender(),
+            surveyEntity.getHeight(),
+            surveyEntity.getWeight(),
+            surveyEntity.getDeficiencyId1(),
+            surveyEntity.getDeficiencyId2(),
+            surveyEntity.getDeficiencyId3(),
+            surveyEntity.getSurveyDate(),
+            surveyEntity.getRecommendedProducts(),
+            surveyEntity.getKeywords()
         );
     }
 
     @Override
     public Survey convertToEntity(SurveyDto surveyDto) {
         return new Survey(
-                surveyDto.getSurveyNo(),
-                surveyDto.getMemberUniqueId(),
-                surveyDto.getName(),
-                surveyDto.getAge(),
-                surveyDto.getGender(),
-                surveyDto.getHeight(),
-                surveyDto.getWeight(),
-                surveyDto.getDeficiencyId1(),
-                surveyDto.getDeficiencyId2(),
-                surveyDto.getDeficiencyId3(),
-                surveyDto.getSurveyDate(),
-                surveyDto.getRecommendedProducts(),
-                surveyDto.getKeywords()
+            surveyDto.getSurveyNo(),
+            surveyDto.getMemberUniqueId(),
+            surveyDto.getName(),
+            surveyDto.getAge(),
+            surveyDto.getGender(),
+            surveyDto.getHeight(),
+            surveyDto.getWeight(),
+            surveyDto.getDeficiencyId1(),
+            surveyDto.getDeficiencyId2(),
+            surveyDto.getDeficiencyId3(),
+            surveyDto.getSurveyDate(),
+            surveyDto.getRecommendedProducts(),
+            surveyDto.getKeywords()
         );
     }
 
@@ -142,11 +145,31 @@ public class SurveyServiceImpl implements SurveyService {
             existingSurvey.setDeficiencyId3(surveyDto.getDeficiencyId3());
             existingSurvey.setSurveyDate(surveyDto.getSurveyDate());
             existingSurvey.setRecommendedProducts(surveyDto.getRecommendedProducts());
-            existingSurvey.setKeywords(surveyDto.getKeywords());  // keywords 값을 저장
+            existingSurvey.setKeywords(surveyDto.getKeywords());
             Survey updatedSurvey = surveyRepository.save(existingSurvey);
             System.out.println("Updated survey data: " + updatedSurvey); // 디버그 로그 추가
             return convertToDto(updatedSurvey);
         }
     }
 
+    @Override
+    public List<Object[]> getAgeGroupDeficiencyData() {
+        String sql = "SELECT " +
+                "CASE " +
+                "    WHEN age BETWEEN 10 AND 19 THEN '10-19' " +
+                "    WHEN age BETWEEN 20 AND 29 THEN '20-29' " +
+                "    WHEN age BETWEEN 30 AND 39 THEN '30-39' " +
+                "    WHEN age BETWEEN 40 AND 49 THEN '40-49' " +
+                "    WHEN age BETWEEN 50 AND 59 THEN '50-59' " +
+                "    WHEN age >= 60 THEN '60+' " +
+                "END AS age_group, " +
+                "deficiency_id1, " +
+                "COUNT(*) AS count " +
+                "FROM surveys " +
+                "GROUP BY age_group, deficiency_id1 " +
+                "ORDER BY age_group, count DESC";
+
+        Query query = entityManager.createNativeQuery(sql);
+        return query.getResultList();
+    }
 }
