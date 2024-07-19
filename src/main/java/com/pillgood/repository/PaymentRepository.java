@@ -8,7 +8,7 @@ import com.pillgood.entity.Payment;
 
 public interface PaymentRepository extends JpaRepository<Payment, String> {
 
-	Payment findByPaymentNo(String paymentKey);
+	Optional<Payment> findByPaymentNo(String paymentNo);
     Optional<Payment> findByOrderNo(String orderNo);
 
 }

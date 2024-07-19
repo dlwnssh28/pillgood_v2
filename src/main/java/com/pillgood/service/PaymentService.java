@@ -21,6 +21,7 @@ import com.pillgood.dto.BillingPaymentRequest;
 import com.pillgood.dto.PaymentApproveRequest;
 import com.pillgood.dto.PaymentApproveResponse;
 import com.pillgood.dto.PaymentCancelRequest;
+import com.pillgood.dto.PaymentCancelResponse;
 import com.pillgood.dto.PointDto;
 import com.pillgood.entity.Billing;
 import com.pillgood.entity.OrderDetail;
@@ -120,7 +121,7 @@ public class PaymentService {
         return response;
     }
 
-    public PaymentApproveResponse cancelPayment(PaymentCancelRequest cancelRequest) {
+    public PaymentCancelResponse cancelPayment(PaymentCancelRequest cancelRequest) {
         String url = "https://api.tosspayments.com/v1/payments/" + cancelRequest.getPaymentKey() + "/cancel";
         String encryptedSecretKey = "Basic " + Base64.getEncoder().encodeToString((apiKey + ":").getBytes());
 
@@ -129,14 +130,37 @@ public class PaymentService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<PaymentCancelRequest> requestEntity = new HttpEntity<>(cancelRequest, headers);
-        PaymentApproveResponse response = restTemplate.postForObject(url, requestEntity, PaymentApproveResponse.class);
+        PaymentCancelResponse response = restTemplate.postForObject(url, requestEntity, PaymentCancelResponse.class);
 
         if (response != null) {
-            updateOrderStatusToCanceled(cancelRequest.getPaymentKey(), "취소완료");
+            updatePaymentStatus(response);
+            updateOrderStatusToCanceled(cancelRequest.getPaymentKey(), "결제취소");
         }
 
         return response;
     }
+
+    @Transactional
+    public void updatePaymentStatus(PaymentCancelResponse cancelResponse) {
+        Payment payment = paymentRepository.findByPaymentNo(cancelResponse.getPaymentKey())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid payment key: " + cancelResponse.getPaymentKey()));
+        System.out.println(cancelResponse);
+        payment.setStatus("CANCELLED");
+        payment.setDetail(cancelResponse.getCancelReason());
+        payment.setRefundStatus("REFUNDED");
+        payment.setRefundDate(LocalDateTime.now());
+
+        paymentRepository.save(payment);
+    }
+    
+    @Transactional
+    public void updateOrderStatusToCanceled(String paymentKey, String status) {
+        Payment payment = paymentRepository.findByPaymentNo(paymentKey)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid payment key: " + paymentKey));
+        String orderNo = payment.getOrderNo();
+        orderService.updateOrderStatus(orderNo, status);
+    }
+
     
     public Optional<Payment> getPaymentByOrderNo(String orderNo) {
         return paymentRepository.findByOrderNo(orderNo);
@@ -145,15 +169,6 @@ public class PaymentService {
     @Transactional
     public void updateOrderStatusToPaid(String orderNo) {
         orderService.updateOrderStatus(orderNo, "결제완료");
-    }
-
-    @Transactional
-    public void updateOrderStatusToCanceled(String paymentKey, String status) {
-        Payment payment = paymentRepository.findByPaymentNo(paymentKey);
-        if (payment != null) {
-            String orderNo = payment.getOrderNo();
-            orderService.updateOrderStatus(orderNo, status);
-        }
     }
 
     @Transactional

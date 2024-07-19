@@ -17,6 +17,7 @@ import com.pillgood.dto.BillingPaymentRequest;
 import com.pillgood.dto.PaymentApproveRequest;
 import com.pillgood.dto.PaymentApproveResponse;
 import com.pillgood.dto.PaymentCancelRequest;
+import com.pillgood.dto.PaymentCancelResponse;
 import com.pillgood.entity.Billing;
 import com.pillgood.entity.Payment;
 import com.pillgood.repository.BillingRepository;
@@ -133,17 +134,17 @@ public class PaymentController {
     }
 
     @PostMapping("/cancel")
-    public ResponseEntity<PaymentApproveResponse> cancelPayment(@RequestBody PaymentCancelRequest cancelRequest) {
+    public ResponseEntity<PaymentCancelResponse> cancelPayment(@RequestBody PaymentCancelRequest cancelRequest) {
         try {
-            System.out.println("결제 취소 요청 수신: " + cancelRequest); // 디버깅을 위해 로그 추가
-            PaymentApproveResponse cancelResponse = paymentService.cancelPayment(cancelRequest);
-            // 결제 취소 성공 시 콘솔에 로그 출력
+            PaymentCancelResponse cancelResponse = paymentService.cancelPayment(cancelRequest);
+            System.out.println(cancelResponse);
             if (cancelResponse != null) {
-                System.out.println("결제 취소 요청 성공: " + cancelResponse);
+                paymentService.updatePaymentStatus(cancelResponse);
+                paymentService.updateOrderStatusToCanceled(cancelRequest.getPaymentKey(), "취소완료");
+                return ResponseEntity.ok(cancelResponse);
             } else {
-                System.out.println("결제 취소 요청 실패");
+                return ResponseEntity.status(500).build();
             }
-            return ResponseEntity.ok(cancelResponse);
         } catch (Exception e) {
             System.out.println("결제 취소 요청 중 오류 발생: " + e.getMessage());
             return ResponseEntity.status(500).build();
