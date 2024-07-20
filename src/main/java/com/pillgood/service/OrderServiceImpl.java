@@ -49,6 +49,11 @@ public class OrderServiceImpl implements OrderService {
         Optional<Order> orderOpt = orderRepository.findById(orderNo);
         return orderOpt.map(this::convertToDto).orElse(null);
     }
+    
+    @Override
+    public Order getOrderEntityById(String orderNo) {
+        return orderRepository.findById(orderNo).orElse(null);
+    }
 
     @Override
     @Transactional

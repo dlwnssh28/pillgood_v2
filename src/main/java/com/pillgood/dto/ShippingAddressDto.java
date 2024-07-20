@@ -13,6 +13,7 @@ public class ShippingAddressDto {
 
     private int shippingAddrId;
     private String memberUniqueId;
+    private String shippingName;
     private String postalCode;
     private String address;
     private String detailedAddress;

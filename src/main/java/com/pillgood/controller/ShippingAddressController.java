@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.pillgood.dto.CartDto;
 import com.pillgood.dto.ShippingAddressDto;
 import com.pillgood.service.ShippingAddressService;
 
@@ -16,16 +15,17 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/shipping-addresses")
 public class ShippingAddressController {
 
     private final ShippingAddressService shippingAddressService;
 
-    @GetMapping("/api/shipping-addresses/list")
+    @GetMapping("/list")
     public List<ShippingAddressDto> getAllShippingAddresses() {
         return shippingAddressService.getAllShippingAddresses();
     }
     
-    @GetMapping("/api/shipping-addresses/findbyid")
+    @GetMapping("/findbyid")
     public ResponseEntity<?> getAddressesFindById(HttpSession session) {
         String memberId = (String) session.getAttribute("memberId");
         
@@ -37,24 +37,24 @@ public class ShippingAddressController {
         List<ShippingAddressDto> addresses = shippingAddressService.getAddressesByMemberId(memberId);
         
         if (addresses.isEmpty()) {
-            return new ResponseEntity<>("장바구니에 항목이 없습니다.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("배송지가 없습니다.", HttpStatus.NOT_FOUND);
         }
         
         return new ResponseEntity<>(addresses, HttpStatus.OK);
     }
 
-    @PostMapping("/api/shipping-addresses/create")
+    @PostMapping("/create")
     public ResponseEntity<ShippingAddressDto> createShippingAddress(HttpSession session, @RequestBody ShippingAddressDto shippingAddressDTO) {
-    	String memberId = (String) session.getAttribute("memberId");
-    	if (memberId == null) {
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-    	shippingAddressDTO.setMemberUniqueId(memberId);
-        ShippingAddressDto createdShippingAddressDTO = shippingAddressService.createShippingAddress(shippingAddressDTO);        
+        shippingAddressDTO.setMemberUniqueId(memberId);
+        ShippingAddressDto createdShippingAddressDTO = shippingAddressService.createShippingAddress(shippingAddressDTO);
         return new ResponseEntity<>(createdShippingAddressDTO, HttpStatus.CREATED);
     }
 
-    @PutMapping("/api/shipping-addresses/update/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ShippingAddressDto> updateShippingAddress(@PathVariable int id, @RequestBody ShippingAddressDto updatedShippingAddressDTO) {
         Optional<ShippingAddressDto> shippingAddressDTO = shippingAddressService.updateShippingAddress(id, updatedShippingAddressDTO);
         return shippingAddressDTO
@@ -62,9 +62,10 @@ public class ShippingAddressController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping("/api/shipping-addresses/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteShippingAddress(@PathVariable int id) {
         boolean deleted = shippingAddressService.deleteShippingAddress(id);
         return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
+

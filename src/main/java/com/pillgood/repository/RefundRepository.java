@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface RefundRepository extends JpaRepository<Refund, Integer> {
-    List<Refund> findByOrderNo(String orderNo); // 메소드 수정
+    List<Refund> findByOrderOrderNo(String orderNo);
 }

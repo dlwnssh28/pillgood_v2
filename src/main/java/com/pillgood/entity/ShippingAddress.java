@@ -31,6 +31,9 @@ public class ShippingAddress {
     @Column(name = "member_unique_id", nullable = false)
     private String memberUniqueId;
 
+    @Column(name = "shipping_name", length = 255, nullable = false)
+    private String shippingName;
+
     @Column(name = "postal_code", length = 10, nullable = false)
     private String postalCode;
 
@@ -45,10 +48,16 @@ public class ShippingAddress {
     private Member member;
 
     // 필요한 생성자 추가
-    public ShippingAddress(String memberUniqueId, String postalCode, String address, String detailedAddress) {
-        this.memberUniqueId = memberUniqueId;
+    public ShippingAddress(Member member, String shippingName, String postalCode, String address, String detailedAddress) {
+        this.member = member;
+        this.memberUniqueId = member.getMemberUniqueId();
+        this.shippingName = shippingName;
         this.postalCode = postalCode;
         this.address = address;
         this.detailedAddress = detailedAddress;
+    }
+
+    public String getMemberUniqueId() {
+        return member != null ? member.getMemberUniqueId() : null;
     }
 }

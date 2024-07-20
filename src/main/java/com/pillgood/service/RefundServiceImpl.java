@@ -84,16 +84,9 @@ public class RefundServiceImpl implements RefundService {
 
     @Override
     public List<RefundDto> getRefundsByOrderNo(String orderNo) {
-        List<RefundDto> refunds = refundRepository.findByOrderNo(orderNo).stream()
+        return refundRepository.findByOrderOrderNo(orderNo).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
-        // 주문의 total_amount 가져오기
-        Optional<Order> orderOpt = orderRepository.findByOrderNo(orderNo);
-        if (orderOpt.isPresent()) {
-            int totalAmount = orderOpt.get().getTotalAmount();
-            refunds.forEach(refund -> refund.setOrderTotalAmount(totalAmount)); // 각 환불 DTO에 설정
-        }
-        return refunds;
     }
 
     private RefundDto convertToDto(Refund refundEntity) {
@@ -101,44 +94,42 @@ public class RefundServiceImpl implements RefundService {
                 refundEntity.getRefundId(),
                 refundEntity.getRefundRequestDate(),
                 refundEntity.getRefundCompleteDate(),
-                refundEntity.getOrderDate(),
                 refundEntity.getTotalRefundAmount(),
                 refundEntity.getRefundMethod(),
                 refundEntity.getRefundBank(),
-                refundEntity.getRefundAccount(),
-                refundEntity.getAccountHolder(),
                 refundEntity.getRefundStatus(),
-                refundEntity.getOrderNo(),
-                0 // 기본값 설정, 이후 서비스에서 설정됨
+                refundEntity.getOrder().getOrderNo()
         );
     }
 
     private Refund convertToEntity(RefundDto refundDto) {
-        return new Refund(
-                refundDto.getRefundId(),
-                refundDto.getRefundRequestDate(),
-                refundDto.getRefundCompleteDate(),
-                refundDto.getOrderDate(),
-                refundDto.getTotalRefundAmount(),
-                refundDto.getRefundMethod(),
-                refundDto.getRefundBank(),
-                refundDto.getRefundAccount(),
-                refundDto.getAccountHolder(),
-                refundDto.getRefundStatus(),
-                refundDto.getOrderNo()
-        );
+        Refund refund = new Refund();
+        refund.setRefundRequestDate(refundDto.getRefundRequestDate());
+        refund.setRefundCompleteDate(refundDto.getRefundCompleteDate());
+        refund.setTotalRefundAmount(refundDto.getTotalRefundAmount());
+        refund.setRefundMethod(refundDto.getRefundMethod());
+        refund.setRefundBank(refundDto.getRefundBank());
+        refund.setRefundStatus(refundDto.getRefundStatus());
+        
+        Optional<Order> orderOpt = orderRepository.findByOrderNo(refundDto.getOrderNo());
+        if (orderOpt.isPresent()) {
+            refund.setOrder(orderOpt.get());
+        }
+        
+        return refund;
     }
 
     private void updateEntityFromDto(Refund refundEntity, RefundDto refundDto) {
         refundEntity.setRefundRequestDate(refundDto.getRefundRequestDate());
         refundEntity.setRefundCompleteDate(refundDto.getRefundCompleteDate());
-        refundEntity.setOrderDate(refundDto.getOrderDate());
         refundEntity.setTotalRefundAmount(refundDto.getTotalRefundAmount());
         refundEntity.setRefundMethod(refundDto.getRefundMethod());
         refundEntity.setRefundBank(refundDto.getRefundBank());
-        refundEntity.setRefundAccount(refundDto.getRefundAccount());
-        refundEntity.setAccountHolder(refundDto.getAccountHolder());
         refundEntity.setRefundStatus(refundDto.getRefundStatus());
-        refundEntity.setOrderNo(refundDto.getOrderNo());
+        
+        Optional<Order> orderOpt = orderRepository.findByOrderNo(refundDto.getOrderNo());
+        if (orderOpt.isPresent()) {
+            refundEntity.setOrder(orderOpt.get());
+        }
     }
 }

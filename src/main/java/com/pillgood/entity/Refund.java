@@ -1,7 +1,6 @@
 package com.pillgood.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Refund {
 
     @Id
@@ -27,9 +25,6 @@ public class Refund {
     @Column(name = "refund_complete_date")
     private LocalDateTime refundCompleteDate;
 
-    @Column(name = "order_date")
-    private LocalDateTime orderDate;
-
     @Column(name = "total_refund_amount")
     private int totalRefundAmount;
 
@@ -39,15 +34,10 @@ public class Refund {
     @Column(name = "refund_bank", length = 50)
     private String refundBank;
 
-    @Column(name = "refund_account", length = 50)
-    private String refundAccount;
-
-    @Column(name = "account_holder", length = 50)
-    private String accountHolder;
-
     @Column(name = "refund_status", length = 50)
     private String refundStatus;
 
-    @Column(name = "order_no", length = 50, nullable = false)
-    private String orderNo;
+    @ManyToOne
+    @JoinColumn(name = "order_no", referencedColumnName = "order_no")
+    private Order order;
 }

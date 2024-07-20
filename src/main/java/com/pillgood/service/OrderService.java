@@ -2,6 +2,7 @@ package com.pillgood.service;
 
 import com.pillgood.dto.OrderDto;
 import com.pillgood.dto.OrderItemDto;
+import com.pillgood.entity.Order;
 import com.pillgood.entity.OrderDetail;
 
 import java.util.List;
@@ -17,5 +18,6 @@ public interface OrderService {
     void updateOrderStatusToPaid(String orderNo);
     List<OrderDetail> getOrderDetailsByOrderId(String orderId);
     OrderDto updateOrderStatus(String orderNo, String status);
-    
+
+    Order getOrderEntityById(String orderNo);
 }

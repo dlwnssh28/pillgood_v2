@@ -6,18 +6,20 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.pillgood.dto.CartDto;
 import com.pillgood.dto.ShippingAddressDto;
+import com.pillgood.entity.Member;
 import com.pillgood.entity.ShippingAddress;
+import com.pillgood.repository.MemberRepository;
 import com.pillgood.repository.ShippingAddressRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-class ShippingAddressServiceImpl implements ShippingAddressService {
+public class ShippingAddressServiceImpl implements ShippingAddressService {
 
     private final ShippingAddressRepository shippingAddressRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public List<ShippingAddressDto> getAllShippingAddresses() {
@@ -45,7 +47,7 @@ class ShippingAddressServiceImpl implements ShippingAddressService {
     public Optional<ShippingAddressDto> updateShippingAddress(int id, ShippingAddressDto updatedShippingAddressDTO) {
         return shippingAddressRepository.findById(id)
                 .map(shippingAddress -> {
-                    shippingAddress.setMemberUniqueId(updatedShippingAddressDTO.getMemberUniqueId());
+                    shippingAddress.setShippingName(updatedShippingAddressDTO.getShippingName());
                     shippingAddress.setPostalCode(updatedShippingAddressDTO.getPostalCode());
                     shippingAddress.setAddress(updatedShippingAddressDTO.getAddress());
                     shippingAddress.setDetailedAddress(updatedShippingAddressDTO.getDetailedAddress());
@@ -68,6 +70,7 @@ class ShippingAddressServiceImpl implements ShippingAddressService {
         return new ShippingAddressDto(
                 shippingAddress.getShippingAddrId(),
                 shippingAddress.getMemberUniqueId(),
+                shippingAddress.getShippingName(),
                 shippingAddress.getPostalCode(),
                 shippingAddress.getAddress(),
                 shippingAddress.getDetailedAddress()
@@ -76,12 +79,15 @@ class ShippingAddressServiceImpl implements ShippingAddressService {
 
     @Override
     public ShippingAddress convertToEntity(ShippingAddressDto shippingAddressDTO) {
-        // 적절한 생성자를 사용하여 엔티티 객체 생성
+        Member member = memberRepository.findByMemberUniqueId(shippingAddressDTO.getMemberUniqueId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
         return new ShippingAddress(
-                shippingAddressDTO.getMemberUniqueId(),
+                member,
+                shippingAddressDTO.getShippingName(),
                 shippingAddressDTO.getPostalCode(),
                 shippingAddressDTO.getAddress(),
                 shippingAddressDTO.getDetailedAddress()
         );
     }
 }
+
