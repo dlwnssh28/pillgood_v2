@@ -146,6 +146,7 @@ public class PaymentService {
             updateOrderStatusToCanceled(cancelRequest.getPaymentKey(), "결제취소");
             saveRefundDetails(response); // 환불 정보 저장
             refundPointsIfNeeded(cancelRequest.getPaymentKey()); // 포인트 반환
+            revokeEarnedPoints(cancelRequest.getPaymentKey()); // 적립된 포인트 회수
         }
 
         return response;
@@ -213,6 +214,20 @@ public class PaymentService {
 
         if (order != null && order.getPointsToUse() != null && order.getPointsToUse() > 0) {
             pointService.refundPoints(order.getMemberUniqueId(), order.getPointsToUse(), order.getOrderNo());
+        }
+    }
+    
+    @Transactional
+    public void revokeEarnedPoints(String paymentKey) {
+        Payment payment = paymentRepository.findByPaymentNo(paymentKey)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid payment key: " + paymentKey));
+        Order order = orderService.getOrderEntityById(payment.getOrderNo());
+
+        if (order != null) {
+            List<PointDto> earnedPoints = pointService.getPointsByMemberUniqueIdAndReferenceId(order.getMemberUniqueId(), "PS", order.getOrderNo());
+            for (PointDto point : earnedPoints) {
+                pointService.usePoints(order.getMemberUniqueId(), point.getPoints(), "REVOKE_" + point.getReferenceId());
+            }
         }
     }
     

@@ -10,4 +10,6 @@ public interface PointService {
     Integer getTotalPointsByMemberUniqueId(String memberUniqueId);
 	void usePoints(String memberUniqueId, Integer pointsToUse, String referenceId);
 	void refundPoints(String memberUniqueId, Integer pointsToRefund, String referenceId);
+	List<PointDto> getPointsByMemberUniqueIdAndReferenceId(String memberUniqueId, String pointMasterId,
+			String referenceId);
 }
