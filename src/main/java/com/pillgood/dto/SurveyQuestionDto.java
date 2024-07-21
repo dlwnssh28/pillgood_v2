@@ -7,4 +7,5 @@ public class SurveyQuestionDto {
     private Integer id;
     private String questionContent;
     private Integer parentQuestionId;
+    private String parentQuestionContent;
 }

@@ -9,4 +9,5 @@ public interface SurveyAnswerService {
     SurveyAnswerDto getAnswerById(int id);
     SurveyAnswerDto updateAnswer(int id, SurveyAnswerDto answerDto);
     boolean deleteAnswer(int id);
+	List<SurveyAnswerDto> getAnswersByQuestionId(int questionId);
 }
