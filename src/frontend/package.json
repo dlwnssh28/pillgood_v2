@@ -1,0 +1,64 @@
+{
+  "name": "pillgood_front",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --port 3000",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "@tosspayments/payment-sdk": "^1.8.1",
+    "@tosspayments/payment-widget-sdk": "^0.11.1",
+    "@tosspayments/tosspayments-sdk": "^2.2.1",
+    "@vueup/vue-quill": "^1.2.0",
+    "axios": "^1.7.2",
+    "chart.js": "^3.9.1",
+    "chartjs-plugin-annotation": "^1.0.2",
+    "core-js": "^3.8.3",
+    "crypto-browserify": "^3.12.0",
+    "quill": "^2.0.2",
+    "raw-loader": "^4.0.2",
+    "uuid": "^10.0.0",
+    "v-calendar": "^3.1.2",
+    "vue": "^3.2.13",
+    "vue-chart-3": "^3.1.8",
+    "vue-router": "^4.4.0",
+    "vue-star-rating": "^1.7.0",
+    "vue3-charts": "^1.1.33",
+    "vue3-quill": "^0.3.1",
+    "vue3-star-ratings": "^3.0.5",
+    "vuetify": "^3.6.13",
+    "vuex": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.16",
+    "@babel/eslint-parser": "^7.12.16",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^8.0.3"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "@babel/eslint-parser"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}
