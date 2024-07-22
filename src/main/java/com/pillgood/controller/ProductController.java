@@ -22,7 +22,7 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/api/products/list")
-    public List<ProductDto> getAllProducts() {
+    public List<ProductDto> getAllProducts(){
         return productService.getAllProducts();
     }
 
@@ -42,20 +42,6 @@ public class ProductController {
         ProductDto createdProductDTO = productService.createProduct(productDTO);
         return new ResponseEntity<>(createdProductDTO, HttpStatus.CREATED);
     }
-
-//    @PostMapping("/create")
-//    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDTO) {
-//        System.out.println("----adding new product.");
-//        try {
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            String jsonProduct = objectMapper.writeValueAsString(productDTO);
-//            System.out.println("C 입력 제품 정보: " + jsonProduct);
-//        } catch (Exception e) {
-//            System.out.println("Error converting productDTO to JSON: " + e.getMessage());
-//        }
-//        ProductDto createdProductDTO = productService.createProduct(productDTO);
-//        return new ResponseEntity<>(createdProductDTO, HttpStatus.CREATED);
-//    }
 
     @PutMapping("/admin/products/update/{id}")
     public ResponseEntity<ProductDto> updateProduct(@PathVariable int id, @RequestBody ProductDto updatedProductDTO) {
@@ -87,9 +73,7 @@ public class ProductController {
     
     @GetMapping("/api/products/by-deficiency")
     public ResponseEntity<List<ProductDto>> getProductsByDeficiency(@RequestParam List<Integer> deficiencyIds) {
-//    	System.out.println("(controller) Fetching products for deficiencies: {}"+ deficiencyIds);
         List<ProductDto> products = productService.getProductsByDeficiency(deficiencyIds);
-//        System.out.println("(controller) Found products: {}"+ products);
         return ResponseEntity.ok(products);
     }
 }

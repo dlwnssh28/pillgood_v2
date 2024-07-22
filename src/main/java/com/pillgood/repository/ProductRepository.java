@@ -16,4 +16,5 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
     
     @Query("SELECT p FROM Product p JOIN p.nutrient n JOIN DeficiencyNutrient dn ON n.nutrientId = dn.nutrient.nutrientId WHERE dn.deficiency.deficiencyId IN :deficiencyIds")
     List<Product> findByDeficiencyIds(@Param("deficiencyIds") List<Integer> deficiencyIds);
+
 }

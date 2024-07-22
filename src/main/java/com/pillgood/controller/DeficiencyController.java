@@ -52,10 +52,10 @@ public class DeficiencyController {
 
     @GetMapping("/api/deficiencies/nutrients")
     public ResponseEntity<List<DeficiencyNutrientDto>> getDeficiencyNutrientsWithNames() {
-        System.out.println("GET /api/deficiencies/nutrients called");
+//        System.out.println("GET /api/deficiencies/nutrients called");
 
         List<DeficiencyNutrientDto> deficiencyNutrients = deficiencyService.getDeficiencyNutrientsWithNames();
-        System.out.println("Deficiency Nutrients: {}"+ deficiencyNutrients);
+//        System.out.println("Deficiency Nutrients: {}"+ deficiencyNutrients);
 
         return ResponseEntity.ok(deficiencyNutrients);
     }

@@ -58,23 +58,23 @@ public class MemberController {
         }
     }
 
-    @GetMapping("/api/members/check-session")
-    public ResponseEntity<?> checkSession(HttpSession session) {
-        String memberId = (String) session.getAttribute("memberId");
-        if (memberId != null) {
-            Optional<MemberDto> memberOpt = memberService.findById(memberId);
-            if (memberOpt.isPresent()) {
-                MemberDto member = memberOpt.get();
-                MemberDto responseDto = new MemberDto();
-                responseDto.setMemberUniqueId(member.getMemberUniqueId());
-                return ResponseEntity.ok(Collections.singletonMap("user", responseDto));
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid session");
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No active session");
-        }
-    }
+//    @GetMapping("/api/members/check-session")
+//    public ResponseEntity<?> checkSession(HttpSession session) {
+//        String memberId = (String) session.getAttribute("memberId");
+//        if (memberId != null) {
+//            Optional<MemberDto> memberOpt = memberService.findById(memberId);
+//            if (memberOpt.isPresent()) {
+//                MemberDto member = memberOpt.get();
+//                MemberDto responseDto = new MemberDto();
+//                responseDto.setMemberUniqueId(member.getMemberUniqueId());
+//                return ResponseEntity.ok(Collections.singletonMap("user", responseDto));
+//            } else {
+//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid session");
+//            }
+//        } else {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No active session");
+//        }
+//    }
 
     @GetMapping("/admin/members/list")
     public List<MemberDto> getAllMembers() {
@@ -98,19 +98,19 @@ public class MemberController {
     public Optional<MemberDto> findByEmail(@PathVariable String email) {
         return memberService.findByEmail(email);
     }
-  
-    @PostMapping("/api/members/logout")
-    public ResponseEntity<?> logout(HttpSession session, HttpServletResponse response) {
-        session.invalidate(); // 세션 무효화
 
-        // 캐시 관련 헤더 설정
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
-        response.setHeader("Pragma", "no-cache"); // HTTP 1.0
-        response.setHeader("Expires", "0"); // Proxies
-
-        System.out.println("로그아웃: 세션 무효화");
-        return ResponseEntity.ok("Logout successful");
-    }
+//    @PostMapping("/api/members/logout")
+//    public ResponseEntity<?> logout(HttpSession session, HttpServletResponse response) {
+//        session.invalidate(); // 세션 무효화
+//
+//        // 캐시 관련 헤더 설정
+////        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+////        response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+////        response.setHeader("Expires", "0"); // Proxies
+//
+//        System.out.println("로그아웃: 세션 무효화");
+//        return ResponseEntity.ok("Logout successful");
+//    }
 
     @GetMapping("/api/members/mypage")
     public ResponseEntity<?> getUserProfile(HttpSession session) {
@@ -168,21 +168,21 @@ public class MemberController {
         }
     }
 
-    @GetMapping("/api/members/status")
-    public ResponseEntity<Map<String, Object>> getStatus(HttpSession session) {
-        Boolean loggedIn = (Boolean) session.getAttribute("loggedIn");
-        Map<String, Object> response = new HashMap<>();
-        if (loggedIn != null && loggedIn) {
-            response.put("isLoggedIn", true);
-            response.put("memberId", session.getAttribute("memberId"));
-            response.put("member", session.getAttribute("member"));
-            response.put("isAdmin", session.getAttribute("isAdmin"));
-            response.put("userName", session.getAttribute("userName"));
-        } else {
-            response.put("isLoggedIn", false);
-        }
-        return ResponseEntity.ok(response);
-    }
+//    @GetMapping("/api/members/status")
+//    public ResponseEntity<Map<String, Object>> getStatus(HttpSession session) {
+//        Boolean loggedIn = (Boolean) session.getAttribute("loggedIn");
+//        Map<String, Object> response = new HashMap<>();
+//        if (loggedIn != null && loggedIn) {
+//            response.put("isLoggedIn", true);
+//            response.put("memberId", session.getAttribute("memberId"));
+//            response.put("member", session.getAttribute("member"));
+//            response.put("isAdmin", session.getAttribute("isAdmin"));
+//            response.put("userName", session.getAttribute("userName"));
+//        } else {
+//            response.put("isLoggedIn", false);
+//        }
+//        return ResponseEntity.ok(response);
+//    }
 
     @PutMapping("/api/members/updateCouponIssued/{id}")
     public ResponseEntity<Void> updateCouponIssued(@PathVariable String id, @RequestBody Map<String, Boolean> request) {

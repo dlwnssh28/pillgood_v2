@@ -11,11 +11,12 @@ import java.util.List;
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Integer> {
     List<OrderDetail> findByOrderOrderNo(String orderNo);
 
-    @Query("SELECT od.product.id, COUNT(od) as salesCount " +
+    @Query("SELECT p.id, SUM(od.quantity) AS salesCount " +
             "FROM OrderDetail od " +
+            "JOIN od.product p " +
             "JOIN od.order o " +
-            "WHERE o.orderStatus = '결제완료' " +
-            "GROUP BY od.product.id " +
+            "WHERE o.orderStatus IN ('결제완료', '주문완료', '구매확정') " +
+            "GROUP BY p.id " +
             "ORDER BY salesCount DESC")
     List<Object[]> findTopSellingProducts();
     
