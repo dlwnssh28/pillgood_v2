@@ -14,6 +14,7 @@ public class Cancels {
     private Long taxExemptionAmount;
     private Long refundableAmount;
     private Long easyPayDiscountAmount;
+    private String cancelStatus;
     private String canceledAt;
     private String transactionKey;
 }

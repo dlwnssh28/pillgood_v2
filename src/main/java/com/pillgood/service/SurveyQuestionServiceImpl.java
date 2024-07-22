@@ -41,8 +41,8 @@ public class SurveyQuestionServiceImpl implements SurveyQuestionService {
                 .map(existingQuestion -> {
                     existingQuestion.setQuestionContent(questionDto.getQuestionContent());
                     if (questionDto.getParentQuestionId() != null) {
-                        SurveyQuestion parentQuestion = new SurveyQuestion();
-                        parentQuestion.setId(questionDto.getParentQuestionId());
+                        SurveyQuestion parentQuestion = surveyQuestionRepository.findById(questionDto.getParentQuestionId())
+                                .orElseThrow(() -> new IllegalArgumentException("Invalid parent question ID: " + questionDto.getParentQuestionId()));
                         existingQuestion.setParentQuestion(parentQuestion);
                     } else {
                         existingQuestion.setParentQuestion(null);
@@ -66,6 +66,7 @@ public class SurveyQuestionServiceImpl implements SurveyQuestionService {
         dto.setQuestionContent(entity.getQuestionContent());
         if (entity.getParentQuestion() != null) {
             dto.setParentQuestionId(entity.getParentQuestion().getId());
+            dto.setParentQuestionContent(entity.getParentQuestion().getQuestionContent());
         }
         return dto;
     }
@@ -74,8 +75,8 @@ public class SurveyQuestionServiceImpl implements SurveyQuestionService {
         SurveyQuestion entity = new SurveyQuestion();
         entity.setQuestionContent(dto.getQuestionContent());
         if (dto.getParentQuestionId() != null) {
-            SurveyQuestion parentQuestion = new SurveyQuestion();
-            parentQuestion.setId(dto.getParentQuestionId());
+            SurveyQuestion parentQuestion = surveyQuestionRepository.findById(dto.getParentQuestionId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid parent question ID: " + dto.getParentQuestionId()));
             entity.setParentQuestion(parentQuestion);
         }
         return entity;

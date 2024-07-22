@@ -8,4 +8,5 @@ public class SurveyAnswerDto {
     private Integer questionId;
     private String answerContent;
     private Integer deficiencyId;
+    private String deficiencyName; // 추가
 }

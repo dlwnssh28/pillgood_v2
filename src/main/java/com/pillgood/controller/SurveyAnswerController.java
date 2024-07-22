@@ -14,7 +14,7 @@ public class SurveyAnswerController {
     @Autowired
     private SurveyAnswerService surveyAnswerService;
 
-    @PostMapping("/api/surveyanswers/create")
+    @PostMapping("/admin/surveyanswers/create")
     public ResponseEntity<SurveyAnswerDto> createAnswer(@RequestBody SurveyAnswerDto answerDto) {
         return ResponseEntity.ok(surveyAnswerService.createAnswer(answerDto));
     }
@@ -29,17 +29,22 @@ public class SurveyAnswerController {
         return ResponseEntity.ok(surveyAnswerService.getAnswerById(id));
     }
 
-    @PutMapping("/api/surveyanswers/update/{id}")
+    @PutMapping("/admin/surveyanswers/update/{id}")
     public ResponseEntity<SurveyAnswerDto> updateAnswer(@PathVariable int id, @RequestBody SurveyAnswerDto answerDto) {
         return ResponseEntity.ok(surveyAnswerService.updateAnswer(id, answerDto));
     }
 
-    @DeleteMapping("/api/surveyanswers/delete/{id}")
+    @DeleteMapping("/admin/surveyanswers/delete/{id}")
     public ResponseEntity<Void> deleteAnswer(@PathVariable int id) {
         if (surveyAnswerService.deleteAnswer(id)) {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/admin/surveyanswers/list")
+    public ResponseEntity<List<SurveyAnswerDto>> getAnswersByQuestionId(@RequestParam int questionId) {
+        return ResponseEntity.ok(surveyAnswerService.getAnswersByQuestionId(questionId));
     }
 }

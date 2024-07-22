@@ -22,8 +22,9 @@ public class SurveyAnswer {
     @Column(name = "answer_content", columnDefinition = "TEXT", nullable = false)
     private String answerContent;
 
-    @Column(name = "deficiency_id", nullable = false)
-    private Integer deficiencyId;
+    @ManyToOne
+    @JoinColumn(name = "deficiency_id", nullable = false)
+    private Deficiency deficiency;
 
     // 기타 필요한 메서드들 추가
 }

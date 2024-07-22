@@ -140,7 +140,7 @@ public class PaymentController {
             System.out.println(cancelResponse);
             if (cancelResponse != null) {
                 paymentService.updatePaymentStatus(cancelResponse);
-                paymentService.updateOrderStatusToCanceled(cancelRequest.getPaymentKey(), "취소완료");
+                paymentService.updateOrderStatusToCanceled(cancelRequest.getPaymentKey(), "환불완료");
                 return ResponseEntity.ok(cancelResponse);
             } else {
                 return ResponseEntity.status(500).build();

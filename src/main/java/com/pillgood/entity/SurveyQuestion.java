@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "survey_questions")
 @Data
@@ -15,12 +17,15 @@ public class SurveyQuestion {
     @Column(name = "question_id")
     private Integer id;
 
-    @Column(name = "question_content", columnDefinition = "TEXT")
+    @Column(name = "question_content", columnDefinition = "TEXT", nullable = false)
     private String questionContent;
 
     @ManyToOne
     @JoinColumn(name = "parent_question_id")
     private SurveyQuestion parentQuestion;
+
+    @OneToMany(mappedBy = "parentQuestion")
+    private List<SurveyQuestion> subQuestions;
 
     // 기타 필요한 메서드들 추가
 }

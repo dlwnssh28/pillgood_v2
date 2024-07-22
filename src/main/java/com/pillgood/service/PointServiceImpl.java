@@ -2,8 +2,6 @@ package com.pillgood.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,6 +168,12 @@ public class PointServiceImpl implements PointService {
     @Override
     public Integer getTotalPointsByMemberUniqueId(String memberUniqueId) {
         return pointRepository.findTotalPointsByMemberUniqueId(memberUniqueId);
+    }
+
+    @Override
+    public List<PointDto> getPointsByMemberUniqueIdAndReferenceId(String memberUniqueId, String pointMasterId, String referenceId) {
+        List<Point> points = pointRepository.findByMemberUniqueIdAndPointStatusCodeAndReferenceId(memberUniqueId, pointMasterId, referenceId);
+        return points.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     private PointDto convertToDTO(Point point) {
