@@ -50,7 +50,10 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin
-//                        .loginPage("/api/members/login")
+                        .loginPage("/login") // 로그인 페이지 설정
+                        // 사용자가 localhost:8080/login 페이지에서 로그인 폼을 작성하고 제출
+                        // -> /api/members/login 으로 post 요청 전달
+                        // 그러므로, 스프링 시큐리티는 '/login' url로 오는 post 요청을 처리
                         .loginProcessingUrl("/login")
                         .successHandler(successHandler)
                         .permitAll()
@@ -60,11 +63,13 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .sessionManagement(session -> session
                         .invalidSessionUrl("/login")
                 )
+                // 스프링 시큐리티와 커스텀 로그아웃 핸들러가 서로 충돌할 수 있음
                 .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
+                    .permitAll()
+                    .logoutSuccessUrl("/") // 로그아웃 성공 시 홈 페이지로 리다이렉트
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
