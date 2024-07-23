@@ -20,7 +20,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-@CrossOrigin(origins = {"http://localhost:8080", "http://localhost:3000"}) // 프론트엔드 URL
+@CrossOrigin(origins = {"http://43.202.201.149:8080"}) // 프론트엔드 URL
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig implements WebMvcConfigurer {
@@ -43,7 +43,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         http
                 .authorizeHttpRequests(authorize -> authorize
                                 .requestMatchers("/login", "/css/**", "/images/**", "/js/**").permitAll()
-                                .requestMatchers("/api/**", "/admin/**").permitAll()
+                                .requestMatchers("/api/**").permitAll()
                                 .requestMatchers("/uploads/**").permitAll() // 업로드된 파일 경로 허용
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/mypage").authenticated()
@@ -91,7 +91,7 @@ public class SecurityConfig implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:8080")
+                        .allowedOrigins("http://43.202.201.149:8080")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 //                        .allowedMethods(
 //                        		HttpMethod.GET.name(),
@@ -100,7 +100,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 //                        		HttpMethod.DELETE.name(),
 //                        		HttpMethod.OPTIONS.name()
 //                        		)
-//                        .allowedHeaders("*")
+                        .allowedHeaders("*")
                         .allowCredentials(true);
             }
 
