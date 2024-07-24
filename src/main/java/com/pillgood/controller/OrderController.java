@@ -1,5 +1,6 @@
 package com.pillgood.controller;
 
+import com.pillgood.dto.ErrorDto;
 import com.pillgood.dto.OrderDto;
 import com.pillgood.dto.OrderItemDto;
 import com.pillgood.service.OrderService;
@@ -37,21 +38,24 @@ public class OrderController {
     }
 
     @PostMapping("/api/orders/create")
-    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto, HttpSession session) {
+    public ResponseEntity<?> createOrder(@RequestBody OrderDto orderDto, HttpSession session) {
         String memberId = (String) session.getAttribute("memberId");
         if (memberId == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorDto("Unauthorized"));
         }
         orderDto.setMemberUniqueId(memberId);
 
         // 주문 상품 목록 가져오기
         List<OrderItemDto> orderItems = (List<OrderItemDto>) session.getAttribute("orderItems");
 
-        OrderDto createdOrder = orderService.createOrder(orderDto, orderItems);
-
-        return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+        try {
+            OrderDto createdOrder = orderService.createOrder(orderDto, orderItems);
+            return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorDto("Order creation failed: " + e.getMessage()));
+        }
     }
-    
+
     @PostMapping("/api/orders/prepare")
     public ResponseEntity<String> prepareOrder(@RequestBody List<OrderItemDto> orderItems, HttpSession session) {
         session.setAttribute("orderItems", orderItems);
@@ -80,22 +84,20 @@ public class OrderController {
     }
     
     @DeleteMapping("/api/orders/cancel/{orderNo}")
-    public ResponseEntity<Void> cancelOrder(HttpSession session, @PathVariable String orderNo) {
+    public ResponseEntity<Object> cancelOrder(HttpSession session, @PathVariable String orderNo) {
         String memberId = (String) session.getAttribute("memberId");
         if (memberId == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorDto("Unauthorized"));
         }
 
         // 주문 취소 로직 추가
-        OrderDto order = orderService.getOrderById(orderNo);
-        if (order != null) {
-            // 주문을 취소합니다.
+        try {
             orderService.cancelOrder(orderNo);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorDto("Order cancellation failed: " + e.getMessage()));
         }
-
-        return new ResponseEntity<>(HttpStatus.OK);
     }
-
 
     @DeleteMapping("/admin/orders/delete/{orderNo}")
     public ResponseEntity<Void> deleteOrder(@PathVariable String orderNo) {

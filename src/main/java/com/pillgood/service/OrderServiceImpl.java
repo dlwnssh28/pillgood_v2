@@ -67,21 +67,26 @@ public class OrderServiceImpl implements OrderService {
         orderEntity.setOrderDate(LocalDateTime.now());
         orderRepository.save(orderEntity);
 
-        // OrderDetails 저장
+        // OrderDetails 저장 및 재고 차감
         for (OrderItemDto item : orderItems) {
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setOrder(orderEntity);
-
             Optional<Product> productOpt = productRepository.findById(item.getProductId());
             if (productOpt.isPresent()) {
-                orderDetail.setProduct(productOpt.get());
+                Product product = productOpt.get();
+                if (product.getStock() < item.getProductQuantity()) {
+                    throw new IllegalArgumentException("재고 부족: " + product.getProductName());
+                }
+                product.setStock(product.getStock() - item.getProductQuantity());
+                productRepository.save(product);
+
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setOrder(orderEntity);
+                orderDetail.setProduct(product);
+                orderDetail.setQuantity(item.getProductQuantity());
+                orderDetail.setAmount(item.getPrice());
+                orderDetailRepository.save(orderDetail);
             } else {
                 throw new IllegalArgumentException("Product not found: " + item.getProductId());
             }
-
-            orderDetail.setQuantity(item.getProductQuantity());
-            orderDetail.setAmount(item.getPrice());
-            orderDetailRepository.save(orderDetail);
         }
 
         // 쿠폰이 null일 경우 null로 설정
@@ -103,7 +108,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void cancelOrder(String orderNo) {
-        // 주문 디테일 삭제
+        // 주문 디테일 삭제 및 재고 복구
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderOrderNo(orderNo);
+        for (OrderDetail orderDetail : orderDetails) {
+            Product product = orderDetail.getProduct();
+            product.setStock(product.getStock() + orderDetail.getQuantity());
+            productRepository.save(product);
+        }
         orderDetailRepository.deleteByOrderOrderNo(orderNo);
 
         // 주문 은 주문취소상태로 변경

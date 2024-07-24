@@ -36,6 +36,12 @@ public class SubscriptionController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @GetMapping("/api/subscriptions/member/{memberId}")
+    public ResponseEntity<List<SubscriptionDto>> getSubscriptionsByMemberId(@PathVariable String memberId) {
+        List<SubscriptionDto> subscriptions = subscriptionService.getSubscriptionsByMemberUniqueId(memberId);
+        return ResponseEntity.ok(subscriptions);
+    }
 
     @PostMapping("/api/subscriptions/create")
     public ResponseEntity<SubscriptionDto> createSubscription(@RequestBody SubscriptionDto subscriptionDto) {

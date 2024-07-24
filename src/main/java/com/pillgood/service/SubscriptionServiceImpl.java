@@ -7,8 +7,13 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.pillgood.dto.OrderDetailDto;
 import com.pillgood.dto.SubscriptionDto;
+import com.pillgood.entity.Payment;
 import com.pillgood.entity.Subscription;
+import com.pillgood.repository.OrderDetailRepository;
+import com.pillgood.entity.OrderDetail;
+import com.pillgood.repository.PaymentRepository;
 import com.pillgood.repository.SubscriptionRepository;
 
 @Service
@@ -16,6 +21,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
+    
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
 
     @Override
     public List<SubscriptionDto> getAllSubscriptions() {
@@ -30,6 +41,38 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return subscriptionOpt.map(this::convertToDto).orElse(null);
     }
 
+    @Override
+    public List<SubscriptionDto> getSubscriptionsByMemberUniqueId(String memberUniqueId) {
+        List<Subscription> subscriptions = subscriptionRepository.findByMemberUniqueId(memberUniqueId);
+        return subscriptions.stream().map(subscription -> {
+            SubscriptionDto dto = new SubscriptionDto(
+                subscription.getSubscriptionId(),
+                subscription.getMemberUniqueId(),
+                subscription.getStartDate(),
+                subscription.getEndDate(),
+                subscription.getSubscriptionStatus(),
+                subscription.getPaymentNo()
+            );
+
+            // Payments 테이블에서 orderNo 조회
+            Payment payment = paymentRepository.findByPaymentNo(subscription.getPaymentNo()).orElse(null);
+            if (payment != null) {
+                // OrderDetail 테이블에서 주문 상세 정보 조회
+                List<OrderDetail> orderDetails = orderDetailRepository.findByOrderOrderNo(payment.getOrderNo());
+                List<OrderDetailDto> orderDetailDtos = orderDetails.stream().map(orderDetail -> new OrderDetailDto(
+                    orderDetail.getOrderDetailNo(),
+                    orderDetail.getOrder().getOrderNo(),
+                    orderDetail.getProduct().getProductId(),
+                    orderDetail.getQuantity(),
+                    orderDetail.getAmount()
+                )).collect(Collectors.toList());
+                dto.setOrderDetails(orderDetailDtos);
+            }
+
+            return dto;
+        }).collect(Collectors.toList());
+    }
+    
     @Override
     public SubscriptionDto createSubscription(SubscriptionDto subscriptionDto) {
         Subscription subscriptionEntity = convertToEntity(subscriptionDto);

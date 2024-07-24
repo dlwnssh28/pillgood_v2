@@ -11,7 +11,7 @@
 	<groupId>kr.co.pillgood</groupId>
 	<artifactId>pillgood</artifactId>
 	<version>1.0</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>pillgood</name>
 	<description>pillgood project</description>
 	<url/>

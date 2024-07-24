@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Integer> {
-    List<OrderDetail> findByOrderOrderNo(String orderNo);
+	List<OrderDetail> findByOrderOrderNo(String orderNo);
 
     @Query("SELECT p.id, SUM(od.quantity) AS salesCount " +
             "FROM OrderDetail od " +

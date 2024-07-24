@@ -9,5 +9,6 @@ public interface SubscriptionService {
     SubscriptionDto getSubscriptionById(int subscriptionId);
     SubscriptionDto createSubscription(SubscriptionDto subscriptionDto);
     SubscriptionDto updateSubscription(int subscriptionId, SubscriptionDto subscriptionDto);
+    List<SubscriptionDto> getSubscriptionsByMemberUniqueId(String memberUniqueId);
     void deleteSubscription(int subscriptionId);
 }
