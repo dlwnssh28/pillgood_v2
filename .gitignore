@@ -30,7 +30,7 @@ build/
 !**/src/test/**/build/
 !**/src/frontend/
 !**/target/
-
+target/
 ### VS Code ###
 .vscode/
 
