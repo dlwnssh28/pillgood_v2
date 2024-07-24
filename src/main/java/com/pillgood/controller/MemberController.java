@@ -183,6 +183,13 @@ public class MemberController {
 //        }
 //        return ResponseEntity.ok(response);
 //    }
+    
+    @PutMapping("/api/members/updateSubscriptionStatus/{memberId}")
+    public ResponseEntity<Void> updateSubscriptionStatus(@PathVariable String memberId, @RequestBody Map<String, Integer> request) {
+        int status = request.get("status");
+        memberService.updateSubscriptionStatus(memberId, status);
+        return ResponseEntity.noContent().build();
+    }
 
     @PutMapping("/api/members/updateCouponIssued/{id}")
     public ResponseEntity<Void> updateCouponIssued(@PathVariable String id, @RequestBody Map<String, Boolean> request) {

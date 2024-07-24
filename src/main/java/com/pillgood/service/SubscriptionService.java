@@ -11,4 +11,5 @@ public interface SubscriptionService {
     SubscriptionDto updateSubscription(int subscriptionId, SubscriptionDto subscriptionDto);
     List<SubscriptionDto> getSubscriptionsByMemberUniqueId(String memberUniqueId);
     void deleteSubscription(int subscriptionId);
+	void checkAndUpdateSubscriptionStatus(String memberId);
 }

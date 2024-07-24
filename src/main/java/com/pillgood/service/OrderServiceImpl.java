@@ -115,7 +115,6 @@ public class OrderServiceImpl implements OrderService {
             product.setStock(product.getStock() + orderDetail.getQuantity());
             productRepository.save(product);
         }
-        orderDetailRepository.deleteByOrderOrderNo(orderNo);
 
         // 주문 은 주문취소상태로 변경
         Order order = orderRepository.findById(orderNo)

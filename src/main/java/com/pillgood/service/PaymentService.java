@@ -143,7 +143,7 @@ public class PaymentService {
 
         if (response != null) {
             updatePaymentStatus(response);
-            updateOrderStatusToCanceled(cancelRequest.getPaymentKey(), "결제취소");
+            updateOrderStatusToCanceled(cancelRequest.getPaymentKey(), "환불완료");
             saveRefundDetails(response); // 환불 정보 저장
             refundPointsIfNeeded(cancelRequest.getPaymentKey()); // 포인트 반환
             revokeEarnedPoints(cancelRequest.getPaymentKey()); // 적립된 포인트 회수
