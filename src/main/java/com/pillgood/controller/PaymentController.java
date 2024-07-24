@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -152,11 +153,37 @@ public class PaymentController {
     
     @GetMapping("/payment-info/{orderNo}")
     public ResponseEntity<Payment> getPaymentInfo(@PathVariable String orderNo) {
+    	System.out.println("getPaymentInfo 호출됨 - orderNo: " + orderNo); // 로그 추가
         Optional<Payment> paymentOpt = paymentService.getPaymentByOrderNo(orderNo);
         if (paymentOpt.isPresent()) {
             return ResponseEntity.ok(paymentOpt.get());
         } else {
             return ResponseEntity.status(404).body(null);
+        }
+    }
+    
+    @GetMapping("/billing-key/{memberUniqueId}")
+    public ResponseEntity<String> getBillingKey(@PathVariable String memberUniqueId, HttpSession session) {
+        String sessionMemberId = (String) session.getAttribute("memberId");
+        if (sessionMemberId == null || !sessionMemberId.equals(memberUniqueId)) {
+            return ResponseEntity.status(403).body("세션에 memberUniqueId가 없거나 일치하지 않습니다.");
+        }
+
+        Billing billing = paymentService.getBillingByMemberUniqueId(memberUniqueId);
+        if (billing == null) {
+            return ResponseEntity.ok(null); // billingKey가 없음
+        } else {
+            return ResponseEntity.ok(billing.getBillingKey()); // billingKey 반환
+        }
+    }
+    
+    @DeleteMapping("/delete-billing-key/{memberUniqueId}")
+    public ResponseEntity<Void> deleteBillingKey(@PathVariable String memberId) {
+        try {
+            paymentService.deleteBillingKey(memberId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
         }
     }
 }

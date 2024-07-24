@@ -296,6 +296,26 @@ public class PaymentService {
 
         cartService.deleteCarts(productIds, memberUniqueId);
     }
+    
+    @Transactional
+    public void deleteBillingKey(String memberUniqueId) {
+        Billing billing = billingRepository.findByMemberUniqueId(memberUniqueId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member unique ID: " + memberUniqueId));
+        
+        // Billing 키 삭제
+        billingRepository.delete(billing);
+
+        // 해당 구독 상태 업데이트 (필요한 경우)
+        List<Subscription> subscriptions = subscriptionRepository.findByMemberUniqueId(memberUniqueId);
+        if (subscriptions.isEmpty()) {
+            throw new IllegalArgumentException("Subscription not found for member unique ID: " + memberUniqueId);
+        }
+
+        for (Subscription subscription : subscriptions) {
+            subscription.setSubscriptionStatus("Cancelled");
+            subscriptionRepository.save(subscription);
+        }
+    }
 
     private BillingDto convertToDto(Billing billing) {
         BillingDto billingDto = new BillingDto();
