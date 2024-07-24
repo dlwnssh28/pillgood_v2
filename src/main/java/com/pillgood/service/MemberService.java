@@ -26,5 +26,6 @@ public interface MemberService {
     
     // 추가된 메서드
     Optional<MemberDto> findBySocialId(String socialId, String provider);
+	void updateSubscriptionStatus(String memberId, int status);
 
 }

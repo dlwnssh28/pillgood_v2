@@ -18,7 +18,10 @@ import com.pillgood.repository.SubscriptionRepository;
 
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService {
-
+	
+    @Autowired
+    private  MemberService memberService; // MemberService 추가
+	
     @Autowired
     private SubscriptionRepository subscriptionRepository;
     
@@ -125,5 +128,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscriptionEntity.setEndDate(subscriptionDto.getEndDate());
         subscriptionEntity.setSubscriptionStatus(subscriptionDto.getSubscriptionStatus());
         subscriptionEntity.setPaymentNo(subscriptionDto.getPaymentNo());
+    }
+    
+    @Override
+    public void checkAndUpdateSubscriptionStatus(String memberId) {
+        List<Subscription> subscriptions = subscriptionRepository.findByMemberUniqueId(memberId);
+        boolean hasActiveSubscription = subscriptions.stream()
+                                                     .anyMatch(subscription -> "T".equals(subscription.getSubscriptionStatus()));
+        memberService.updateSubscriptionStatus(memberId, hasActiveSubscription ? 1 : 0);
     }
 }

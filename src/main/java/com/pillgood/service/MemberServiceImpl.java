@@ -149,6 +149,15 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.findBySocialIdAndProvider(socialId, provider)
                 .map(this::convertToDto);
     }
+    
+    @Override
+    public void updateSubscriptionStatus(String memberId, int status) {
+        memberRepository.findById(memberId)
+                        .ifPresent(member -> {
+                            member.setSubscriptionStatus(status == 1);
+                            memberRepository.save(member);
+                        });
+    }
 
     private MemberDto convertToDto(Member member) {
         return new MemberDto(
