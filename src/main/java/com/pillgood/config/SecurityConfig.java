@@ -20,7 +20,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-@CrossOrigin(origins = {"http://localhost:8080", "http://localhost:3000"}) // 프론트엔드 URL
+@CrossOrigin(origins = {"http://localhost:8080"}) // 프론트엔드 URL
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig implements WebMvcConfigurer {
